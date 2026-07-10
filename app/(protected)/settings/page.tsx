@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Settings } from "lucide-react";
+import Link from "next/link";
+import { Settings, UserCog } from "lucide-react";
 import { getSessionUser } from "@/lib/auth/session";
+import { isManager } from "@/lib/permissions";
 import { ROLE_LABELS } from "@/lib/constants/roles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { SignOutButton } from "@/components/navigation/sign-out-button";
+import { ChangePasswordForm } from "@/components/settings/change-password-form";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -12,6 +17,7 @@ export default async function SettingsPage() {
   const current = await getSessionUser();
   if (!current) return null;
   const { profile } = current;
+  const manager = isManager(profile);
 
   return (
     <div className="space-y-6">
@@ -43,10 +49,30 @@ export default async function SettingsPage() {
         </CardContent>
       </Card>
 
-      <p className="text-xs text-muted-foreground">
-        Gestione utenti, ruoli, tag, stati e impostazioni score arriveranno nelle
-        fasi successive.
-      </p>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Sicurezza</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ChangePasswordForm />
+        </CardContent>
+      </Card>
+
+      {manager ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Gestione</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link
+              href="/users"
+              className={cn(buttonVariants({ variant: "outline" }), "h-11 w-full gap-2")}
+            >
+              <UserCog className="size-4" /> Gestione utenti
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
