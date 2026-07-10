@@ -9,6 +9,7 @@ import {
   Trophy,
   MessageSquareText,
   Settings,
+  BookOpen,
   MoreHorizontal,
   type LucideIcon,
 } from "lucide-react";
@@ -44,6 +45,7 @@ export const SIDEBAR_NAV: NavItem[] = [
   { label: "Template", href: "/templates", icon: MessageSquareText },
   { label: "Utenti", href: "/users", icon: UserCog, roles: [ROLE.MANAGER] },
   { label: "Settings", href: "/settings", icon: Settings },
+  { label: "Guida", href: "/guide", icon: BookOpen },
 ];
 
 /** Extra links shown on the mobile "Altro" page. */
@@ -55,6 +57,7 @@ export const MORE_NAV: NavItem[] = [
   { label: "Template", href: "/templates", icon: MessageSquareText },
   { label: "Utenti", href: "/users", icon: UserCog, roles: [ROLE.MANAGER] },
   { label: "Settings", href: "/settings", icon: Settings },
+  { label: "Guida", href: "/guide", icon: BookOpen },
 ];
 
 /** Filter a nav list by the current role. */
