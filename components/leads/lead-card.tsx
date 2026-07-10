@@ -4,12 +4,11 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "./status-badge";
 import { shortDate, isOverdue } from "@/lib/dates";
+import { displayName } from "@/lib/format";
 import type { Lead } from "@/lib/leads/queries";
 
 export function LeadCard({ lead }: { lead: Lead }) {
-  const name =
-    [lead.first_name, lead.last_name].filter(Boolean).join(" ") ||
-    `@${lead.instagram_username}`;
+  const name = displayName(lead);
   const overdue = isOverdue(lead.next_follow_up_at);
 
   return (

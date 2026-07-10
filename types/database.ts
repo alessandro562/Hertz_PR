@@ -57,6 +57,14 @@ export type CollaboratorStatus =
 
 export type GroupType = "bacheca" | "pr" | "sotto_pr";
 
+export type EventStatus =
+  | "bozza"
+  | "in_preparazione"
+  | "attivo"
+  | "chiuso"
+  | "completato"
+  | "annullato";
+
 export interface Database {
   public: {
     Tables: {
@@ -327,6 +335,144 @@ export interface Database {
           group_id?: string;
           collaborator_id?: string;
           joined_at?: string;
+        };
+        Relationships: [];
+      };
+      events: {
+        Row: {
+          id: string;
+          name: string;
+          event_date: string;
+          venue: string | null;
+          city: string | null;
+          description: string | null;
+          ticket_url: string | null;
+          target_attendance: number | null;
+          status: EventStatus;
+          post_event_notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          event_date: string;
+          venue?: string | null;
+          city?: string | null;
+          description?: string | null;
+          ticket_url?: string | null;
+          target_attendance?: number | null;
+          status?: EventStatus;
+          post_event_notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          event_date?: string;
+          venue?: string | null;
+          city?: string | null;
+          description?: string | null;
+          ticket_url?: string | null;
+          target_attendance?: number | null;
+          status?: EventStatus;
+          post_event_notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      event_team_assignments: {
+        Row: {
+          id: string;
+          event_id: string;
+          team_id: string;
+          assigned_by: string | null;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          team_id: string;
+          assigned_by?: string | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_id?: string;
+          team_id?: string;
+          assigned_by?: string | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      event_collaborator_performances: {
+        Row: {
+          id: string;
+          event_id: string;
+          collaborator_id: string;
+          team_id: string | null;
+          capo_pr_user_id: string | null;
+          confirmed_support: boolean;
+          shared_story: boolean;
+          broadcast_sent: boolean;
+          list_names_count: number;
+          tickets_sold_count: number;
+          tables_count: number;
+          actual_entries_count: number;
+          negative_behavior: boolean;
+          performance_score: number;
+          notes: string | null;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          collaborator_id: string;
+          team_id?: string | null;
+          capo_pr_user_id?: string | null;
+          confirmed_support?: boolean;
+          shared_story?: boolean;
+          broadcast_sent?: boolean;
+          list_names_count?: number;
+          tickets_sold_count?: number;
+          tables_count?: number;
+          actual_entries_count?: number;
+          negative_behavior?: boolean;
+          performance_score?: number;
+          notes?: string | null;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_id?: string;
+          collaborator_id?: string;
+          team_id?: string | null;
+          capo_pr_user_id?: string | null;
+          confirmed_support?: boolean;
+          shared_story?: boolean;
+          broadcast_sent?: boolean;
+          list_names_count?: number;
+          tickets_sold_count?: number;
+          tables_count?: number;
+          actual_entries_count?: number;
+          negative_behavior?: boolean;
+          performance_score?: number;
+          notes?: string | null;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };
