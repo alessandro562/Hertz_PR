@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   setCollaboratorLevel,
   setCollaboratorStatus,
-  assignCollaboratorTeam,
+  assignCollaboratorCapo,
 } from "@/lib/network/actions";
 import { instagramUrl } from "@/lib/instagram";
 import { whatsappLink, hasWhatsapp } from "@/lib/whatsapp";
@@ -20,17 +20,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type { Collaborator, Team } from "@/lib/network/queries";
+import type { Collaborator, Profile } from "@/lib/network/queries";
 import type { CollaboratorLevel, CollaboratorStatus } from "@/types/database";
 
 export function CollaboratorActions({
   collaborator,
-  teams,
+  capi,
   canEdit,
+  canAssignCapo,
 }: {
   collaborator: Collaborator;
-  teams: Team[];
+  capi: Profile[];
   canEdit: boolean;
+  canAssignCapo: boolean;
 }) {
   const [pending, start] = useTransition();
 
@@ -52,11 +54,11 @@ export function CollaboratorActions({
     });
   }
 
-  function onTeam(teamId: string | null) {
+  function onCapo(capoId: string | null) {
     start(async () => {
-      const res = await assignCollaboratorTeam(collaborator.id, teamId ?? "");
+      const res = await assignCollaboratorCapo(collaborator.id, capoId ?? "");
       if (res.error) toast.error(res.error);
-      else toast.success("Squadra aggiornata");
+      else toast.success("Capo PR aggiornato");
     });
   }
 
@@ -88,69 +90,69 @@ export function CollaboratorActions({
       </div>
 
       {canEdit ? (
-        <>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">Livello</label>
-              <Select
-                defaultValue={collaborator.level}
-                onValueChange={onLevel}
-                disabled={pending}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEVELS.map((l) => (
-                    <SelectItem key={l} value={l}>
-                      {LEVEL_LABELS[l]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">Stato</label>
-              <Select
-                defaultValue={collaborator.status}
-                onValueChange={onStatus}
-                disabled={pending}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {COLLAB_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {COLLAB_STATUS_LABELS[s]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <label className="text-sm text-muted-foreground">Squadra</label>
+            <label className="text-sm text-muted-foreground">Livello</label>
             <Select
-              defaultValue={collaborator.team_id}
-              onValueChange={onTeam}
+              defaultValue={collaborator.level}
+              onValueChange={onLevel}
               disabled={pending}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={null}>Nessuna squadra</SelectItem>
-                {teams.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}
+                {LEVELS.map((l) => (
+                  <SelectItem key={l} value={l}>
+                    {LEVEL_LABELS[l]}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-        </>
+          <div className="space-y-2">
+            <label className="text-sm text-muted-foreground">Stato</label>
+            <Select
+              defaultValue={collaborator.status}
+              onValueChange={onStatus}
+              disabled={pending}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {COLLAB_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {COLLAB_STATUS_LABELS[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      ) : null}
+
+      {canAssignCapo ? (
+        <div className="space-y-2">
+          <label className="text-sm text-muted-foreground">Capo PR</label>
+          <Select
+            defaultValue={collaborator.capo_pr_user_id}
+            onValueChange={onCapo}
+            disabled={pending}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Nessun Capo PR" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={null}>Nessun Capo PR</SelectItem>
+              {capi.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       ) : null}
     </div>
   );

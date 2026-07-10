@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getSessionUser } from "@/lib/auth/session";
 import { isManager } from "@/lib/permissions";
 import { listLeads } from "@/lib/leads/queries";
-import { listCollaborators, listTeams, profilesNameMap } from "@/lib/network/queries";
+import { listCollaborators, listCapiPr, profilesNameMap } from "@/lib/network/queries";
 import { listEvents } from "@/lib/events/queries";
 import { listAllPerformances } from "@/lib/rankings/queries";
 import { groupPerformances, sumPerformances } from "@/lib/performance";
@@ -22,10 +22,10 @@ export default async function DashboardPage() {
 
   const firstName = current.profile.full_name.split(" ")[0];
 
-  const [leads, collaborators, teams, events, performances, names] = await Promise.all([
+  const [leads, collaborators, capi, events, performances, names] = await Promise.all([
     listLeads(),
     listCollaborators(),
-    listTeams(),
+    listCapiPr(),
     listEvents(),
     listAllPerformances(),
     profilesNameMap(),
@@ -83,7 +83,7 @@ export default async function DashboardPage() {
           toContact: leads.filter((l) => l.status === "da_contattare").length,
           overdueFollowUps,
           activeCollaborators: activeCollaborators.length,
-          teamsCount: teams.length,
+          capiCount: capi.length,
           avgScore,
         }}
         topCapos={topCapos}
@@ -91,6 +91,16 @@ export default async function DashboardPage() {
       />
     );
   }
+
+  const myCollaborators = collaborators.filter(
+    (c) => c.capo_pr_user_id === current.id,
+  );
+  const myActive = myCollaborators.filter(
+    (c) => c.status === "attivo" || c.status === "molto_attivo",
+  );
+  const myDormant = myCollaborators.filter(
+    (c) => c.status === "dormiente" || c.status === "da_riattivare",
+  );
 
   const myPerformances = performances.filter((p) => p.capo_pr_user_id === current.id);
   const latestOwnEventId =
@@ -127,9 +137,9 @@ export default async function DashboardPage() {
         overdueFollowUps: leads.filter((l) => isOverdue(l.next_follow_up_at)).length,
       }}
       team={{
-        collaboratorsCount: collaborators.length,
-        active: activeCollaborators.length,
-        dormant: dormantCollaborators.length,
+        collaboratorsCount: myCollaborators.length,
+        active: myActive.length,
+        dormant: myDormant.length,
         latestEventScore: latestOwnScore,
       }}
       topCapos={topCapos}

@@ -37,7 +37,7 @@ export default async function EventsPage() {
             <p className="text-sm font-medium text-foreground">Nessun evento ancora</p>
             <p className="text-xs">
               {manager
-                ? "Crea il primo evento per iniziare ad assegnare le squadre."
+                ? "Crea il primo evento per iniziare a registrare i numeri."
                 : "Il Manager non ha ancora pubblicato eventi."}
             </p>
           </div>

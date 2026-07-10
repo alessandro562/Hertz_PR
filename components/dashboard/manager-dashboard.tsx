@@ -14,7 +14,7 @@ interface ManagerDashboardProps {
     toContact: number;
     overdueFollowUps: number;
     activeCollaborators: number;
-    teamsCount: number;
+    capiCount: number;
     avgScore: number;
   };
   topCapos: { id: string; name: string; score: number }[];
@@ -68,7 +68,7 @@ export function ManagerDashboard({
           <StatCard label="Da contattare" value={stats.toContact} />
           <StatCard label="Follow-up scaduti" value={stats.overdueFollowUps} />
           <StatCard label="Collaboratori attivi" value={stats.activeCollaborators} />
-          <StatCard label="Squadre PR" value={stats.teamsCount} />
+          <StatCard label="Capi PR" value={stats.capiCount} />
           <StatCard label="Score medio" value={stats.avgScore} unit="pt" />
         </div>
       </div>

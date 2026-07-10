@@ -539,6 +539,7 @@ export interface Database {
           instagram_username: string;
           avatar_url: string | null;
           team_id: string | null;
+          capo_pr_user_id: string | null;
           level: CollaboratorLevel;
           status: CollaboratorStatus;
           last_active_at: string | null;

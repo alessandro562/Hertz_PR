@@ -63,7 +63,7 @@ export function EditCollaboratorForm({ collaborator }: { collaborator: Collabora
           rows={2}
           defaultValue={collaborator.reliability_notes ?? ""}
           className={AREA}
-          placeholder="Visibili solo a chi gestisce la squadra"
+          placeholder="Visibili solo a Manager e Capo PR"
         />
       </div>
 
