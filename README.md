@@ -1,140 +1,71 @@
-# Hertz PR Hub
+# hertz PR Hub — brand kit for the Next.js repo
 
-PWA mobile-first (CRM operativo) per gestire la rete PR di eventi: lead Instagram,
-capi PR, collaboratori/sotto PR, squadre, eventi e performance.
+Drop-in code applying the **hertz** design system to the PR Hub. Sage `#A3B7B7`
+stays the primary (consistent with the design system) — no neon. Dark is the
+default surface; a `.light` theme is included for day/print views.
 
-Questa è la **Fase 0 + Fase 1**: setup progetto, base PWA installabile, autenticazione
-Supabase, ruoli (Manager / Capo PR), route protette, layout mobile-first e dashboard
-placeholder differenziate. Le funzionalità (Lead CRM, squadre, eventi, performance,
-ranking, template) arrivano nelle fasi successive — vedi `docs/hertz_pr_hub_pwa_mobile_first_plan.md`.
+Stack assumed: **Next.js (App Router) · Tailwind v4 (CSS-first) · Base UI**.
 
-## Stack
+## What's here
 
-- **Next.js 16** (App Router, React 19, Turbopack) + TypeScript
-- **Tailwind CSS v4** + **shadcn/ui** (Base UI)
-- **Supabase** — Auth email/password, PostgreSQL, Row Level Security (`@supabase/ssr`)
-- **PWA** — manifest + service worker custom (`public/sw.js`), installabile
-- React Hook Form + Zod, TanStack Query, lucide-react, date-fns
-- Deploy: Vercel
-
-## Ruoli
-
-| | Manager | Capo PR |
-|---|---|---|
-| Dati | vede e modifica tutto | vede statistiche globali in sola lettura, modifica solo i propri lead/squadra/performance |
-
-L'enforcement reale è nel database via **RLS**; le check nel client sono solo per la UI.
-
-## 1. Requisiti
-
-- Node.js ≥ 20.9
-- Un progetto Supabase (gratuito) — https://supabase.com
-- (Opzionale, per il DB in locale) Docker + Supabase CLI via `npx supabase`
-
-## 2. Setup locale
-
-```bash
-npm install
-cp .env.local.example .env.local   # poi compila i valori (vedi sotto)
-npm run dev                        # http://localhost:3000
+```
+app/globals.css                 @theme tokens (palette, radius, fonts) + base layer
+app/metadata.ts.txt             PWA metadata + viewport (paste into layout.tsx)
+lib/cn.ts.txt                   classnames helper (swap for your clsx+twMerge)
+components/ui/                   Base UI primitives
+  button · badge · card · tabs · switch · progress   (*.tsx.txt)
+components/pr-hub/               product composites   (*.tsx.txt)
+  logo                          OFFICIAL brand asset renderer — never redraw
+  dashboard-header              top bar carrying the wordmark
+  stat-card                     dashboard KPI unit (big Helvetica numeral)
+  rank-list                     Classifiche podium (gold/silver/bronze, muted)
+  number-stepper                fast numeric entry for event night
+  segmented-toggle              compact view switcher
+public/brand/                    official hertz logo files (white)
+public/icons/ · manifest.webmanifest   PWA app icon (waveform mark on ink)
+preview/anteprima.html           static visual preview of 4 screens
 ```
 
-### Variabili d'ambiente (`.env.local`)
+> **`.txt` suffix:** every `.ts`/`.tsx` source ships as `name.tsx.txt` so this
+> design-system project's compiler leaves them alone. When copying into your
+> repo, **strip the trailing `.txt`** (`button.tsx.txt` → `button.tsx`). Nothing
+> else changes.
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT-ref.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-or-publishable-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-or-secret-key   # SOLO server, mai NEXT_PUBLIC
-# per lo script di seed:
-SEED_MANAGER_EMAIL=you@example.com
-SEED_MANAGER_PASSWORD=una-password-forte
-SEED_MANAGER_NAME=Alessandro
-```
+## Install
 
-Trovi URL e chiavi in Supabase → Project Settings → API.
+1. **Tailwind v4** — `@import "tailwindcss";` is already the first line of
+   `globals.css`. No `tailwind.config.js` needed. Import the file once in
+   `app/layout.tsx`.
+2. **Fonts** — self-host the brand faces. Copy the `fonts/` files from the
+   design system and add matching `@font-face` rules (Helvetica Neue 100–900 +
+   italics; ABC Monument Grotesk Semi-Mono for the mono/label face). `globals.css`
+   already declares `--font-sans` / `--font-mono` — point them at the loaded
+   families.
+3. **Base UI** — `npm i @base-ui-components/react`. `tabs` and `switch` import
+   from it.
+4. **Path alias** — components use `@/…`; keep the standard `"@/*": ["./*"]`
+   in `tsconfig.json`.
+5. **PWA** — copy `public/`, then spread `metadata` / `viewport` from
+   `app/metadata.ts` in your root layout.
 
-## 3. Database
+## The logo rule
 
-Applica la migrazione `supabase/migrations/0001_auth_profiles.sql` (crea `profiles`,
-gli helper di ruolo, le policy RLS e i trigger).
+Always render `components/pr-hub/logo.tsx` — it points at the official files in
+`public/brand/`. **Never** re-typeset "hertz" or redraw the sine-wave mark by
+hand. `variant`: `lockup` (mark over wordmark), `wordmark`, `mark` (app icon /
+avatar). White assets ship for dark surfaces; add the black files to
+`public/brand/` for light surfaces.
 
-**Opzione A — Supabase hosted (consigliata):**
-apri il **SQL Editor** del tuo progetto, incolla il contenuto del file ed esegui.
-Poi in **Authentication → Providers → Email** disattiva *Confirm email* (tool interno).
+## Tokens (semantic → value)
 
-**Opzione B — Supabase in locale (serve Docker):**
-```bash
-npx supabase init      # se non esiste già supabase/config.toml
-npx supabase start
-npm run db:reset       # applica migrations + seed.sql
-npm run db:types       # rigenera types/database.ts dallo schema locale
-```
+- `primary` = sage `#A3B7B7` · hover `#B4C6C6` · active `#90A6A6`
+- `background` `#151515` · `card` `#1C1C1C` · `border` `#2C2C2C`
+- `success` `#6E9A7B` · `warning` `#C9A15A` · `destructive` `#B4614B`
+- podium: `--color-gold` (= sage) · `--color-silver` `#B7B7B5` · `--color-bronze` `#B0794E`
+- radius small (`--radius-lg` = 10px) — technical, nightlife feel
+- `.num` utility = Helvetica Neue 800, tight tracking, tabular — for all scores/rankings
 
-## 4. Crea il primo Manager
+## Typography decision
 
-Un nuovo utente creato via signup diventa `capo_pr` di default. Il primo **Manager**
-va creato con metadata `role=manager`, in uno di questi modi:
-
-**Script (service-role):**
-```bash
-npm run seed:manager
-```
-
-**Oppure Supabase Studio →** Authentication → Add user:
-- Auto Confirm User: **ON**
-- User Metadata: `{"role":"manager","full_name":"Alessandro"}`
-
-Il trigger `handle_new_user` crea automaticamente la riga in `profiles`.
-
-## 5. Verifica
-
-```bash
-npm run typecheck   # tsc --noEmit
-npm run lint        # ESLint
-npm run test        # unit test (funzioni pure)
-npm run build       # build di produzione (Turbopack)
-```
-
-Login come Manager → dashboard Manager; login come Capo PR → dashboard Capo PR.
-
-## 6. Deploy su Vercel
-
-1. Push del repo su GitHub.
-2. Importa il progetto su Vercel.
-3. Aggiungi le env var (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
-   `SUPABASE_SERVICE_ROLE_KEY`). **La service role key non va mai lato client.**
-4. Deploy automatico a ogni push. Condividi il link ai PR.
-
-## 7. Installazione PWA sul telefono
-
-Il service worker si registra **solo in produzione** (HTTPS), quindi l'installabilità
-si testa sull'URL Vercel, non su `localhost`.
-
-- **iPhone (Safari):** apri il link → Condividi → *Aggiungi alla schermata Home*.
-- **Android (Chrome):** apri il link → banner *Installa app* (o menu ⋮ → *Aggiungi a schermata Home*).
-
-## Struttura
-
-```text
-app/
-  (auth)/login/         # login (server action + form React 19)
-  (protected)/          # layout con guard + app shell; dashboard e sezioni placeholder
-components/{layout,navigation,dashboard,pwa,common,ui}/
-lib/
-  supabase/{client,server,proxy}.ts   # @supabase/ssr (browser / server / session refresh)
-  auth/session.ts                     # getSessionUser (cache)
-  permissions.ts · instagram.ts · constants/ · validations/
-proxy.ts                # Next 16: sostituisce middleware.ts (refresh sessione + gate)
-supabase/migrations/    # 0001_auth_profiles.sql
-scripts/seed-manager.ts
-public/{manifest.json,sw.js,offline.html,icons/}
-```
-
-## Note tecniche
-
-- **Next 16** ha rinominato `middleware.ts` → **`proxy.ts`** (runtime Node.js): qui il
-  `proxy` fa il refresh della sessione Supabase e il redirect grossolano non-auth → `/login`.
-- Il service worker è **scritto a mano** e Turbopack-native (Serwist non supporta ancora
-  Turbopack). In Fase 8 si può passare a un caching più ricco.
-- Gli helper RLS (`is_manager`, `is_capo_pr`) sono `security definer` per evitare la
-  ricorsione delle policy su `profiles`. `owns_team()` arriva con le squadre (Fase 4).
+Confirmed: **Helvetica Neue Bold/Black is enough** for large numerals — no
+second display face. The `.num` class carries the weight + tracking.

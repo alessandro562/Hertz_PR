@@ -1,130 +1,121 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* =============================================================================
+   Hertz PR Hub — brand theme  (Tailwind v4, CSS-first — no tailwind.config.js)
+   Palette: hertz rebrand (Bureau 944 × hertz). sage #A3B7B7 = primary.
+   Dark is the default (nightlife CRM). .light available for print/day views.
+   ========================================================================== */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+@theme {
+  /* --- radius (small, technical) --- */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  /* --- brand raw palette (stable, theme-independent) --- */
+  --color-sage-50:  #eef2f2;
+  --color-sage-100: #dbe4e4;
+  --color-sage-200: #c4d2d2;
+  --color-sage-300: #b4c6c6;   /* hover */
+  --color-sage-400: #a3b7b7;   /* PRIMARY */
+  --color-sage-500: #90a6a6;   /* active */
+  --color-sage-600: #77908f;
+  --color-sage-700: #5e7373;
+
+  --color-ink:       #151515;  /* near-black canvas */
+  --color-cream:     #e9ebe4;
+  --color-steel:     #50778a;
+  --color-olive:     #505145;
+
+  /* --- semantic accents (muted, never neon — stays consistent w/ system) --- */
+  --color-success: #6e9a7b;
+  --color-warning: #c9a15a;
+  --color-danger:  #b4614b;
+
+  /* --- podium (data-viz for Classifiche) --- */
+  --color-gold:   #a3b7b7;  /* 1st = the brand sage itself */
+  --color-silver: #b7b7b5;
+  --color-bronze: #b0794e;
+
+  /* --- typography --- */
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+  /* Big numbers (scores/rankings) use font-sans @ black weight, tight tracking.
+     Confirmed: Helvetica Neue Bold/Black is enough — no second display face. */
+
+  /* --- shadcn/Base-UI semantic tokens (dark = default, set on :root below) --- */
+  --color-background: var(--color-ink);
+  --color-foreground: #f2f3ee;
+  --color-card: #1c1c1c;
+  --color-card-foreground: #f2f3ee;
+  --color-popover: #232323;
+  --color-popover-foreground: #f2f3ee;
+  --color-primary: var(--color-sage-400);
+  --color-primary-foreground: #151515;
+  --color-secondary: #232323;
+  --color-secondary-foreground: #f2f3ee;
+  --color-muted: #1c1c1c;
+  --color-muted-foreground: #7d7d7b;
+  --color-accent: #232323;
+  --color-accent-foreground: #f2f3ee;
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: #f2f3ee;
+  --color-border: #2c2c2c;
+  --color-input: #3a3a3a;
+  --color-ring: var(--color-sage-400);
 }
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
+/* =============================================================================
+   Base layer — canvas, focus ring, big-number utility, light-mode overrides
+   ========================================================================== */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
+  * { border-color: var(--color-border); }
+
+  html { -webkit-text-size-adjust: 100%; }
+
   body {
-    @apply bg-background text-foreground;
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  html {
-    @apply font-sans;
+
+  /* consistent focus for keyboard users (Base UI adds data-focus-visible) */
+  :where(button, a, input, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Large scores / rankings — the PR Hub's signature numerals. */
+  .num {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    line-height: 0.9;
+  }
+
+  /* Light theme (day / print). Add class="light" on <html>. */
+  .light {
+    --color-background: #f4f5f1;
+    --color-foreground: #151515;
+    --color-card: #ffffff;
+    --color-card-foreground: #151515;
+    --color-popover: #ffffff;
+    --color-popover-foreground: #151515;
+    --color-primary: var(--color-sage-500);
+    --color-primary-foreground: #ffffff;
+    --color-secondary: #e9ebe4;
+    --color-secondary-foreground: #151515;
+    --color-muted: #eceee7;
+    --color-muted-foreground: #83847a;
+    --color-accent: #e9ebe4;
+    --color-accent-foreground: #151515;
+    --color-border: #d6d8d0;
+    --color-input: #c5c7bd;
   }
 }

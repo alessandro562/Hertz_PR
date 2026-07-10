@@ -1,0 +1,38 @@
+import * as React from "react";
+import { cn } from "@/lib/cn";
+
+/**
+ * Progress — the workhorse for rankings (Classifiche) and quota bars.
+ * `tone` lets podium rows tint their bar (gold/silver/bronze = brand-muted).
+ */
+const bar = {
+  primary: "bg-primary",
+  gold:    "bg-[var(--color-gold)]",
+  silver:  "bg-[var(--color-silver)]",
+  bronze:  "bg-[var(--color-bronze)]",
+  success: "bg-success",
+} as const;
+
+export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
+  value: number;            // 0–100
+  tone?: keyof typeof bar;
+}
+
+export function Progress({ value, tone = "primary", className, ...props }: ProgressProps) {
+  const pct = Math.max(0, Math.min(100, value));
+  return (
+    <div
+      role="progressbar"
+      aria-valuenow={pct}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      className={cn("h-1.5 w-full overflow-hidden rounded-full bg-input", className)}
+      {...props}
+    >
+      <div
+        className={cn("h-full rounded-full transition-[width] duration-500", bar[tone])}
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
+}

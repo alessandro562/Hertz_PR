@@ -1,0 +1,70 @@
+"use client";
+import * as React from "react";
+import { cn } from "@/lib/cn";
+
+/**
+ * NumberStepper — fast numeric entry for "inserimento numeri" on event night.
+ * Big tap targets (48px), tabular numeral display, optional step size.
+ * Controlled or uncontrolled.
+ */
+export interface NumberStepperProps {
+  value?: number;
+  defaultValue?: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  onChange?: (v: number) => void;
+  label?: string;
+  className?: string;
+}
+
+export function NumberStepper({
+  value,
+  defaultValue = 0,
+  min = 0,
+  max = 9999,
+  step = 1,
+  onChange,
+  label,
+  className,
+}: NumberStepperProps) {
+  const [internal, setInternal] = React.useState(defaultValue);
+  const v = value ?? internal;
+  const set = (n: number) => {
+    const clamped = Math.max(min, Math.min(max, n));
+    if (value === undefined) setInternal(clamped);
+    onChange?.(clamped);
+  };
+  const btn =
+    "flex size-12 shrink-0 items-center justify-center rounded-md border border-border " +
+    "bg-secondary text-2xl font-medium text-foreground transition-colors " +
+    "hover:bg-accent active:bg-input disabled:opacity-40 disabled:pointer-events-none";
+
+  return (
+    <div className={cn("flex flex-col gap-1.5", className)}>
+      {label && (
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+          {label}
+        </span>
+      )}
+      <div className="flex items-center gap-3">
+        <button type="button" className={btn} onClick={() => set(v - step)} disabled={v <= min} aria-label="meno">
+          −
+        </button>
+        <input
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={v}
+          onChange={(e) => set(parseInt(e.target.value.replace(/\D/g, "") || "0", 10))}
+          className={cn(
+            "num h-12 w-full min-w-0 flex-1 rounded-md border border-input bg-card text-center",
+            "text-3xl text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          )}
+        />
+        <button type="button" className={btn} onClick={() => set(v + step)} disabled={v >= max} aria-label="più">
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
