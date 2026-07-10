@@ -3,6 +3,7 @@ import {
   Users,
   UsersRound,
   UserPlus,
+  UserCog,
   Calendar,
   BarChart3,
   Trophy,
@@ -42,6 +43,7 @@ export const SIDEBAR_NAV: NavItem[] = [
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },
   { label: "Template", href: "/templates", icon: MessageSquareText },
+  { label: "Utenti", href: "/users", icon: UserCog, roles: [ROLE.MANAGER] },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -52,6 +54,7 @@ export const MORE_NAV: NavItem[] = [
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },
   { label: "Template", href: "/templates", icon: MessageSquareText },
+  { label: "Utenti", href: "/users", icon: UserCog, roles: [ROLE.MANAGER] },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
