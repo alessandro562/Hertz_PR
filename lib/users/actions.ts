@@ -41,19 +41,32 @@ export async function createUser(
   }
   const { full_name, email, role, password } = parsed.data;
 
-  const admin = createAdminClient();
-  const { error } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name, role },
-  });
-  if (error) {
-    const msg = error.message?.toLowerCase() ?? "";
-    if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
-      return { error: "Esiste già un utente con questa email." };
+  let admin: ReturnType<typeof createAdminClient>;
+  try {
+    admin = createAdminClient();
+  } catch {
+    return {
+      error:
+        "Configurazione mancante: aggiungi SUPABASE_SERVICE_ROLE_KEY tra le Environment Variables su Vercel e ridistribuisci.",
+    };
+  }
+
+  try {
+    const { error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name, role },
+    });
+    if (error) {
+      const msg = error.message?.toLowerCase() ?? "";
+      if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+        return { error: "Esiste già un utente con questa email." };
+      }
+      return { error: "Impossibile creare l'utente." };
     }
-    return { error: "Impossibile creare l'utente." };
+  } catch {
+    return { error: "Impossibile creare l'utente (servizio non raggiungibile)." };
   }
   // The handle_new_user() trigger creates the matching public.profiles row.
 
@@ -89,8 +102,19 @@ export async function resetUserPassword(
   if (!password || password.length < 8) {
     return { error: "La password deve avere almeno 8 caratteri." };
   }
-  const admin = createAdminClient();
-  const { error } = await admin.auth.admin.updateUserById(id, { password });
-  if (error) return { error: "Impossibile reimpostare la password." };
+  let admin: ReturnType<typeof createAdminClient>;
+  try {
+    admin = createAdminClient();
+  } catch {
+    return {
+      error: "Configurazione mancante: aggiungi SUPABASE_SERVICE_ROLE_KEY su Vercel.",
+    };
+  }
+  try {
+    const { error } = await admin.auth.admin.updateUserById(id, { password });
+    if (error) return { error: "Impossibile reimpostare la password." };
+  } catch {
+    return { error: "Impossibile reimpostare la password (servizio non raggiungibile)." };
+  }
   return {};
 }

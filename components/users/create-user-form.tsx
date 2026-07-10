@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Copy, RefreshCw, UserPlus, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { createUser, type CreateUserState } from "@/lib/users/actions";
@@ -8,16 +8,16 @@ import { generateTempPassword } from "@/lib/password";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+
+const ROLE_OPTIONS = [
+  { value: "capo_pr", label: "Capo PR" },
+  { value: "manager", label: "Manager" },
+] as const;
 
 export function CreateUserForm() {
   const [state, action, pending] = useActionState(createUser, {} as CreateUserState);
+  const [role, setRole] = useState<"capo_pr" | "manager">("capo_pr");
   const formRef = useRef<HTMLFormElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
@@ -65,22 +65,34 @@ export function CreateUserForm() {
       ) : null}
 
       <form ref={formRef} action={action} className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label htmlFor="u_name">Nome</Label>
-            <Input id="u_name" name="full_name" required autoComplete="off" className="h-11" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="u_role">Ruolo</Label>
-            <Select name="role" defaultValue="capo_pr">
-              <SelectTrigger id="u_role" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="capo_pr">Capo PR</SelectItem>
-                <SelectItem value="manager">Manager</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="space-y-2">
+          <Label htmlFor="u_name">Nome</Label>
+          <Input id="u_name" name="full_name" required autoComplete="off" className="h-11" />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Ruolo</Label>
+          <input type="hidden" name="role" value={role} />
+          <div className="grid grid-cols-2 gap-2">
+            {ROLE_OPTIONS.map((opt) => {
+              const active = role === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setRole(opt.value)}
+                  aria-pressed={active}
+                  className={cn(
+                    "h-11 rounded-md border text-sm font-medium transition-colors",
+                    active
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-input text-muted-foreground hover:bg-accent",
+                  )}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
