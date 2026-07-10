@@ -11,6 +11,11 @@ export function longDate(iso: string): string {
   return format(new Date(iso), "d MMMM yyyy", { locale: it });
 }
 
+/** e.g. "15 lug, 23:59" — for timeline entries. */
+export function dateTime(iso: string): string {
+  return format(new Date(iso), "d MMM, HH:mm", { locale: it });
+}
+
 /** ISO date (yyyy-MM-dd) for <input type="date"> defaultValue. */
 export function toDateInput(iso: string | null): string {
   return iso ? format(new Date(iso), "yyyy-MM-dd") : "";

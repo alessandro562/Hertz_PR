@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
 
 export type Lead = Database["public"]["Tables"]["leads"]["Row"];
+export type LeadInteraction =
+  Database["public"]["Tables"]["lead_interactions"]["Row"];
 
 /**
  * All leads visible to the current user (RLS decides: managers see everything,
@@ -21,6 +23,19 @@ export async function getLead(id: string): Promise<Lead | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("leads").select("*").eq("id", id).single();
   return data ?? null;
+}
+
+/** The activity log for a lead, newest first. RLS scopes visibility. */
+export async function getLeadInteractions(
+  leadId: string,
+): Promise<LeadInteraction[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("lead_interactions")
+    .select("*")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: false });
+  return data ?? [];
 }
 
 export interface DuplicateInfo {
