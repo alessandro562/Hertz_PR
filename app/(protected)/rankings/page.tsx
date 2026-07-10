@@ -87,12 +87,12 @@ export default async function RankingsPage() {
     .map((g) => ({ id: g.key, name: capoName(g.key), value: formatSigned(g.growth) }));
 
   const dormantCollaborators: RankingItem[] = rankingCollaborators
-    .filter((c) => c.status === "dormiente" || c.status === "da_riattivare")
+    .filter((c) => c.status === "inattivo" || c.status === "da_riattivare")
     .map((c) => ({
       id: c.id,
       name: displayName(c),
       sublabel: c.capo_pr_user_id ? capoName(c.capo_pr_user_id) : undefined,
-      value: c.status === "dormiente" ? "Dormiente" : "Da riattivare",
+      value: c.status === "inattivo" ? "Inattivo" : "Da riattivare",
       href: `/collaborators/${c.id}`,
       avatarUrl: c.avatar_url,
     }));
@@ -102,7 +102,7 @@ export default async function RankingsPage() {
     if (!c.capo_pr_user_id) continue;
     const entry = capoDormancy.get(c.capo_pr_user_id) ?? { total: 0, dormant: 0 };
     entry.total += 1;
-    if (c.status === "dormiente" || c.status === "da_riattivare") entry.dormant += 1;
+    if (c.status === "inattivo" || c.status === "da_riattivare") entry.dormant += 1;
     capoDormancy.set(c.capo_pr_user_id, entry);
   }
   const dormantCapi: RankingItem[] = [...capoDormancy.entries()]

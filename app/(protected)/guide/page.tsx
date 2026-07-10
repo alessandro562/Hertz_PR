@@ -3,6 +3,11 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  LEVELS,
+  LEVEL_LABELS,
+  LEVEL_DESCRIPTIONS,
+} from "@/lib/constants/collaborators";
 
 export const metadata: Metadata = { title: "Guida" };
 
@@ -115,22 +120,37 @@ export default function GuidePage() {
       <Section id="collaboratori" n="04" kicker="PR" title="Da lead a PR (collaboratore)">
         <P>
           Quando un lead entra nella rete, convertilo in collaboratore (PR) dalla sua
-          scheda.
+          scheda. Poi imposti <B>livello</B> e <B>stato</B>, e (da Manager) lo abbini a
+          un <B>Capo PR</B>: è questo abbinamento a far ricadere i numeri sul Capo
+          giusto.
         </P>
+        <p className="pt-1 font-medium text-foreground">I 4 livelli</p>
+        <UL>
+          {LEVELS.map((l) => (
+            <li key={l}>
+              <B>{LEVEL_LABELS[l]}</B> — {LEVEL_DESCRIPTIONS[l]}
+            </li>
+          ))}
+        </UL>
+        <p className="pt-1 font-medium text-foreground">I 4 stati</p>
         <UL>
           <li>
-            Sulla scheda del PR imposti <B>livello</B> e <B>stato</B> (attivo, dormiente,
-            ecc.).
+            <B>Attivo</B> — partecipa e porta risultati.
           </li>
           <li>
-            Il <B>Manager</B> lo abbina a un Capo PR con il selettore <B>Capo PR</B>: è
-            questo abbinamento a far ricadere i numeri sul Capo giusto.
+            <B>Affidabile</B> — c'è sempre, uno su cui contare.
           </li>
           <li>
-            I PR ancora senza Capo compaiono nel bucket <B>Senza Capo PR</B> nella pagina
-            Capi PR: da lì si sistemano in un tocco.
+            <B>Inattivo</B> — al momento fermo.
+          </li>
+          <li>
+            <B>Da riattivare</B> — da ricontattare per rimetterlo in moto.
           </li>
         </UL>
+        <P>
+          I PR ancora senza Capo compaiono nel bucket <B>Senza Capo PR</B> nella pagina
+          Capi PR: da lì si sistemano in un tocco.
+        </P>
       </Section>
 
       <Section id="eventi" n="05" kicker="Serata" title="Eventi e numeri alla porta">

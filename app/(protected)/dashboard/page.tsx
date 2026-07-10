@@ -38,10 +38,10 @@ export default async function DashboardPage() {
       .sort((a, b) => a.event_date.localeCompare(b.event_date))[0] ?? null;
 
   const activeCollaborators = collaborators.filter(
-    (c) => c.status === "attivo" || c.status === "molto_attivo",
+    (c) => c.status === "attivo" || c.status === "affidabile",
   );
   const dormantCollaborators = collaborators.filter(
-    (c) => c.status === "dormiente" || c.status === "da_riattivare",
+    (c) => c.status === "inattivo" || c.status === "da_riattivare",
   );
 
   if (isManager(current.profile)) {
@@ -96,10 +96,10 @@ export default async function DashboardPage() {
     (c) => c.capo_pr_user_id === current.id,
   );
   const myActive = myCollaborators.filter(
-    (c) => c.status === "attivo" || c.status === "molto_attivo",
+    (c) => c.status === "attivo" || c.status === "affidabile",
   );
   const myDormant = myCollaborators.filter(
-    (c) => c.status === "dormiente" || c.status === "da_riattivare",
+    (c) => c.status === "inattivo" || c.status === "da_riattivare",
   );
 
   const myPerformances = performances.filter((p) => p.capo_pr_user_id === current.id);
