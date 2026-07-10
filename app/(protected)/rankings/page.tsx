@@ -5,7 +5,7 @@ import {
   listRankingCollaborators,
   listHotLeadsNeedingFollowUp,
 } from "@/lib/rankings/queries";
-import { listTeams, profilesNameMap } from "@/lib/network/queries";
+import { profilesNameMap } from "@/lib/network/queries";
 import { sumPerformances, groupPerformances } from "@/lib/performance";
 import { computeGrowth } from "@/lib/rankings";
 import { displayName, formatSigned } from "@/lib/format";
@@ -16,22 +16,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export const metadata: Metadata = { title: "Classifiche" };
 
 export default async function RankingsPage() {
-  const [events, performances, rankingCollaborators, hotLeads, teams, names] =
+  const [events, performances, rankingCollaborators, hotLeads, names] =
     await Promise.all([
       listEvents(),
       listAllPerformances(),
       listRankingCollaborators(),
       listHotLeadsNeedingFollowUp(),
-      listTeams(),
       profilesNameMap(),
     ]);
 
   const eventById = Object.fromEntries(events.map((e) => [e.id, e]));
-  const teamById = Object.fromEntries(teams.map((t) => [t.id, t]));
   const collabById = Object.fromEntries(rankingCollaborators.map((c) => [c.id, c]));
 
   const capoName = (userId: string) => names[userId] ?? "—";
-  const teamName = (teamId: string) => teamById[teamId]?.name ?? "Senza squadra";
 
   // "Ultimo evento" = most recent event (by date) that actually has numbers.
   const eventIdsWithData = new Set(performances.map((p) => p.event_id));
@@ -55,11 +52,6 @@ export default async function RankingsPage() {
     (p) => p.capo_pr_user_id ?? "senza-capo",
   ).map((g) => ({ id: g.key, name: capoName(g.key), value: `${g.score} pt`, weight: g.score }));
 
-  const bestTeamLastEvent: RankingItem[] = groupPerformances(
-    latestEventPerformances,
-    (p) => p.team_id ?? "senza-squadra",
-  ).map((g) => ({ id: g.key, name: teamName(g.key), value: `${g.score} pt`, weight: g.score }));
-
   const bestCollabLastEvent: RankingItem[] = [...latestEventPerformances]
     .sort((a, b) => b.performance_score - a.performance_score)
     .slice(0, 10)
@@ -68,7 +60,7 @@ export default async function RankingsPage() {
       return {
         id: p.collaborator_id,
         name: c ? displayName(c) : "—",
-        sublabel: c?.team_id ? teamName(c.team_id) : undefined,
+        sublabel: c?.capo_pr_user_id ? capoName(c.capo_pr_user_id) : undefined,
         value: `${p.performance_score} pt`,
         href: `/collaborators/${p.collaborator_id}`,
         avatarUrl: c?.avatar_url,
@@ -80,11 +72,6 @@ export default async function RankingsPage() {
     monthlyPerformances,
     (p) => p.capo_pr_user_id ?? "senza-capo",
   ).map((g) => ({ id: g.key, name: capoName(g.key), value: `${g.score} pt`, weight: g.score }));
-
-  const bestTeamMonth: RankingItem[] = groupPerformances(
-    monthlyPerformances,
-    (p) => p.team_id ?? "senza-squadra",
-  ).map((g) => ({ id: g.key, name: teamName(g.key), value: `${g.score} pt`, weight: g.score }));
 
   const capoGrowth: RankingItem[] = computeGrowth(
     performances
@@ -104,27 +91,27 @@ export default async function RankingsPage() {
     .map((c) => ({
       id: c.id,
       name: displayName(c),
-      sublabel: c.team_id ? teamName(c.team_id) : undefined,
+      sublabel: c.capo_pr_user_id ? capoName(c.capo_pr_user_id) : undefined,
       value: c.status === "dormiente" ? "Dormiente" : "Da riattivare",
       href: `/collaborators/${c.id}`,
       avatarUrl: c.avatar_url,
     }));
 
-  const teamDormancy = new Map<string, { total: number; dormant: number }>();
+  const capoDormancy = new Map<string, { total: number; dormant: number }>();
   for (const c of rankingCollaborators) {
-    if (!c.team_id) continue;
-    const entry = teamDormancy.get(c.team_id) ?? { total: 0, dormant: 0 };
+    if (!c.capo_pr_user_id) continue;
+    const entry = capoDormancy.get(c.capo_pr_user_id) ?? { total: 0, dormant: 0 };
     entry.total += 1;
     if (c.status === "dormiente" || c.status === "da_riattivare") entry.dormant += 1;
-    teamDormancy.set(c.team_id, entry);
+    capoDormancy.set(c.capo_pr_user_id, entry);
   }
-  const dormantTeams: RankingItem[] = [...teamDormancy.entries()]
-    .map(([teamId, v]) => ({ teamId, ...v, ratio: v.dormant / v.total }))
+  const dormantCapi: RankingItem[] = [...capoDormancy.entries()]
+    .map(([capoId, v]) => ({ capoId, ...v, ratio: v.dormant / v.total }))
     .sort((a, b) => b.ratio - a.ratio)
     .slice(0, 10)
     .map((t) => ({
-      id: t.teamId,
-      name: teamName(t.teamId),
+      id: t.capoId,
+      name: capoName(t.capoId),
       sublabel: `${t.dormant}/${t.total} dormienti`,
       value: `${Math.round(t.ratio * 100)}%`,
     }));
@@ -152,21 +139,13 @@ export default async function RankingsPage() {
             <h2 className="mb-3 text-sm font-medium text-muted-foreground">
               Ultimo evento · {latestEvent.name} · {latestTotals.score} pt totali
             </h2>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">Miglior Capo PR</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <RankingList items={bestCapoLastEvent} emptyLabel="Nessun dato." />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Miglior Squadra</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RankingList items={bestTeamLastEvent} emptyLabel="Nessun dato." />
                 </CardContent>
               </Card>
               <Card>
@@ -184,24 +163,14 @@ export default async function RankingsPage() {
             <h2 className="mb-3 text-sm font-medium text-muted-foreground">
               Ultimi 30 giorni
             </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Capi PR del mese</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RankingList items={bestCapoMonth} emptyLabel="Nessun evento recente." />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Squadre del mese</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RankingList items={bestTeamMonth} emptyLabel="Nessun evento recente." />
-                </CardContent>
-              </Card>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Capi PR del mese</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RankingList items={bestCapoMonth} emptyLabel="Nessun evento recente." />
+              </CardContent>
+            </Card>
           </div>
 
           <Card>
@@ -235,10 +204,10 @@ export default async function RankingsPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Squadre più dormienti</CardTitle>
+            <CardTitle className="text-base">Capi PR più dormienti</CardTitle>
           </CardHeader>
           <CardContent>
-            <RankingList items={dormantTeams} emptyLabel="Nessun dato ancora." />
+            <RankingList items={dormantCapi} emptyLabel="Nessun dato ancora." />
           </CardContent>
         </Card>
       </div>

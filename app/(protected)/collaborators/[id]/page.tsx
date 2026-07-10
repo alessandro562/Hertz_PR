@@ -1,19 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import {
-  getCollaborator,
-  listTeams,
-  listGroups,
-  getCollaboratorGroupIds,
-} from "@/lib/network/queries";
+import { getCollaborator, listCapiPr } from "@/lib/network/queries";
 import { getCollaboratorPerformances, listEvents } from "@/lib/events/queries";
 import { getSessionUser } from "@/lib/auth/session";
-import { canEditCollaborator } from "@/lib/permissions";
+import { canEditCollaborator, isManager } from "@/lib/permissions";
 import { displayName } from "@/lib/format";
 import { setCollaboratorAvatar } from "@/lib/network/actions";
 import { CollaboratorActions } from "@/components/collaborators/collaborator-actions";
-import { GroupMembership } from "@/components/collaborators/group-membership";
 import { EditCollaboratorForm } from "@/components/collaborators/edit-collaborator-form";
 import { PerformanceHistory } from "@/components/collaborators/performance-history";
 import { LevelBadge } from "@/components/collaborators/level-badge";
@@ -28,13 +22,11 @@ export default async function CollaboratorDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [collaborator, current, teams, groups, memberGroupIds, performances, events] =
+  const [collaborator, current, capi, performances, events] =
     await Promise.all([
       getCollaborator(id),
       getSessionUser(),
-      listTeams(),
-      listGroups(),
-      getCollaboratorGroupIds(id),
+      listCapiPr(),
       getCollaboratorPerformances(id),
       listEvents(),
     ]);
@@ -73,20 +65,11 @@ export default async function CollaboratorDetailPage({
 
       <Card>
         <CardContent className="pt-6">
-          <CollaboratorActions collaborator={collaborator} teams={teams} canEdit={canEdit} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Gruppi WhatsApp</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <GroupMembership
-            collaboratorId={collaborator.id}
-            groups={groups}
-            memberGroupIds={memberGroupIds}
+          <CollaboratorActions
+            collaborator={collaborator}
+            capi={capi}
             canEdit={canEdit}
+            canAssignCapo={isManager(current?.profile)}
           />
         </CardContent>
       </Card>

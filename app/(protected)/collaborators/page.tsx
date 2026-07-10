@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 import { Users } from "lucide-react";
-import { listCollaborators, listTeams } from "@/lib/network/queries";
+import { listCollaborators, profilesNameMap } from "@/lib/network/queries";
 import { CollaboratorCard } from "@/components/collaborators/collaborator-card";
 
 export const metadata: Metadata = { title: "Collaboratori" };
 
 export default async function CollaboratorsPage() {
-  const [collaborators, teams] = await Promise.all([
+  const [collaborators, names] = await Promise.all([
     listCollaborators(),
-    listTeams(),
+    profilesNameMap(),
   ]);
-  const teamNames = Object.fromEntries(teams.map((t) => [t.id, t.name]));
 
   return (
     <div className="space-y-5">
@@ -35,7 +34,7 @@ export default async function CollaboratorsPage() {
             <CollaboratorCard
               key={c.id}
               collaborator={c}
-              teamName={c.team_id ? teamNames[c.team_id] : null}
+              capoName={c.capo_pr_user_id ? names[c.capo_pr_user_id] : null}
             />
           ))}
         </div>

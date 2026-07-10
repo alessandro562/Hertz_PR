@@ -37,7 +37,7 @@ export function CapoPrDashboard({
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Ciao {name}</h1>
           <p className="text-sm text-muted-foreground">
-            La tua squadra e i tuoi task di oggi
+            I tuoi PR e i tuoi task di oggi
           </p>
         </div>
         <Badge variant="secondary">Capo PR</Badge>
@@ -54,7 +54,7 @@ export function CapoPrDashboard({
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground">La mia squadra</h2>
+        <h2 className="mb-3 text-sm font-medium text-muted-foreground">I miei PR</h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard label="Collaboratori" value={team.collaboratorsCount} />
           <StatCard label="Attivi" value={team.active} />

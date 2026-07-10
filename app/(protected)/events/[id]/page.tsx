@@ -2,15 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Target, ClipboardList, Trophy } from "lucide-react";
 import { differenceInCalendarDays } from "date-fns";
-import { getEvent, getEventTeamAssignments, getEventPerformances } from "@/lib/events/queries";
-import { listTeams, listCollaborators } from "@/lib/network/queries";
+import { getEvent, getEventPerformances } from "@/lib/events/queries";
+import { listCollaborators, profilesNameMap } from "@/lib/network/queries";
 import { getSessionUser } from "@/lib/auth/session";
 import { isManager } from "@/lib/permissions";
 import { sumPerformances, groupPerformances } from "@/lib/performance";
 import { displayName } from "@/lib/format";
 import { EventStatusBadge } from "@/components/events/status-badge";
 import { EventStatusSelect } from "@/components/events/status-select";
-import { TeamAssign } from "@/components/events/team-assign";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -23,35 +22,29 @@ export default async function EventDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [event, current, assignments, teams, performances, collaborators] =
+  const [event, current, performances, collaborators, names] =
     await Promise.all([
       getEvent(id),
       getSessionUser(),
-      getEventTeamAssignments(id),
-      listTeams(),
       getEventPerformances(id),
       listCollaborators(),
+      profilesNameMap(),
     ]);
   if (!event) notFound();
 
   const manager = isManager(current?.profile);
-  const teamById = Object.fromEntries(teams.map((t) => [t.id, t]));
   const collabById = Object.fromEntries(collaborators.map((c) => [c.id, c]));
-
-  const assignedTeamIds = new Set(assignments.map((a) => a.team_id));
-  const assignedTeams = assignments
-    .map((a) => teamById[a.team_id])
-    .filter((t): t is NonNullable<typeof t> => !!t)
-    .map((t) => ({ id: t.id, name: t.name }));
-  const availableTeams = teams
-    .filter((t) => !assignedTeamIds.has(t.id))
-    .map((t) => ({ id: t.id, name: t.name }));
 
   const totals = sumPerformances(performances);
 
-  const teamRanking = groupPerformances(performances, (p) => p.team_id ?? "senza-squadra").map(
-    (g) => ({ teamId: g.key, name: teamById[g.key]?.name ?? "Senza squadra", score: g.score }),
-  );
+  const capoRanking = groupPerformances(
+    performances,
+    (p) => p.capo_pr_user_id ?? "senza-capo",
+  ).map((g) => ({
+    key: g.key,
+    name: g.key === "senza-capo" ? "Senza Capo PR" : (names[g.key] ?? "—"),
+    score: g.score,
+  }));
 
   const collabRanking = [...performances]
     .sort((a, b) => b.performance_score - a.performance_score)
@@ -134,43 +127,20 @@ export default async function EventDetailPage({
         <ClipboardList className="size-4" /> Inserisci numeri
       </Link>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Squadre assegnate</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {manager ? (
-            <TeamAssign
-              eventId={event.id}
-              assignedTeams={assignedTeams}
-              availableTeams={availableTeams}
-            />
-          ) : assignedTeams.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nessuna squadra assegnata.</p>
-          ) : (
-            <ul className="space-y-1 text-sm">
-              {assignedTeams.map((t) => (
-                <li key={t.id}>{t.name}</li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
-
-      {teamRanking.length > 0 ? (
+      {capoRanking.length > 0 ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Trophy className="size-4" /> Classifica squadre
+              <Trophy className="size-4" /> Classifica Capi PR
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {teamRanking.map((t, i) => (
-              <div key={t.teamId} className="flex items-center justify-between text-sm">
+            {capoRanking.map((c, i) => (
+              <div key={c.key} className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2">
-                  <span className="text-muted-foreground">#{i + 1}</span> {t.name}
+                  <span className="text-muted-foreground">#{i + 1}</span> {c.name}
                 </span>
-                <span className="font-medium tabular-nums">{t.score} pt</span>
+                <span className="font-medium tabular-nums">{c.score} pt</span>
               </div>
             ))}
           </CardContent>

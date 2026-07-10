@@ -8,10 +8,10 @@ import type { Collaborator } from "@/lib/network/queries";
 
 export function CollaboratorCard({
   collaborator,
-  teamName,
+  capoName,
 }: {
   collaborator: Collaborator;
-  teamName?: string | null;
+  capoName?: string | null;
 }) {
   const name = displayName(collaborator);
 
@@ -25,7 +25,7 @@ export function CollaboratorCard({
               <div className="truncate font-medium">{name}</div>
               <div className="truncate text-xs text-muted-foreground">
                 @{collaborator.instagram_username}
-                {teamName ? ` · ${teamName}` : ""}
+                {capoName ? ` · ${capoName}` : ""}
               </div>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-1">

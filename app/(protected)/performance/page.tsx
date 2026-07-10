@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BarChart3 } from "lucide-react";
 import { listEvents } from "@/lib/events/queries";
 import { listAllPerformances, listRankingCollaborators } from "@/lib/rankings/queries";
-import { listTeams, profilesNameMap } from "@/lib/network/queries";
+import { profilesNameMap } from "@/lib/network/queries";
 import { sumPerformances } from "@/lib/performance";
 import { pivotTrend, totalTrend, topKeys } from "@/lib/performance-trends";
 import { displayName, formatSigned } from "@/lib/format";
@@ -13,17 +13,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export const metadata: Metadata = { title: "Performance" };
 
 export default async function PerformancePage() {
-  const [events, performances, teams, names, rankingCollaborators] = await Promise.all([
+  const [events, performances, names, rankingCollaborators] = await Promise.all([
     listEvents(),
     listAllPerformances(),
-    listTeams(),
     profilesNameMap(),
     listRankingCollaborators(),
   ]);
 
-  const teamById = Object.fromEntries(teams.map((t) => [t.id, t]));
   const collabById = Object.fromEntries(rankingCollaborators.map((c) => [c.id, c]));
-  const teamName = (id: string) => teamById[id]?.name ?? "Senza squadra";
   const capoName = (id: string) => names[id] ?? "—";
 
   // Only events with numbers actually entered, oldest first (chart x-axis order).
@@ -66,19 +63,6 @@ export default async function PerformancePage() {
 
   const overallTrend = totalTrend(
     performances.map((p) => ({ eventId: p.event_id, score: p.performance_score })),
-    eventPoints,
-  );
-
-  const teamRows = performances
-    .filter((p) => p.team_id)
-    .map((p) => ({
-      key: teamName(p.team_id as string),
-      eventId: p.event_id,
-      score: p.performance_score,
-    }));
-  const topTeams = topKeys(teamRows, 5);
-  const teamTrend = pivotTrend(
-    teamRows.filter((r) => topTeams.includes(r.key)),
     eventPoints,
   );
 
@@ -142,15 +126,6 @@ export default async function PerformancePage() {
         </CardHeader>
         <CardContent>
           <TrendChart data={overallTrend} series={["Punteggio totale"]} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Squadre nel tempo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TrendChart data={teamTrend} series={topTeams} />
         </CardContent>
       </Card>
 

@@ -100,6 +100,28 @@ export async function assignCollaboratorTeam(
   return {};
 }
 
+/**
+ * Pair a PR (collaborator) to a Capo PR. Manager-only in practice: RLS
+ * `collaborators_manager_all` lets managers write any row, while a Capo PR is
+ * blocked by the WITH CHECK of `collaborators_update_own` from moving a PR under
+ * a different capo. Pass "" to clear the pairing.
+ */
+export async function assignCollaboratorCapo(
+  id: string,
+  capoUserId: string,
+): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("collaborators")
+    .update({ capo_pr_user_id: capoUserId || null })
+    .eq("id", id);
+  if (error) return { error: "Impossibile assegnare il Capo PR." };
+  revalidatePath(`/collaborators/${id}`);
+  revalidatePath("/collaborators");
+  revalidatePath("/capi-pr");
+  return {};
+}
+
 export interface UpdateCollaboratorState {
   error?: string;
   ok?: boolean;

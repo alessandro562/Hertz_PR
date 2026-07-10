@@ -27,7 +27,7 @@ export interface NavItem {
 export const BOTTOM_NAV: NavItem[] = [
   { label: "Home", href: "/dashboard", icon: Home },
   { label: "Lead", href: "/leads", icon: Users },
-  { label: "Squadra", href: "/team", icon: UsersRound },
+  { label: "PR", href: "/collaborators", icon: UserPlus },
   { label: "Eventi", href: "/events", icon: Calendar },
   { label: "Altro", href: "/more", icon: MoreHorizontal },
 ];
@@ -36,8 +36,7 @@ export const BOTTOM_NAV: NavItem[] = [
 export const SIDEBAR_NAV: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: Home },
   { label: "Lead CRM", href: "/leads", icon: Users },
-  { label: "Squadre PR", href: "/teams", icon: UsersRound, roles: [ROLE.MANAGER] },
-  { label: "La mia squadra", href: "/team", icon: UsersRound, roles: [ROLE.CAPO_PR] },
+  { label: "Capi PR", href: "/capi-pr", icon: UsersRound, roles: [ROLE.MANAGER] },
   { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
   { label: "Eventi", href: "/events", icon: Calendar },
   { label: "Performance", href: "/performance", icon: BarChart3 },
@@ -49,7 +48,7 @@ export const SIDEBAR_NAV: NavItem[] = [
 
 /** Extra links shown on the mobile "Altro" page. */
 export const MORE_NAV: NavItem[] = [
-  { label: "Squadre PR", href: "/teams", icon: UsersRound, roles: [ROLE.MANAGER] },
+  { label: "Capi PR", href: "/capi-pr", icon: UsersRound, roles: [ROLE.MANAGER] },
   { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },
