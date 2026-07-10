@@ -31,9 +31,10 @@ export const COLLAB_STATUSES = Object.keys(
 
 export function collabStatusTone(
   s: CollaboratorStatus,
-): "neutral" | "active" | "positive" | "negative" {
+): "new" | "neutral" | "active" | "warning" | "positive" | "negative" {
+  if (s === "in_prova") return "new";
   if (s === "attivo" || s === "molto_attivo") return "positive";
-  if (s === "dormiente" || s === "da_riattivare") return "active";
+  if (s === "dormiente" || s === "da_riattivare") return "warning";
   if (s === "non_affidabile" || s === "uscito") return "negative";
   return "neutral";
 }

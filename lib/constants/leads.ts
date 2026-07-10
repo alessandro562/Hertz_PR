@@ -73,10 +73,12 @@ export function bucketForStatus(status: LeadStatus): PipelineBucket {
 /** Coarse tone for status badges. */
 export function statusTone(
   status: LeadStatus,
-): "neutral" | "active" | "positive" | "negative" {
+): "new" | "neutral" | "active" | "warning" | "positive" | "negative" {
+  if (status === "da_contattare") return "new";
+  if (status === "da_ricontattare" || status === "non_risponde") return "warning";
+  if (status === "convertito_collaboratore") return "positive";
+  if (status === "non_interessato" || status === "scartato") return "negative";
   const bucket = STATUS_TO_BUCKET[status];
-  if (bucket === "convertiti") return "positive";
-  if (bucket === "persi") return "negative";
   if (bucket === "interessati" || bucket === "da_inserire") return "active";
   return "neutral";
 }

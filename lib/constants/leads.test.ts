@@ -19,7 +19,10 @@ describe("statusTone", () => {
   it("reflects the outcome", () => {
     expect(statusTone("convertito_collaboratore")).toBe("positive");
     expect(statusTone("non_interessato")).toBe("negative");
+    expect(statusTone("scartato")).toBe("negative");
     expect(statusTone("interessato")).toBe("active");
-    expect(statusTone("da_contattare")).toBe("neutral");
+    expect(statusTone("da_contattare")).toBe("new");
+    expect(statusTone("da_ricontattare")).toBe("warning");
+    expect(statusTone("non_risponde")).toBe("warning");
   });
 });

@@ -5,10 +5,11 @@ describe("collabStatusTone", () => {
   it("reflects the collaborator's engagement", () => {
     expect(collabStatusTone("attivo")).toBe("positive");
     expect(collabStatusTone("molto_attivo")).toBe("positive");
-    expect(collabStatusTone("dormiente")).toBe("active");
-    expect(collabStatusTone("da_riattivare")).toBe("active");
+    expect(collabStatusTone("dormiente")).toBe("warning");
+    expect(collabStatusTone("da_riattivare")).toBe("warning");
     expect(collabStatusTone("non_affidabile")).toBe("negative");
     expect(collabStatusTone("uscito")).toBe("negative");
-    expect(collabStatusTone("in_prova")).toBe("neutral");
+    expect(collabStatusTone("in_prova")).toBe("new");
+    expect(collabStatusTone("occasionale")).toBe("neutral");
   });
 });
