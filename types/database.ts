@@ -36,6 +36,27 @@ export type LeadStatus =
 export type LeadPriority = "low" | "medium" | "high";
 export type LeadInterest = "cold" | "warm" | "hot";
 
+export type CollaboratorLevel =
+  | "bacheca"
+  | "collaboratore_occasionale"
+  | "sotto_pr"
+  | "pr_attivo"
+  | "pr_stretto"
+  | "capo_pr"
+  | "core_team";
+
+export type CollaboratorStatus =
+  | "in_prova"
+  | "attivo"
+  | "molto_attivo"
+  | "occasionale"
+  | "dormiente"
+  | "da_riattivare"
+  | "non_affidabile"
+  | "uscito";
+
+export type GroupType = "bacheca" | "pr" | "sotto_pr";
+
 export interface Database {
   public: {
     Tables: {
@@ -150,11 +171,175 @@ export interface Database {
         };
         Relationships: [];
       };
+      teams: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          capo_pr_user_id: string;
+          is_active: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          capo_pr_user_id: string;
+          is_active?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          capo_pr_user_id?: string;
+          is_active?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      collaborators: {
+        Row: {
+          id: string;
+          lead_id: string | null;
+          first_name: string | null;
+          last_name: string | null;
+          instagram_username: string;
+          instagram_url: string | null;
+          phone: string | null;
+          city: string | null;
+          level: CollaboratorLevel;
+          status: CollaboratorStatus;
+          team_id: string | null;
+          capo_pr_user_id: string | null;
+          notes: string | null;
+          reliability_notes: string | null;
+          joined_board_at: string | null;
+          joined_team_at: string | null;
+          last_active_at: string | null;
+          is_archived: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id?: string | null;
+          first_name?: string | null;
+          last_name?: string | null;
+          instagram_username: string;
+          instagram_url?: string | null;
+          phone?: string | null;
+          city?: string | null;
+          level?: CollaboratorLevel;
+          status?: CollaboratorStatus;
+          team_id?: string | null;
+          capo_pr_user_id?: string | null;
+          notes?: string | null;
+          reliability_notes?: string | null;
+          joined_board_at?: string | null;
+          joined_team_at?: string | null;
+          last_active_at?: string | null;
+          is_archived?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string | null;
+          first_name?: string | null;
+          last_name?: string | null;
+          instagram_username?: string;
+          instagram_url?: string | null;
+          phone?: string | null;
+          city?: string | null;
+          level?: CollaboratorLevel;
+          status?: CollaboratorStatus;
+          team_id?: string | null;
+          capo_pr_user_id?: string | null;
+          notes?: string | null;
+          reliability_notes?: string | null;
+          joined_board_at?: string | null;
+          joined_team_at?: string | null;
+          last_active_at?: string | null;
+          is_archived?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      whatsapp_groups: {
+        Row: {
+          id: string;
+          name: string;
+          type: GroupType;
+          invite_link: string | null;
+          team_id: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          type?: GroupType;
+          invite_link?: string | null;
+          team_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          type?: GroupType;
+          invite_link?: string | null;
+          team_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      group_members: {
+        Row: {
+          id: string;
+          group_id: string;
+          collaborator_id: string;
+          joined_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          collaborator_id: string;
+          joined_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          collaborator_id?: string;
+          joined_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       is_manager: { Args: Record<string, never>; Returns: boolean };
       is_capo_pr: { Args: Record<string, never>; Returns: boolean };
+      owns_team: { Args: { team_uuid: string }; Returns: boolean };
+      convert_lead_to_collaborator: {
+        Args: { p_lead_id: string };
+        Returns: string;
+      };
       check_lead_duplicate: {
         Args: { p_username: string };
         Returns: {

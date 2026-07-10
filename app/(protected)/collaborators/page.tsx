@@ -1,16 +1,45 @@
 import type { Metadata } from "next";
-import { UserPlus } from "lucide-react";
-import { ComingSoon } from "@/components/common/coming-soon";
+import { Users } from "lucide-react";
+import { listCollaborators, listTeams } from "@/lib/network/queries";
+import { CollaboratorCard } from "@/components/collaborators/collaborator-card";
 
 export const metadata: Metadata = { title: "Collaboratori" };
 
-export default function CollaboratorsPage() {
+export default async function CollaboratorsPage() {
+  const [collaborators, teams] = await Promise.all([
+    listCollaborators(),
+    listTeams(),
+  ]);
+  const teamNames = Object.fromEntries(teams.map((t) => [t.id, t.name]));
+
   return (
-    <ComingSoon
-      title="Collaboratori"
-      phase="Fase 4"
-      icon={UserPlus}
-      description="Collaboratori e sotto PR con livello, stato, squadra, capo PR e performance storica. Un lead convertito diventa un collaboratore qui."
-    />
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Collaboratori</h1>
+        <p className="text-sm text-muted-foreground">
+          {collaborators.length}{" "}
+          {collaborators.length === 1 ? "collaboratore" : "collaboratori"}
+        </p>
+      </div>
+
+      {collaborators.length === 0 ? (
+        <div className="flex flex-col items-center gap-3 py-16 text-center text-muted-foreground">
+          <Users className="size-8" />
+          <p className="text-sm">
+            Nessun collaboratore ancora. Convertili dalla scheda di un lead.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {collaborators.map((c) => (
+            <CollaboratorCard
+              key={c.id}
+              collaborator={c}
+              teamName={c.team_id ? teamNames[c.team_id] : null}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
