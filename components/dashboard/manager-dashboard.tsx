@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  Calendar,
-  Users,
-  UserCheck,
-  AlarmClockOff,
-  UsersRound,
-  Trophy,
-  TriangleAlert,
-} from "lucide-react";
+import { Calendar, TriangleAlert } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "./stat-card";
@@ -72,20 +64,12 @@ export function ManagerDashboard({
       <div>
         <h2 className="mb-3 text-sm font-medium text-muted-foreground">Stato CRM</h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-          <StatCard label="Lead totali" value={stats.totalLeads} icon={Users} />
-          <StatCard label="Da contattare" value={stats.toContact} icon={Users} />
-          <StatCard
-            label="Follow-up scaduti"
-            value={stats.overdueFollowUps}
-            icon={AlarmClockOff}
-          />
-          <StatCard
-            label="Collaboratori attivi"
-            value={stats.activeCollaborators}
-            icon={UserCheck}
-          />
-          <StatCard label="Squadre PR" value={stats.teamsCount} icon={UsersRound} />
-          <StatCard label="Score medio" value={stats.avgScore} icon={Trophy} />
+          <StatCard label="Lead totali" value={stats.totalLeads} />
+          <StatCard label="Da contattare" value={stats.toContact} />
+          <StatCard label="Follow-up scaduti" value={stats.overdueFollowUps} />
+          <StatCard label="Collaboratori attivi" value={stats.activeCollaborators} />
+          <StatCard label="Squadre PR" value={stats.teamsCount} />
+          <StatCard label="Score medio" value={stats.avgScore} unit="pt" />
         </div>
       </div>
 

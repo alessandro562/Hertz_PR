@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BarChart3, TrendingUp, Calendar, Trophy } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { listEvents } from "@/lib/events/queries";
 import { listAllPerformances, listRankingCollaborators } from "@/lib/rankings/queries";
 import { listTeams, profilesNameMap } from "@/lib/network/queries";
@@ -120,13 +120,13 @@ export default async function PerformancePage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Eventi con dati" value={eventPoints.length} icon={Calendar} />
-        <StatCard label="Punteggio totale" value={totals.score} icon={Trophy} />
-        <StatCard label="Media per evento" value={avgScore} icon={BarChart3} />
+        <StatCard label="Eventi con dati" value={eventPoints.length} />
+        <StatCard label="Punteggio totale" value={totals.score} unit="pt" />
+        <StatCard label="Media per evento" value={avgScore} unit="pt" />
         <StatCard
           label="Ultimo evento"
-          value={`${latestScore} pt`}
-          icon={TrendingUp}
+          value={latestScore}
+          unit="pt"
           hint={
             scoreDelta !== null
               ? `${formatSigned(scoreDelta)} pt vs precedente`

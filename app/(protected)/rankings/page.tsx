@@ -53,12 +53,12 @@ export default async function RankingsPage() {
   const bestCapoLastEvent: RankingItem[] = groupPerformances(
     latestEventPerformances,
     (p) => p.capo_pr_user_id ?? "senza-capo",
-  ).map((g) => ({ id: g.key, name: capoName(g.key), value: `${g.score} pt` }));
+  ).map((g) => ({ id: g.key, name: capoName(g.key), value: `${g.score} pt`, weight: g.score }));
 
   const bestTeamLastEvent: RankingItem[] = groupPerformances(
     latestEventPerformances,
     (p) => p.team_id ?? "senza-squadra",
-  ).map((g) => ({ id: g.key, name: teamName(g.key), value: `${g.score} pt` }));
+  ).map((g) => ({ id: g.key, name: teamName(g.key), value: `${g.score} pt`, weight: g.score }));
 
   const bestCollabLastEvent: RankingItem[] = [...latestEventPerformances]
     .sort((a, b) => b.performance_score - a.performance_score)
@@ -72,18 +72,19 @@ export default async function RankingsPage() {
         value: `${p.performance_score} pt`,
         href: `/collaborators/${p.collaborator_id}`,
         avatarUrl: c?.avatar_url,
+        weight: p.performance_score,
       };
     });
 
   const bestCapoMonth: RankingItem[] = groupPerformances(
     monthlyPerformances,
     (p) => p.capo_pr_user_id ?? "senza-capo",
-  ).map((g) => ({ id: g.key, name: capoName(g.key), value: `${g.score} pt` }));
+  ).map((g) => ({ id: g.key, name: capoName(g.key), value: `${g.score} pt`, weight: g.score }));
 
   const bestTeamMonth: RankingItem[] = groupPerformances(
     monthlyPerformances,
     (p) => p.team_id ?? "senza-squadra",
-  ).map((g) => ({ id: g.key, name: teamName(g.key), value: `${g.score} pt` }));
+  ).map((g) => ({ id: g.key, name: teamName(g.key), value: `${g.score} pt`, weight: g.score }));
 
   const capoGrowth: RankingItem[] = computeGrowth(
     performances

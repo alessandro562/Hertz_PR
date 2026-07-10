@@ -51,25 +51,35 @@ export function PipelineTabs({ leads }: { leads: Lead[] }) {
         />
       </div>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-        {PIPELINE_BUCKETS.map((b) => (
-          <button
-            key={b.key}
-            type="button"
-            onClick={() => setBucket(b.key)}
-            className={cn(
-              "shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-              bucket === b.key
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/70",
-            )}
-          >
-            {b.label}
-            {counts[b.key] ? (
-              <span className="ml-1.5 opacity-70">{counts[b.key]}</span>
-            ) : null}
-          </button>
-        ))}
+      <div className="-mx-4 flex items-center gap-1 overflow-x-auto border-b border-border px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {PIPELINE_BUCKETS.map((b) => {
+          const active = bucket === b.key;
+          const count = counts[b.key] ?? 0;
+          return (
+            <button
+              key={b.key}
+              type="button"
+              onClick={() => setBucket(b.key)}
+              className={cn(
+                "relative flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-2.5 text-sm font-medium outline-none transition-colors",
+                "after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full",
+                active
+                  ? "text-foreground after:bg-primary"
+                  : "text-muted-foreground hover:text-foreground after:bg-transparent",
+              )}
+            >
+              {b.label}
+              <span
+                className={cn(
+                  "inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] tabular-nums",
+                  active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
+                )}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {filtered.length === 0 ? (

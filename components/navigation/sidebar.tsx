@@ -18,8 +18,12 @@ export function Sidebar({ className }: { className?: string }) {
 
   return (
     <aside className={cn("flex-col gap-1 border-r bg-sidebar p-3", className)}>
-      <div className="mb-4 px-2 py-2">
-        <Logo variant="lockup" height={48} priority />
+      <div className="mb-4 flex items-center gap-3 px-2 py-2">
+        <Logo variant="lockup" height={44} priority />
+        <span className="h-6 w-px bg-border" aria-hidden />
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+          PR Hub
+        </span>
       </div>
 
       <nav className="flex flex-col gap-1">
