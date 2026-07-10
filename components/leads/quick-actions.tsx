@@ -4,6 +4,7 @@ import { useTransition, type ChangeEvent } from "react";
 import { AtSign, MessageCircle, UserCheck, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
 import { setLeadStatus, assignOwnerToMe } from "@/lib/leads/actions";
+import { convertLead } from "@/lib/network/actions";
 import { instagramUrl } from "@/lib/instagram";
 import { whatsappLink, hasWhatsapp } from "@/lib/whatsapp";
 import { BUILT_IN_TEMPLATES } from "@/lib/templates";
@@ -42,6 +43,14 @@ export function QuickActions({
       const res = await assignOwnerToMe(lead.id);
       if (res.error) toast.error(res.error);
       else toast.success("Lead assegnato a te");
+    });
+  }
+
+  function onConvert() {
+    start(async () => {
+      const res = await convertLead(lead.id);
+      // On success convertLead() redirects and never returns here.
+      if (res?.error) toast.error(res.error);
     });
   }
 
@@ -114,15 +123,23 @@ export function QuickActions({
               <UserCheck className="size-4" /> Assegna a me
             </Button>
           ) : null}
-          <Button
-            variant="secondary"
-            className="h-9 gap-2"
-            onClick={() =>
-              toast.info("La conversione in collaboratore arriva nella Fase 4")
-            }
-          >
-            <ArrowRightLeft className="size-4" /> Converti
-          </Button>
+          {lead.converted_to_collaborator ? (
+            <a
+              href={`/collaborators/${lead.converted_collaborator_id}`}
+              className={cn(buttonVariants({ variant: "secondary" }), "h-9 gap-2")}
+            >
+              <ArrowRightLeft className="size-4" /> Vai al collaboratore
+            </a>
+          ) : (
+            <Button
+              variant="secondary"
+              className="h-9 gap-2"
+              onClick={onConvert}
+              disabled={pending}
+            >
+              <ArrowRightLeft className="size-4" /> Converti in collaboratore
+            </Button>
+          )}
         </div>
       ) : null}
 
