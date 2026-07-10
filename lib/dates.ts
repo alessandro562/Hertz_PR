@@ -19,3 +19,8 @@ export function toDateInput(iso: string | null): string {
 export function isOverdue(iso: string | null): boolean {
   return !!iso && isPast(new Date(iso));
 }
+
+/** ISO timestamp for "N days ago" — a rolling window cutoff (e.g. "last 30 days"). */
+export function daysAgoIso(days: number): string {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+}

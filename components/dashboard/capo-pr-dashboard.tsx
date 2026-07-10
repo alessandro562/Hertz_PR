@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Calendar,
   Inbox,
@@ -9,8 +10,34 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "./stat-card";
+import { longDate } from "@/lib/dates";
+import type { Event } from "@/lib/events/queries";
 
-export function CapoPrDashboard({ name }: { name: string }) {
+interface CapoPrDashboardProps {
+  name: string;
+  nextEvent: Event | null;
+  tasks: {
+    toContact: number;
+    replied: number;
+    followUpToday: number;
+    overdueFollowUps: number;
+  };
+  team: {
+    collaboratorsCount: number;
+    active: number;
+    dormant: number;
+    latestEventScore: number;
+  };
+  topCapos: { id: string; name: string; score: number }[];
+}
+
+export function CapoPrDashboard({
+  name,
+  nextEvent,
+  tasks,
+  team,
+  topCapos,
+}: CapoPrDashboardProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
@@ -24,26 +51,38 @@ export function CapoPrDashboard({ name }: { name: string }) {
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-          I miei task
-        </h2>
+        <h2 className="mb-3 text-sm font-medium text-muted-foreground">I miei task</h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard label="Lead da contattare" value="—" icon={Inbox} />
-          <StatCard label="Hanno risposto" value="—" icon={MessageCircleReply} />
-          <StatCard label="Follow-up oggi" value="—" icon={Calendar} />
-          <StatCard label="Follow-up scaduti" value="—" icon={AlarmClockOff} />
+          <StatCard label="Lead da contattare" value={tasks.toContact} icon={Inbox} />
+          <StatCard
+            label="Hanno risposto"
+            value={tasks.replied}
+            icon={MessageCircleReply}
+          />
+          <StatCard label="Follow-up oggi" value={tasks.followUpToday} icon={Calendar} />
+          <StatCard
+            label="Follow-up scaduti"
+            value={tasks.overdueFollowUps}
+            icon={AlarmClockOff}
+          />
         </div>
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-          La mia squadra
-        </h2>
+        <h2 className="mb-3 text-sm font-medium text-muted-foreground">La mia squadra</h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard label="Collaboratori" value="—" icon={UserCheck} />
-          <StatCard label="Attivi" value="—" icon={UserCheck} />
-          <StatCard label="Dormienti" value="—" icon={UserCheck} />
-          <StatCard label="Score ultimo evento" value="—" icon={Trophy} />
+          <StatCard
+            label="Collaboratori"
+            value={team.collaboratorsCount}
+            icon={UserCheck}
+          />
+          <StatCard label="Attivi" value={team.active} icon={UserCheck} />
+          <StatCard label="Dormienti" value={team.dormant} icon={UserCheck} />
+          <StatCard
+            label="Score ultimo evento"
+            value={team.latestEventScore}
+            icon={Trophy}
+          />
         </div>
       </div>
 
@@ -55,10 +94,19 @@ export function CapoPrDashboard({ name }: { name: string }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Nessun evento assegnato. Comparirà qui con i tuoi numeri da inserire
-              (Fase 5).
-            </p>
+            {nextEvent ? (
+              <Link href={`/events/${nextEvent.id}`} className="block hover:underline">
+                <p className="font-medium">{nextEvent.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {longDate(nextEvent.event_date)}
+                  {nextEvent.venue ? ` · ${nextEvent.venue}` : ""}
+                </p>
+              </Link>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Nessun evento in programma.
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -66,10 +114,28 @@ export function CapoPrDashboard({ name }: { name: string }) {
             <CardTitle className="text-base">Confronto capi PR</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Potrai vedere il ranking e i numeri degli altri capi PR (in sola
-              lettura) dalla Fase 6.
-            </p>
+            {topCapos.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Nessun numero registrato ancora.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {topCapos.map((c, i) => (
+                  <div key={c.id} className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <span className="text-muted-foreground">#{i + 1}</span> {c.name}
+                    </span>
+                    <span className="font-medium tabular-nums">{c.score} pt</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <Link
+              href="/rankings"
+              className="mt-3 inline-block text-xs text-primary underline"
+            >
+              Vedi tutte le classifiche
+            </Link>
           </CardContent>
         </Card>
       </div>
