@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/leads/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PRIORITY_LABELS, INTEREST_LABELS } from "@/lib/constants/leads";
 import { longDate } from "@/lib/dates";
+import { displayName } from "@/lib/format";
 
 export default async function LeadDetailPage({
   params,
@@ -23,9 +24,7 @@ export default async function LeadDetailPage({
   const profile = current?.profile ?? null;
   const canEdit = canEditLead(profile, lead);
   const canAssign = canEdit && lead.owner_user_id !== current?.id;
-  const name =
-    [lead.first_name, lead.last_name].filter(Boolean).join(" ") ||
-    `@${lead.instagram_username}`;
+  const name = displayName(lead);
 
   return (
     <div className="mx-auto max-w-lg space-y-5">

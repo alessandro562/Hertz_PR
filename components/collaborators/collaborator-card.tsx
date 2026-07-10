@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { LevelBadge } from "./level-badge";
 import { CollabStatusBadge } from "./status-badge";
+import { displayName } from "@/lib/format";
 import type { Collaborator } from "@/lib/network/queries";
 
 export function CollaboratorCard({
@@ -11,9 +12,7 @@ export function CollaboratorCard({
   collaborator: Collaborator;
   teamName?: string | null;
 }) {
-  const name =
-    [collaborator.first_name, collaborator.last_name].filter(Boolean).join(" ") ||
-    `@${collaborator.instagram_username}`;
+  const name = displayName(collaborator);
 
   return (
     <Link href={`/collaborators/${collaborator.id}`} className="block">
