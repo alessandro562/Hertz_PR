@@ -46,7 +46,14 @@ export default async function TeamsPage() {
       {teams.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center text-muted-foreground">
           <UsersRound className="size-8" />
-          <p className="text-sm">Nessuna squadra ancora.</p>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">Nessuna squadra ancora</p>
+            <p className="text-xs">
+              {manager
+                ? "Crea la prima squadra e assegnale un Capo PR."
+                : "Il Manager non ha ancora creato nessuna squadra."}
+            </p>
+          </div>
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">

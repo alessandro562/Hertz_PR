@@ -5,9 +5,13 @@ import { X } from "lucide-react";
 import { toast } from "sonner";
 import { assignTeamToEvent, unassignTeamFromEvent } from "@/lib/events/actions";
 import { Button } from "@/components/ui/button";
-
-const SELECT =
-  "h-10 flex-1 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function TeamAssign({
   eventId,
@@ -19,7 +23,7 @@ export function TeamAssign({
   availableTeams: { id: string; name: string }[];
 }) {
   const [pending, start] = useTransition();
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState<string | null>(null);
 
   function onAssign() {
     if (!selected) return;
@@ -28,7 +32,7 @@ export function TeamAssign({
       if (res.error) toast.error(res.error);
       else {
         toast.success("Squadra assegnata");
-        setSelected("");
+        setSelected(null);
       }
     });
   }
@@ -69,23 +73,22 @@ export function TeamAssign({
 
       {availableTeams.length > 0 ? (
         <div className="flex gap-2">
-          <select
-            className={SELECT}
-            value={selected}
-            onChange={(e) => setSelected(e.target.value)}
-            disabled={pending}
-          >
-            <option value="">Scegli una squadra…</option>
-            {availableTeams.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+          <Select value={selected} onValueChange={setSelected} disabled={pending}>
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder="Scegli una squadra…" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableTeams.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  {t.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             type="button"
             variant="secondary"
-            className="h-10"
+            className="h-11"
             onClick={onAssign}
             disabled={pending || !selected}
           >

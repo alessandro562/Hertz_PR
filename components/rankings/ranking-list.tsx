@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PersonAvatar } from "@/components/common/person-avatar";
 
 export interface RankingItem {
   id: string;
@@ -6,6 +7,7 @@ export interface RankingItem {
   sublabel?: string;
   value: string;
   href?: string;
+  avatarUrl?: string | null;
 }
 
 export function RankingList({
@@ -26,6 +28,7 @@ export function RankingList({
           <div className="flex items-center justify-between gap-2 text-sm">
             <span className="flex min-w-0 items-center gap-2">
               <span className="shrink-0 text-muted-foreground">#{i + 1}</span>
+              <PersonAvatar name={item.name} avatarUrl={item.avatarUrl} size="sm" />
               <span className="min-w-0">
                 <span className="block truncate">{item.name}</span>
                 {item.sublabel ? (

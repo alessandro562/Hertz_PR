@@ -166,3 +166,18 @@ export async function assignOwnerToMe(
   revalidatePath(`/leads/${id}`);
   return {};
 }
+
+export async function setLeadAvatar(
+  id: string,
+  avatarUrl: string,
+): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("leads")
+    .update({ avatar_url: avatarUrl })
+    .eq("id", id);
+  if (error) return { error: "Impossibile salvare la foto." };
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${id}`);
+  return {};
+}

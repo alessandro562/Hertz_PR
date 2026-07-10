@@ -33,7 +33,14 @@ export default async function EventsPage() {
       {events.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center text-muted-foreground">
           <Calendar className="size-8" />
-          <p className="text-sm">Nessun evento ancora.</p>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">Nessun evento ancora</p>
+            <p className="text-xs">
+              {manager
+                ? "Crea il primo evento per iniziare ad assegnare le squadre."
+                : "Il Manager non ha ancora pubblicato eventi."}
+            </p>
+          </div>
         </div>
       ) : (
         <div className="space-y-2">

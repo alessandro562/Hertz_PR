@@ -1,13 +1,17 @@
 "use client";
 
-import { useTransition, type ChangeEvent } from "react";
+import { useTransition } from "react";
 import { toast } from "sonner";
 import { setEventStatus } from "@/lib/events/actions";
 import { EVENT_STATUSES, EVENT_STATUS_LABELS } from "@/lib/constants/events";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { EventStatus } from "@/types/database";
-
-const SELECT =
-  "h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
 
 export function EventStatusSelect({
   eventId,
@@ -18,27 +22,27 @@ export function EventStatusSelect({
 }) {
   const [pending, start] = useTransition();
 
-  function onChange(e: ChangeEvent<HTMLSelectElement>) {
-    const next = e.target.value as EventStatus;
+  function onChange(value: EventStatus | null) {
+    if (!value) return;
     start(async () => {
-      const res = await setEventStatus(eventId, next);
+      const res = await setEventStatus(eventId, value);
       if (res.error) toast.error(res.error);
       else toast.success("Stato aggiornato");
     });
   }
 
   return (
-    <select
-      className={SELECT}
-      defaultValue={status}
-      onChange={onChange}
-      disabled={pending}
-    >
-      {EVENT_STATUSES.map((s) => (
-        <option key={s} value={s}>
-          {EVENT_STATUS_LABELS[s]}
-        </option>
-      ))}
-    </select>
+    <Select defaultValue={status} onValueChange={onChange} disabled={pending}>
+      <SelectTrigger className="w-full">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {EVENT_STATUSES.map((s) => (
+          <SelectItem key={s} value={s}>
+            {EVENT_STATUS_LABELS[s]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

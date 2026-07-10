@@ -64,6 +64,21 @@ export async function setCollaboratorStatus(
   return {};
 }
 
+export async function setCollaboratorAvatar(
+  id: string,
+  avatarUrl: string,
+): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("collaborators")
+    .update({ avatar_url: avatarUrl })
+    .eq("id", id);
+  if (error) return { error: "Impossibile salvare la foto." };
+  revalidatePath(`/collaborators/${id}`);
+  revalidatePath("/collaborators");
+  return {};
+}
+
 export async function assignCollaboratorTeam(
   id: string,
   teamId: string,

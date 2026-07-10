@@ -71,6 +71,7 @@ export default async function RankingsPage() {
         sublabel: c?.team_id ? teamName(c.team_id) : undefined,
         value: `${p.performance_score} pt`,
         href: `/collaborators/${p.collaborator_id}`,
+        avatarUrl: c?.avatar_url,
       };
     });
 
@@ -105,6 +106,7 @@ export default async function RankingsPage() {
       sublabel: c.team_id ? teamName(c.team_id) : undefined,
       value: c.status === "dormiente" ? "Dormiente" : "Da riattivare",
       href: `/collaborators/${c.id}`,
+      avatarUrl: c.avatar_url,
     }));
 
   const teamDormancy = new Map<string, { total: number; dormant: number }>();
@@ -133,6 +135,7 @@ export default async function RankingsPage() {
       ? `Scaduto ${shortDate(l.next_follow_up_at)}`
       : "Nessun follow-up",
     href: `/leads/${l.id}`,
+    avatarUrl: l.avatar_url,
   }));
   const overdueCount = hotLeads.filter((l) => isOverdue(l.next_follow_up_at)).length;
 

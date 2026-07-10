@@ -108,6 +108,7 @@ export interface Database {
           last_name: string | null;
           instagram_username: string;
           instagram_url: string | null;
+          avatar_url: string | null;
           phone: string | null;
           city: string | null;
           source: string | null;
@@ -133,6 +134,7 @@ export interface Database {
           last_name?: string | null;
           instagram_username: string;
           instagram_url?: string | null;
+          avatar_url?: string | null;
           phone?: string | null;
           city?: string | null;
           source?: string | null;
@@ -158,6 +160,7 @@ export interface Database {
           last_name?: string | null;
           instagram_username?: string;
           instagram_url?: string | null;
+          avatar_url?: string | null;
           phone?: string | null;
           city?: string | null;
           source?: string | null;
@@ -220,6 +223,7 @@ export interface Database {
           last_name: string | null;
           instagram_username: string;
           instagram_url: string | null;
+          avatar_url: string | null;
           phone: string | null;
           city: string | null;
           level: CollaboratorLevel;
@@ -243,6 +247,7 @@ export interface Database {
           last_name?: string | null;
           instagram_username: string;
           instagram_url?: string | null;
+          avatar_url?: string | null;
           phone?: string | null;
           city?: string | null;
           level?: CollaboratorLevel;
@@ -266,6 +271,7 @@ export interface Database {
           last_name?: string | null;
           instagram_username?: string;
           instagram_url?: string | null;
+          avatar_url?: string | null;
           phone?: string | null;
           city?: string | null;
           level?: CollaboratorLevel;
@@ -501,6 +507,7 @@ export interface Database {
           first_name: string | null;
           last_name: string | null;
           instagram_username: string;
+          avatar_url: string | null;
           team_id: string | null;
           level: CollaboratorLevel;
           status: CollaboratorStatus;

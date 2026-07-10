@@ -6,11 +6,16 @@ import { updateLead, type UpdateLeadState } from "@/lib/leads/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toDateInput } from "@/lib/dates";
 import type { Lead } from "@/lib/leads/queries";
 
-const SELECT =
-  "h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
 const AREA =
   "w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
@@ -56,19 +61,29 @@ export function EditLeadForm({ lead }: { lead: Lead }) {
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label htmlFor="e_priority">Priorità</Label>
-          <select id="e_priority" name="priority" defaultValue={lead.priority} className={SELECT}>
-            <option value="low">Bassa</option>
-            <option value="medium">Media</option>
-            <option value="high">Alta</option>
-          </select>
+          <Select name="priority" defaultValue={lead.priority}>
+            <SelectTrigger id="e_priority" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">Bassa</SelectItem>
+              <SelectItem value="medium">Media</SelectItem>
+              <SelectItem value="high">Alta</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="e_interest">Interesse</Label>
-          <select id="e_interest" name="interest_level" defaultValue={lead.interest_level} className={SELECT}>
-            <option value="cold">Freddo</option>
-            <option value="warm">Tiepido</option>
-            <option value="hot">Caldo</option>
-          </select>
+          <Select name="interest_level" defaultValue={lead.interest_level}>
+            <SelectTrigger id="e_interest" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="cold">Freddo</SelectItem>
+              <SelectItem value="warm">Tiepido</SelectItem>
+              <SelectItem value="hot">Caldo</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

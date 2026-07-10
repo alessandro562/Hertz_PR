@@ -7,9 +7,13 @@ import { GROUP_TYPES, GROUP_TYPE_LABELS } from "@/lib/constants/collaborators";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const SELECT =
-  "h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function CreateGroupForm({
   teamId,
@@ -35,13 +39,18 @@ export function CreateGroupForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="g_type">Tipo</Label>
-          <select id="g_type" name="type" defaultValue={defaultType} className={SELECT}>
-            {GROUP_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {GROUP_TYPE_LABELS[t]}
-              </option>
-            ))}
-          </select>
+          <Select name="type" defaultValue={defaultType}>
+            <SelectTrigger id="g_type" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {GROUP_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {GROUP_TYPE_LABELS[t]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
