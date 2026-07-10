@@ -1,0 +1,61 @@
+import {
+  Home,
+  Users,
+  UsersRound,
+  UserPlus,
+  Calendar,
+  BarChart3,
+  Trophy,
+  MessageSquareText,
+  Settings,
+  MoreHorizontal,
+  type LucideIcon,
+} from "lucide-react";
+import type { Role } from "@/types/domain";
+import { ROLE } from "./roles";
+
+export interface NavItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  /** Roles allowed to see the item. Omit for "everyone". */
+  roles?: Role[];
+}
+
+/** Mobile bottom navigation (max 5, per the mobile-first spec §7). */
+export const BOTTOM_NAV: NavItem[] = [
+  { label: "Home", href: "/dashboard", icon: Home },
+  { label: "Lead", href: "/leads", icon: Users },
+  { label: "Squadra", href: "/team", icon: UsersRound },
+  { label: "Eventi", href: "/events", icon: Calendar },
+  { label: "Altro", href: "/more", icon: MoreHorizontal },
+];
+
+/** Desktop sidebar (spec §7). Some entries are Manager-only. */
+export const SIDEBAR_NAV: NavItem[] = [
+  { label: "Dashboard", href: "/dashboard", icon: Home },
+  { label: "Lead CRM", href: "/leads", icon: Users },
+  { label: "Squadre PR", href: "/teams", icon: UsersRound, roles: [ROLE.MANAGER] },
+  { label: "La mia squadra", href: "/team", icon: UsersRound, roles: [ROLE.CAPO_PR] },
+  { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
+  { label: "Eventi", href: "/events", icon: Calendar },
+  { label: "Performance", href: "/performance", icon: BarChart3, roles: [ROLE.MANAGER] },
+  { label: "Classifiche", href: "/rankings", icon: Trophy },
+  { label: "Template", href: "/templates", icon: MessageSquareText },
+  { label: "Settings", href: "/settings", icon: Settings },
+];
+
+/** Extra links shown on the mobile "Altro" page. */
+export const MORE_NAV: NavItem[] = [
+  { label: "Squadre PR", href: "/teams", icon: UsersRound, roles: [ROLE.MANAGER] },
+  { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
+  { label: "Performance", href: "/performance", icon: BarChart3, roles: [ROLE.MANAGER] },
+  { label: "Classifiche", href: "/rankings", icon: Trophy },
+  { label: "Template", href: "/templates", icon: MessageSquareText },
+  { label: "Settings", href: "/settings", icon: Settings },
+];
+
+/** Filter a nav list by the current role. */
+export function navForRole(items: NavItem[], role: Role): NavItem[] {
+  return items.filter((item) => !item.roles || item.roles.includes(role));
+}
