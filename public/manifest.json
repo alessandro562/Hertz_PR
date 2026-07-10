@@ -12,6 +12,15 @@
   "lang": "it",
   "dir": "ltr",
   "categories": ["business", "productivity"],
+  "share_target": {
+    "action": "/leads/new",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "icons": [
     {
       "src": "/icons/icon-192.png",
