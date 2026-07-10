@@ -19,7 +19,7 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside className={cn("flex-col gap-1 border-r bg-sidebar p-3", className)}>
       <div className="mb-4 px-2 py-2">
-        <Logo variant="wordmark" height={22} priority />
+        <Logo variant="lockup" height={48} priority />
       </div>
 
       <nav className="flex flex-col gap-1">
