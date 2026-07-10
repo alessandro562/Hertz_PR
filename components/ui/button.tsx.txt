@@ -1,0 +1,51 @@
+"use client";
+import * as React from "react";
+import { cn } from "@/lib/cn";
+
+/**
+ * Button — hertz PR Hub
+ * Variants map to the brand: `default` = sage primary, `secondary` = surface,
+ * `outline`, `ghost`, `destructive`. Sizes tuned for 44px+ mobile hit targets.
+ */
+const base =
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md " +
+  "font-medium select-none transition-colors outline-none " +
+  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 " +
+  "focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 " +
+  "[&_svg]:size-4 [&_svg]:shrink-0";
+
+const variants = {
+  default:
+    "bg-primary text-primary-foreground hover:bg-sage-300 active:bg-sage-500",
+  secondary:
+    "bg-secondary text-secondary-foreground hover:bg-accent border border-border",
+  outline:
+    "border border-input bg-transparent text-foreground hover:bg-accent",
+  ghost: "bg-transparent text-foreground hover:bg-accent",
+  destructive:
+    "bg-destructive text-destructive-foreground hover:opacity-90",
+} as const;
+
+const sizes = {
+  sm: "h-9 px-3 text-sm",
+  md: "h-11 px-4 text-sm",       // 44px — default mobile target
+  lg: "h-12 px-6 text-base",
+  icon: "h-11 w-11",
+} as const;
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: keyof typeof variants;
+  size?: keyof typeof sizes;
+}
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant = "default", size = "md", ...props }, ref) => (
+    <button
+      ref={ref}
+      className={cn(base, variants[variant], sizes[size], className)}
+      {...props}
+    />
+  )
+);
+Button.displayName = "Button";

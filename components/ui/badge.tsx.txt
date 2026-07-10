@@ -1,0 +1,32 @@
+import * as React from "react";
+import { cn } from "@/lib/cn";
+
+/**
+ * Badge — status pills for the Lead CRM pipeline and event states.
+ * Tones are muted (brand-consistent), never neon.
+ */
+const tones = {
+  neutral: "bg-secondary text-muted-foreground border-border",
+  sage:    "bg-sage-400/15 text-sage-300 border-sage-400/30",
+  success: "bg-success/15 text-success border-success/30",
+  warning: "bg-warning/15 text-warning border-warning/30",
+  danger:  "bg-destructive/15 text-destructive border-destructive/30",
+} as const;
+
+export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  tone?: keyof typeof tones;
+}
+
+export function Badge({ className, tone = "neutral", ...props }: BadgeProps) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5",
+        "text-[11px] font-medium uppercase tracking-[0.08em]",
+        tones[tone],
+        className
+      )}
+      {...props}
+    />
+  );
+}

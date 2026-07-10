@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>hertz PR Hub — component specimen</title>
+<style>
+  /* Self-contained token mirror (so this preview is portable outside the workspace).
+     Fonts fall back Helvetica Neue → Helvetica → Arial — the brand's own stack. */
+  :root{
+    --hz-black:#151515; --hz-white:#FFFFFF; --hz-sage:#A3B7B7;
+    --font-display:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    --font-body:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","Roboto Mono",Menlo,monospace;
+    --fg-primary:#F2F3EE; --fg-secondary:#B7B7B5; --fg-tertiary:#7D7D7B;
+    --bg-surface:#1C1C1C; --bg-surface-2:#232323;
+    --border-subtle:#2C2C2C; --border-default:#3A3A3A; --border-strong:#6B6B6B;
+    --accent-primary:#A3B7B7; --accent-primary-hover:#B4C6C6; --accent-primary-active:#90A6A6;
+    --fg-on-accent:#151515;
+    --state-success:#6E9A7B; --state-warning:#C9A15A; --state-danger:#B4614B;
+    --radius-none:0; --radius-sm:2px; --radius-md:4px; --radius-lg:8px; --radius-xl:12px; --radius-full:999px;
+    --duration-fast:120ms; --duration-standard:200ms; --duration-slow:360ms;
+    --ease-standard:cubic-bezier(.4,0,.2,1); --ease-out:cubic-bezier(0,0,.2,1);
+  }
+  :root{
+    --gold:#a3b7b7; --silver:#b7b7b5; --bronze:#b0794e;
+    --gutter: clamp(20px, 5.5vw, 84px);
+  }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--hz-black); color:var(--fg-primary);
+        font-family:var(--font-body); overflow-x:hidden; }
+  ::selection{ background:var(--hz-sage); color:var(--hz-black); }
+
+  .mono{ font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.14em; }
+  .num{ font-family:var(--font-display); font-weight:900; letter-spacing:-.03em;
+        font-variant-numeric:tabular-nums; line-height:.86; }
+  .doc{ max-width:1320px; margin:0 auto; padding:0 var(--gutter); }
+
+  /* ---- concentric ring motif (the signature waveform echo) ---- */
+  .rings{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+  .rings span{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+        border:1px solid rgba(163,183,183,.12); border-radius:50%; }
+
+  /* ================= TOP MARKER (solid, no blur) ================= */
+  .topbar{ position:sticky; top:0; z-index:50; background:var(--hz-black);
+        border-bottom:1px solid var(--border-subtle); }
+  .topbar .in{ max-width:1320px; margin:0 auto; padding:14px var(--gutter);
+        display:flex; align-items:center; gap:16px; }
+  .topbar img{ height:18px; display:block; }
+  .topbar .m{ font-size:10px; color:var(--fg-tertiary); }
+  .topbar .m.r{ margin-left:auto; }
+  .topbar .swatch{ width:11px; height:11px; background:var(--hz-sage); display:inline-block;
+        vertical-align:-1px; margin-right:7px; }
+
+  /* ================= HERO ================= */
+  .hero{ position:relative; min-height:82vh; display:flex; flex-direction:column;
+        justify-content:flex-end; padding:120px 0 56px; }
+  .hero .doc{ position:relative; z-index:1; width:100%; }
+  .hero .kick{ font-size:12px; color:var(--hz-sage); margin-bottom:28px;
+        display:flex; align-items:center; gap:14px; }
+  .hero .kick::after{ content:""; height:1px; flex:1; max-width:220px;
+        background:var(--border-default); }
+  .hero h1{ font-family:var(--font-display); font-weight:700; color:var(--hz-white);
+        font-size:clamp(72px, 15vw, 240px); line-height:.82; letter-spacing:-.045em;
+        margin:0 0 34px; }
+  .hero h1 em{ font-style:normal; color:var(--hz-sage); }
+  .hero .lead{ max-width:560px; font-size:clamp(15px,1.4vw,18px); line-height:1.5;
+        color:var(--fg-secondary); font-weight:500; margin-bottom:44px; }
+  .metarow{ display:flex; flex-wrap:wrap; gap:0; border-top:1px solid var(--border-subtle);
+        border-bottom:1px solid var(--border-subtle); }
+  .metarow div{ padding:16px 26px 16px 0; margin-right:26px; border-right:1px solid var(--border-subtle); }
+  .metarow div:last-child{ border-right:0; }
+  .metarow .l{ font-size:10px; color:var(--fg-tertiary); display:block; margin-bottom:6px; }
+  .metarow .v{ font-size:13px; color:var(--fg-primary); font-weight:600; }
+  .hero .markwrap{ position:absolute; top:88px; right:var(--gutter); z-index:1; }
+  .hero .markwrap img{ height:clamp(48px,7vw,104px); opacity:.9; }
+
+  /* ================= SECTION SCAFFOLD ================= */
+  section{ position:relative; }
+  .sec-head{ display:flex; align-items:baseline; justify-content:space-between; gap:24px;
+        padding:24px 0 26px; border-top:1px solid var(--border-default); margin-top:96px; }
+  .sec-head .lft{ display:flex; align-items:baseline; gap:22px; }
+  .sec-head .idx{ font-size:12px; color:var(--hz-sage); flex:0 0 auto; padding-top:4px; }
+  .sec-head h2{ font-family:var(--font-display); font-weight:700; color:var(--hz-white);
+        font-size:clamp(28px,3.6vw,46px); line-height:.98; letter-spacing:-.025em; }
+  .sec-head .note{ font-size:11px; color:var(--fg-tertiary); text-align:right;
+        max-width:280px; line-height:1.5; }
+
+  .cap{ font-size:10px; color:var(--fg-tertiary); margin-bottom:14px; }
+
+  /* ================= LOGO ================= */
+  .logo-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:1px;
+        background:var(--border-subtle); border:1px solid var(--border-subtle); }
+  .logo-cell{ background:var(--bg-surface); padding:44px 32px; display:flex;
+        flex-direction:column; align-items:center; justify-content:center; gap:22px;
+        min-height:220px; position:relative; }
+  .logo-cell img{ display:block; }
+  .logo-cell .tag{ font-size:10px; color:var(--fg-tertiary); position:absolute;
+        top:14px; left:16px; }
+  .appicon{ width:84px; height:84px; border-radius:18px; background:var(--hz-black);
+        border:1px solid var(--border-default); display:grid; place-items:center; }
+  .appicon img{ width:52px; }
+  @media(max-width:820px){ .logo-grid{ grid-template-columns:1fr 1fr; } }
+
+  /* ================= PALETTE ================= */
+  .pal{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+        background:var(--border-subtle); border:1px solid var(--border-subtle); }
+  .pal .cell{ background:var(--bg-surface); }
+  .pal .chip{ height:120px; }
+  .pal .meta{ padding:14px 16px 18px; }
+  .pal .meta b{ display:block; font-size:13px; font-weight:600; color:var(--fg-primary); margin-bottom:3px; }
+  .pal .meta .hex{ font-family:var(--font-mono); font-size:11px; color:var(--fg-tertiary); text-transform:uppercase; }
+  .pal .meta .role{ font-size:10px; color:var(--fg-tertiary); margin-top:8px; letter-spacing:.12em; text-transform:uppercase; font-family:var(--font-mono); }
+  @media(max-width:820px){ .pal{ grid-template-columns:repeat(2,1fr); } }
+
+  /* ================= TYPE ================= */
+  .type-grid{ display:grid; grid-template-columns:1fr; gap:1px; background:var(--border-subtle);
+        border:1px solid var(--border-subtle); }
+  .type-row{ background:var(--bg-surface); padding:34px 32px; display:grid;
+        grid-template-columns:180px 1fr; gap:28px; align-items:center; }
+  .type-row .side .n{ font-size:11px; color:var(--hz-sage); display:block; margin-bottom:8px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.14em; }
+  .type-row .side .d{ font-size:11px; color:var(--fg-tertiary); line-height:1.5; }
+  .type-row .spec-display{ font-family:var(--font-display); font-weight:700; color:var(--hz-white);
+        font-size:clamp(48px,7vw,92px); line-height:.9; letter-spacing:-.04em; }
+  .type-row .spec-body{ font-family:var(--font-body); font-weight:500; color:var(--fg-primary);
+        font-size:20px; line-height:1.5; max-width:640px; }
+  .type-row .spec-mono{ font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.14em;
+        color:var(--hz-sage); font-size:15px; }
+  @media(max-width:720px){ .type-row{ grid-template-columns:1fr; gap:16px; } }
+
+  /* ================= GENERIC STAGE ================= */
+  .stage{ background:var(--bg-surface); border:1px solid var(--border-subtle);
+        border-radius:var(--radius-md); padding:38px 34px; }
+  .row{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+  .cols{ display:grid; gap:22px; }
+  @media(min-width:860px){ .cols.two{ grid-template-columns:1fr 1fr; } }
+
+  /* ---- buttons ---- */
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:9px; height:44px;
+        padding:0 20px; border-radius:var(--radius-md); font-family:var(--font-body);
+        font-size:14px; font-weight:600; border:0; cursor:pointer;
+        transition:background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+  .btn svg{ width:16px; height:16px; }
+  .btn-primary{ background:var(--accent-primary); color:var(--fg-on-accent); }
+  .btn-primary:hover{ background:var(--accent-primary-hover); }
+  .btn-primary:active{ background:var(--accent-primary-active); }
+  .btn-secondary{ background:var(--bg-surface-2); color:var(--fg-primary); border:1px solid var(--border-default); }
+  .btn-secondary:hover{ border-color:var(--border-strong); }
+  .btn-outline{ background:transparent; color:var(--fg-primary); border:1px solid var(--border-default); }
+  .btn-outline:hover{ border-color:var(--hz-sage); color:var(--hz-sage); }
+  .btn-ghost{ background:transparent; color:var(--fg-secondary); }
+  .btn-ghost:hover{ color:var(--fg-primary); }
+  .btn-danger{ background:var(--state-danger); color:#fff; }
+  .btn-danger:hover{ filter:brightness(1.08); }
+  .btn-sm{ height:36px; padding:0 14px; font-size:13px; }
+  .btn-lg{ height:50px; padding:0 26px; font-size:15px; }
+  .btn-icon{ width:44px; padding:0; }
+
+  /* ---- badge / tag ---- */
+  .badge{ display:inline-flex; align-items:center; gap:7px; border-radius:var(--radius-full);
+        padding:5px 12px; font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase;
+        letter-spacing:.1em; border:1px solid; }
+  .dot{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .b-neutral{ color:var(--fg-tertiary); border-color:var(--border-default); background:var(--bg-surface-2); }
+  .b-sage{ color:var(--hz-sage); border-color:rgba(163,183,183,.35); background:rgba(163,183,183,.1); }
+  .b-succ{ color:var(--state-success); border-color:rgba(110,154,123,.35); background:rgba(110,154,123,.1); }
+  .b-warn{ color:var(--state-warning); border-color:rgba(201,161,90,.35); background:rgba(201,161,90,.1); }
+  .b-dngr{ color:var(--state-danger); border-color:rgba(180,97,75,.35); background:rgba(180,97,75,.1); }
+  .tag{ display:inline-flex; align-items:center; height:26px; padding:0 11px; border-radius:var(--radius-full);
+        background:var(--bg-surface-2); border:1px solid var(--border-default); color:var(--fg-secondary);
+        font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; }
+
+  /* ---- card / stat ---- */
+  .card{ background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); }
+  .card .ch{ padding:18px 18px 10px; }
+  .card .ckick{ font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--fg-tertiary); margin-bottom:6px; }
+  .card .ctitle{ font-family:var(--font-display); font-weight:700; font-size:17px; color:var(--fg-primary); letter-spacing:-.01em; }
+  .card .cc{ padding:0 18px 16px; }
+  .card .cc p{ font-size:13.5px; color:var(--fg-secondary); line-height:1.55; }
+  .card .cf{ padding:0 18px 18px; display:flex; gap:10px; }
+  .card.stat{ padding:20px; }
+  .stat .l{ font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--fg-tertiary); display:block; margin-bottom:14px; }
+  .stat .v{ display:flex; align-items:baseline; gap:6px; }
+  .stat .v .n{ font-size:44px; color:var(--hz-white); }
+  .stat .v .u{ font-size:14px; color:var(--fg-tertiary); }
+  .stat .d{ font-size:12px; font-weight:600; margin-top:12px; display:inline-flex; gap:6px; }
+  .up{ color:var(--state-success); } .down{ color:var(--state-danger); }
+  .statgrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media(max-width:860px){ .statgrid{ grid-template-columns:repeat(2,1fr); } }
+
+  /* ---- tabs ---- */
+  .tabs{ display:flex; gap:4px; border-bottom:1px solid var(--border-default); overflow-x:auto; }
+  .tabs button{ border:0; background:transparent; color:var(--fg-tertiary); font-family:var(--font-body);
+        font-size:13px; font-weight:600; padding:12px 14px; position:relative; white-space:nowrap; cursor:pointer;
+        transition:color var(--duration-fast) var(--ease-standard); }
+  .tabs button:hover{ color:var(--fg-secondary); }
+  .tabs button.on{ color:var(--fg-primary); }
+  .tabs button.on::after{ content:""; position:absolute; left:10px; right:10px; bottom:-1px; height:2px; background:var(--hz-sage); }
+  .count{ margin-left:7px; background:var(--bg-surface-2); border:1px solid var(--border-subtle); border-radius:var(--radius-full); padding:1px 8px; font-family:var(--font-mono); font-size:10px; color:var(--fg-tertiary); }
+
+  /* ---- switch / segmented ---- */
+  .sw{ position:relative; width:46px; height:26px; border-radius:var(--radius-full); border:1px solid var(--border-default);
+        background:var(--bg-surface-2); cursor:pointer; transition:background var(--duration-standard) var(--ease-standard); }
+  .sw.on{ background:var(--hz-sage); border-color:transparent; }
+  .sw i{ position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:var(--fg-primary); transition:transform var(--duration-standard) var(--ease-standard); }
+  .sw.on i{ transform:translateX(20px); background:var(--hz-black); }
+  .seg{ display:inline-flex; gap:3px; background:var(--bg-surface-2); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:3px; }
+  .seg button{ border:0; background:transparent; color:var(--fg-tertiary); font-family:var(--font-body); font-size:13px; font-weight:600; padding:8px 16px; border-radius:var(--radius-sm); cursor:pointer; transition:color var(--duration-fast) var(--ease-standard); }
+  .seg button:hover{ color:var(--fg-secondary); }
+  .seg button.on{ background:var(--hz-sage); color:var(--hz-black); }
+
+  /* ---- progress ---- */
+  .bar{ height:6px; background:var(--bg-surface-2); border-radius:var(--radius-full); overflow:hidden; }
+  .bar>i{ display:block; height:100%; border-radius:var(--radius-full); }
+  .bar>i.p{ background:var(--hz-sage); } .bar>i.g{ background:var(--gold); }
+  .bar>i.s{ background:var(--silver); } .bar>i.b{ background:var(--bronze); }
+  .bar>i.su{ background:var(--state-success); }
+
+  /* ---- rank list (Classifiche) ---- */
+  .rank{ display:flex; flex-direction:column; }
+  .rk{ display:flex; align-items:center; gap:16px; padding:16px 8px; border-bottom:1px solid var(--border-subtle); }
+  .rk:last-child{ border-bottom:0; }
+  .rk .pos{ width:34px; height:34px; border-radius:var(--radius-sm); display:grid; place-items:center;
+        font-family:var(--font-display); font-weight:900; font-size:15px; flex:0 0 auto; background:var(--bg-surface-2); color:var(--fg-tertiary); }
+  .rk .pos.g{ background:var(--gold); color:var(--hz-black); }
+  .rk .pos.s{ background:var(--silver); color:var(--hz-black); }
+  .rk .pos.b{ background:var(--bronze); color:var(--hz-black); }
+  .rk .rb{ flex:1; min-width:0; }
+  .rk .rt{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:3px; }
+  .rk .rn{ font-size:15px; font-weight:600; color:var(--fg-primary); }
+  .rk .rsc{ font-size:22px; color:var(--hz-white); }
+  .rk .rm{ font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--fg-tertiary); }
+  .rk .bar{ margin-top:9px; }
+
+  /* ---- stepper ---- */
+  .stepper{ display:flex; align-items:center; gap:14px; max-width:320px; }
+  .stepper button{ width:52px; height:52px; border-radius:var(--radius-md); border:1px solid var(--border-default);
+        background:var(--bg-surface-2); color:var(--fg-primary); font-size:24px; cursor:pointer;
+        transition:border-color var(--duration-fast) var(--ease-standard); }
+  .stepper button:hover{ border-color:var(--hz-sage); color:var(--hz-sage); }
+  .stepper .field{ flex:1; height:52px; border-radius:var(--radius-md); border:1px solid var(--border-default);
+        background:var(--bg-surface); display:grid; place-items:center; font-size:30px; color:var(--hz-white); }
+  .stepper .field .num{ font-size:30px; }
+
+  /* ================= FOOTER (credit convention) ================= */
+  .foot{ margin-top:120px; border-top:1px solid var(--border-default); }
+  .foot .in{ max-width:1320px; margin:0 auto; padding:22px var(--gutter); display:flex; gap:20px; flex-wrap:wrap; }
+  .foot span{ font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--fg-tertiary); }
+  .foot .c{ margin:0 auto; }
+  .foot .r{ margin-left:auto; }
+</style>
+</head>
+<body>
+
+<!-- TOP MARKER -->
+<div class="topbar"><div class="in">
+  <img src="../public/brand/hertz-wordmark-white.png" alt="hertz" />
+  <span class="m mono">PR Hub · Component Specimen</span>
+  <span class="m r mono"><span class="swatch"></span>Sage #A3B7B7 — Primary</span>
+</div></div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="rings">
+    <span style="width:340px;height:340px;"></span>
+    <span style="width:560px;height:560px;"></span>
+    <span style="width:820px;height:820px;"></span>
+    <span style="width:1120px;height:1120px;"></span>
+    <span style="width:1480px;height:1480px;"></span>
+  </div>
+  <div class="markwrap"><img src="../public/brand/hertz-mark-white.png" alt="" /></div>
+  <div class="doc">
+    <div class="kick mono">Hertz · Design System applicato</div>
+    <h1>PR&nbsp;Hub<em>.</em></h1>
+    <p class="lead">Il CRM operativo per PR e capi promoter delle notti hertz. Sistema di componenti costruito sul rebrand — sage, near-black, Helvetica Neue, e il segno waveform come motivo ricorrente.</p>
+    <div class="metarow">
+      <div><span class="l mono">Prodotto</span><span class="v">PWA mobile-first</span></div>
+      <div><span class="l mono">Superficie</span><span class="v">Dark / near-black</span></div>
+      <div><span class="l mono">Primary</span><span class="v">Sage #A3B7B7</span></div>
+      <div><span class="l mono">Type</span><span class="v">Helvetica Neue · Monument mono</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- 01 LOGO -->
+<section class="doc">
+  <div class="sec-head">
+    <div class="lft"><span class="idx mono">01 / 08</span><h2>Logo ufficiale</h2></div>
+    <p class="note">Solo asset forniti — il wordmark e il segno waveform non si ridisegnano mai a mano.</p>
+  </div>
+  <div class="logo-grid">
+    <div class="logo-cell"><span class="tag mono">Lockup</span><img src="../public/brand/hertz-lockup-white.png" style="height:112px" alt="lockup" /></div>
+    <div class="logo-cell"><span class="tag mono">Wordmark</span><img src="../public/brand/hertz-wordmark-white.png" style="height:34px" alt="wordmark" /></div>
+    <div class="logo-cell"><span class="tag mono">Mark</span><img src="../public/brand/hertz-mark-white.png" style="height:58px" alt="mark" /></div>
+    <div class="logo-cell"><span class="tag mono">App icon · PWA</span><div class="appicon"><img src="../public/icons/icon-512.png" alt="app icon" /></div></div>
+  </div>
+</section>
+
+<!-- 02 PALETTE -->
+<section class="doc">
+  <div class="sec-head">
+    <div class="lft"><span class="idx mono">02 / 08</span><h2>Palette</h2></div>
+    <p class="note">Campi piatti che si incontrano su bordo netto. Nessun gradiente nel core UI.</p>
+  </div>
+  <div class="pal">
+    <div class="cell"><div class="chip" style="background:#a3b7b7"></div><div class="meta"><b>Primary</b><span class="hex">#A3B7B7</span><span class="role mono">Sage · accent</span></div></div>
+    <div class="cell"><div class="chip" style="background:#151515;border-bottom:1px solid var(--border-subtle)"></div><div class="meta"><b>Canvas</b><span class="hex">#151515</span><span class="role mono">Near-black</span></div></div>
+    <div class="cell"><div class="chip" style="background:#1c1c1c;border-bottom:1px solid var(--border-subtle)"></div><div class="meta"><b>Surface</b><span class="hex">#1C1C1C</span><span class="role mono">Pannello</span></div></div>
+    <div class="cell"><div class="chip" style="background:#50778a"></div><div class="meta"><b>Steel blue</b><span class="hex">#50778A</span><span class="role mono">Secondario</span></div></div>
+    <div class="cell"><div class="chip" style="background:#6e9a7b"></div><div class="meta"><b>Success</b><span class="hex">#6E9A7B</span><span class="role mono">In lista</span></div></div>
+    <div class="cell"><div class="chip" style="background:#c9a15a"></div><div class="meta"><b>Warning</b><span class="hex">#C9A15A</span><span class="role mono">Ricontatta</span></div></div>
+    <div class="cell"><div class="chip" style="background:#b4614b"></div><div class="meta"><b>Danger</b><span class="hex">#B4614B</span><span class="role mono">Perso</span></div></div>
+    <div class="cell"><div class="chip" style="background:#b0794e"></div><div class="meta"><b>Bronze</b><span class="hex">#B0794E</span><span class="role mono">Podio · 3°</span></div></div>
+  </div>
+</section>
+
+<!-- 03 TYPE -->
+<section class="doc">
+  <div class="sec-head">
+    <div class="lft"><span class="idx mono">03 / 08</span><h2>Tipografia</h2></div>
+    <p class="note">Sistema a 3 tagli, un ruolo ciascuno. I numeri usano Helvetica Neue Black.</p>
+  </div>
+  <div class="type-grid">
+    <div class="type-row"><div class="side"><span class="n">Display — Bold</span><span class="d">Titoli, numeri, annunci. La spina dorsale.</span></div><div class="spec-display">Hertz&nbsp;238</div></div>
+    <div class="type-row"><div class="side"><span class="n">Body — Medium</span><span class="d">Testo UI e secondario.</span></div><div class="spec-body">Chiusura liste ore 23:30 — 47 liste attive stasera, tasso di conferma al 68%.</div></div>
+    <div class="type-row"><div class="side"><span class="n">Label — Mono</span><span class="d">Kicker e metadati, sempre maiuscolo, wide-tracked.</span></div><div class="spec-mono">Friday · Kindergarten · 18+ · 23.59 — late</div></div>
+  </div>
+</section>
+
+<!-- 04 BUTTON -->
+<section class="doc">
+  <div class="sec-head">
+    <div class="lft"><span class="idx mono">04 / 08</span><h2>Button</h2></div>
+    <p class="note">5 varianti, 3 taglie. Hover schiarisce verso il bianco, press scurisce — nessun bounce.</p>
+  </div>
+  <div class="stage">
+    <div class="cap mono">Varianti</div>
+    <div class="row" style="margin-bottom:30px">
+      <button class="btn btn-primary">Aggiungi lead</button>
+      <button class="btn btn-secondary">Secondario</button>
+      <button class="btn btn-outline">Outline</button>
+      <button class="btn btn-ghost">Ghost</button>
+      <button class="btn btn-danger">Elimina</button>
+      <button class="btn btn-secondary btn-icon" aria-label="aggiungi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="cap mono">Taglie — 44px è il target mobile default</div>
+    <div class="row">
+      <button class="btn btn-primary btn-sm">Small · 36</button>
+      <button class="btn btn-primary">Medium · 44</button>
+      <button class="btn btn-primary btn-lg">Large · 50</button>
+    </div>
+  </div>
+</section>
+
+<!-- 05 BADGE / TAG -->
+<section class="doc">
+  <div class="sec-head">
+    <div class="lft"><span class="idx mono">05 / 08</span><h2>Badge &amp; Tag</h2></div>
+    <p class="note">Stati pipeline in toni muted. Pill piene — l'unico posto dove il raggio va a 999px.</p>
+  </div>
+  <div class="cols two">
+    <div class="stage">
+      <div class="cap mono">Badge · stati lead</div>
+      <div class="row">
+        <span class="badge b-sage"><span class="dot"></span>Nuovo</span>
+        <span class="badge b-warn"><span class="dot"></span>Da ricontattare</span>
+        <span class="badge b-succ"><span class="dot"></span>In lista</span>
+        <span class="badge b-succ"><span class="dot"></span>Confermato</span>
+        <span class="badge b-dngr"><span class="dot"></span>Perso</span>
+        <span class="badge b-neutral"><span class="dot"></span>Bozza</span>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="cap mono">Tag · running order</div>
+      <div class="row">
+        <span class="tag">Warm up</span>
+        <span class="tag">Main</span>
+        <span class="tag">Closing</span>
+        <span class="tag">B2B</span>
+        <span class="tag">Guest list</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 CARD / STAT -->
+<section class="doc">
+  <div class="sec-head">
+    <div class="lft"><span class="idx mono">06 / 08</span><h2>Card &amp; Stat</h2></div>
+    <p class="note">Superficie piatta, bordo 1px, raggio piccolo. I bordi separano — niente ombre morbide.</p>
+  </div>
+  <div class="statgrid" style="margin-bottom:14px">
+    <div class="card stat"><span class="l mono">Ingressi</span><span class="v"><span class="num n">1.284</span></span><span class="d up">↑ 12% vs mese</span></div>
+    <div class="card stat"><span class="l mono">Liste attive</span><span class="v"><span class="num n">47</span></span><span class="d up">↑ 8 nuove</span></div>
+    <div class="card stat"><span class="l mono">Incasso</span><span class="v"><span class="num n">18,4</span><span class="u">K€</span></span><span class="d up">↑ 5%</span></div>
+    <div class="card stat"><span class="l mono">Conferma</span><span class="v"><span class="num n">68</span><span class="u">%</span></span><span class="d down">↓ 3%</span></div>
+  </div>
+  <div class="cols two">
+    <div class="card">
+      <div class="ch"><div class="ckick mono">Evento · Sabato</div><div class="ctitle">Techno Sequence</div></div>
+      <div class="cc"><p>Kindergarten, Via Alfredo Calzoni — Bologna. Door 23:59, 18+, RSVP. Warm up → Main → Closing.</p></div>
+      <div class="cf"><button class="btn btn-primary btn-sm">Apri serata</button><button class="btn btn-ghost btn-sm">Running order</button></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ckick mono">Squadra</div><div class="ctitle">Team Aurora</div></div>
+      <div class="cc"><p>12 PR attivi · capo Giulia Ferrari. 412 ingressi generati questo mese, prima in classifica.</p></div>
+      <div class="cf"><button class="btn btn-outline btn-sm">Vedi collaboratori</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 CONTROLS -->
+<section class="doc">
+  <div class="sec-head">
+    <div class="lft"><span class="idx mono">07 / 08</span><h2>Controlli &amp; Navigazione</h2></div>
+    <p class="note">Tabs pipeline, segmented, switch, progress. Motion breve e lineare, mai elastico.</p>
+  </div>
+  <div class="stage" style="margin-bottom:22px">
+    <div class="cap mono">Tabs · pipeline Lead CRM</div>
+    <div class="tabs">
+      <button class="on">Nuovi<span class="count">12</span></button>
+      <button>Contattati<span class="count">8</span></button>
+      <button>In lista<span class="count">23</span></button>
+      <button>Confermati<span class="count">15</span></button>
+      <button>Persi<span class="count">4</span></button>
+    </div>
+  </div>
+  <div class="cols two">
+    <div class="stage">
+      <div class="cap mono">Segmented &amp; Switch</div>
+      <div class="row" style="gap:36px">
+        <div class="seg"><button class="on">Oggi</button><button>Settimana</button><button>Mese</button></div>
+        <div class="row" style="gap:12px"><div class="sw on"><i></i></div><div class="sw"><i></i></div></div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="cap mono">Progress · quota &amp; podio</div>
+      <div class="cols" style="gap:14px">
+        <div class="bar"><i class="g" style="width:100%"></i></div>
+        <div class="bar"><i class="s" style="width:82%"></i></div>
+        <div class="bar"><i class="b" style="width:66%"></i></div>
+        <div class="bar"><i class="p" style="width:48%"></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 RANK + STEPPER -->
+<section class="doc">
+  <div class="sec-head">
+    <div class="lft"><span class="idx mono">08 / 08</span><h2>Classifiche &amp; Inserimento numeri</h2></div>
+    <p class="note">La pagina vetrina. Podio oro/argento/bronzo muted, numeroni Helvetica Black.</p>
+  </div>
+  <div class="cols two">
+    <div class="card" style="padding:8px 16px">
+      <div class="rank">
+        <div class="rk"><span class="pos g num">1</span><div class="rb"><div class="rt"><span class="rn">Giulia Ferrari</span><span class="num rsc">238</span></div><div class="rm mono">Team Aurora</div><div class="bar"><i class="g" style="width:100%"></i></div></div></div>
+        <div class="rk"><span class="pos s num">2</span><div class="rb"><div class="rt"><span class="rn">Dario Villa</span><span class="num rsc">211</span></div><div class="rm mono">Neon Collective</div><div class="bar"><i class="s" style="width:89%"></i></div></div></div>
+        <div class="rk"><span class="pos b num">3</span><div class="rb"><div class="rt"><span class="rn">Sara Lombardi</span><span class="num rsc">187</span></div><div class="rm mono">Basement Crew</div><div class="bar"><i class="b" style="width:79%"></i></div></div></div>
+        <div class="rk"><span class="pos num">4</span><div class="rb"><div class="rt"><span class="rn">Marco Testa</span><span class="num rsc">164</span></div><div class="rm mono">Team Aurora</div><div class="bar"><i class="p" style="width:69%"></i></div></div></div>
+        <div class="rk"><span class="pos num">5</span><div class="rb"><div class="rt"><span class="rn">Elena Rizzo</span><span class="num rsc">142</span></div><div class="rm mono">Neon Collective</div><div class="bar"><i class="p" style="width:60%"></i></div></div></div>
+      </div>
+    </div>
+    <div class="cols" style="gap:22px">
+      <div class="stage">
+        <div class="cap mono">NumberStepper · ingressi lista</div>
+        <div class="stepper"><button aria-label="meno">−</button><div class="field"><span class="num">124</span></div><button aria-label="più">+</button></div>
+      </div>
+      <div class="statgrid" style="grid-template-columns:1fr 1fr">
+        <div class="card stat"><span class="l mono">Totale serata</span><span class="v"><span class="num n">182</span></span></div>
+        <div class="card stat"><span class="l mono">Capienza</span><span class="v"><span class="num n">76</span><span class="u">%</span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot"><div class="in">
+  <span>hertz PR Hub</span>
+  <span class="c">Component specimen · dark register</span>
+  <span class="r">Sage — 2025</span>
+</div></footer>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+import * as React from "react";
+import { Logo } from "@/components/pr-hub/logo";
+import { cn } from "@/lib/cn";
+
+/**
+ * DashboardHeader — the top bar of every PR Hub screen.
+ * Carries the OFFICIAL hertz wordmark on the left (brand requirement), the
+ * screen title, and a slot for actions (notifications, avatar) on the right.
+ * Sticky, blurred, hairline bottom border.
+ */
+export interface DashboardHeaderProps {
+  title?: string;
+  right?: React.ReactNode;
+  className?: string;
+}
+
+export function DashboardHeader({ title, right, className }: DashboardHeaderProps) {
+  return (
+    <header
+      className={cn(
+        "sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border",
+        "bg-background/80 px-4 backdrop-blur-md",
+        className
+      )}
+    >
+      <Logo variant="wordmark" height={20} priority />
+      {title && (
+        <>
+          <span className="h-4 w-px bg-border" aria-hidden />
+          <span className="truncate text-sm font-medium text-foreground">{title}</span>
+        </>
+      )}
+      {right && <div className="ml-auto flex items-center gap-2">{right}</div>}
+    </header>
+  );
+}

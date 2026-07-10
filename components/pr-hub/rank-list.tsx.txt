@@ -1,0 +1,66 @@
+import * as React from "react";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/cn";
+
+/**
+ * RankList — the Classifiche showcase.
+ * Top 3 get podium treatment (rank badge tinted gold/silver/bronze, all
+ * brand-muted); the rest are compact rows. Bars are normalized to the leader.
+ */
+export interface RankEntry {
+  id: string;
+  name: string;
+  meta?: string;          // team / role
+  score: number;
+}
+
+const podium = [
+  { badge: "bg-[var(--color-gold)] text-ink",   bar: "gold" as const },
+  { badge: "bg-[var(--color-silver)] text-ink", bar: "silver" as const },
+  { badge: "bg-[var(--color-bronze)] text-ink", bar: "bronze" as const },
+];
+
+export function RankList({ entries, className }: { entries: RankEntry[]; className?: string }) {
+  const max = Math.max(1, ...entries.map((e) => e.score));
+  return (
+    <ol className={cn("flex flex-col gap-1", className)}>
+      {entries.map((e, i) => {
+        const p = podium[i];
+        return (
+          <li
+            key={e.id}
+            className={cn(
+              "flex items-center gap-3 rounded-md px-2 py-2.5",
+              i < 3 ? "bg-card" : "hover:bg-accent/50"
+            )}
+          >
+            <span
+              className={cn(
+                "flex size-7 shrink-0 items-center justify-center rounded-sm text-sm font-bold",
+                p ? p.badge : "bg-secondary text-muted-foreground"
+              )}
+            >
+              {i + 1}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="truncate text-sm font-medium text-foreground">{e.name}</span>
+                <span className="num text-lg">{e.score}</span>
+              </div>
+              {e.meta && (
+                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                  {e.meta}
+                </span>
+              )}
+              <Progress
+                value={(e.score / max) * 100}
+                tone={p ? p.bar : "primary"}
+                className="mt-1.5"
+              />
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}

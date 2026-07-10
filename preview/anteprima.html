@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="it" class="hz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>hertz PR Hub — anteprima UI</title>
+<style>
+/* ===== hertz tokens (mirror of app/globals.css @theme) ===== */
+:root{
+  --ink:#151515; --surface:#1c1c1c; --surface2:#232323; --input:#3a3a3a;
+  --fg:#f2f3ee; --fg2:#7d7d7b; --border:#2c2c2c;
+  --sage:#a3b7b7; --sage-h:#b4c6c6; --sage-a:#90a6a6;
+  --success:#6e9a7b; --warning:#c9a15a; --danger:#b4614b;
+  --gold:#a3b7b7; --silver:#b7b7b5; --bronze:#b0794e;
+  --r-sm:4px; --r-md:6px; --r-lg:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#0d0d0d;
+  font-family:"Helvetica Neue",Arial,sans-serif;color:var(--fg);
+  padding:48px 32px 80px;
+  display:flex;flex-wrap:wrap;gap:56px;justify-content:center;align-items:flex-start;
+}
+.num{font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;line-height:.9}
+.mono{font-family:ui-monospace,"SF Mono",monospace;text-transform:uppercase;letter-spacing:.12em}
+
+/* ===== device ===== */
+.phone{
+  width:390px;flex:0 0 auto;
+  border-radius:52px;background:#000;padding:12px;
+  box-shadow:0 0 0 2px #1e1e1e,0 40px 90px -20px rgba(0,0,0,.8);
+  position:relative;
+}
+.screen{
+  border-radius:42px;background:var(--ink);overflow:hidden;
+  height:820px;position:relative;display:flex;flex-direction:column;
+}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  width:120px;height:32px;background:#000;border-radius:20px;z-index:40}
+.statusbar{height:52px;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 28px 6px;font-size:14px;font-weight:600;flex:0 0 auto;position:relative;z-index:30}
+.statusbar .r{display:flex;gap:6px;align-items:center}
+.caption{width:390px;text-align:center;margin-top:20px;color:#8a8a88;font-size:13px}
+.caption b{color:var(--fg);font-weight:600}
+
+/* ===== app chrome ===== */
+.appbar{height:56px;flex:0 0 auto;display:flex;align-items:center;gap:12px;
+  padding:0 18px;border-bottom:1px solid var(--border);
+  background:rgba(21,21,21,.8);backdrop-filter:blur(12px);position:relative;z-index:20}
+.appbar img{height:19px;width:auto;display:block}
+.appbar .sep{width:1px;height:16px;background:var(--border)}
+.appbar .title{font-size:14px;font-weight:500}
+.appbar .sp{margin-left:auto;display:flex;gap:10px;align-items:center}
+.iconbtn{width:34px;height:34px;border-radius:var(--r-md);border:1px solid var(--border);
+  background:var(--surface2);display:grid;place-items:center;color:var(--fg2);cursor:pointer}
+.iconbtn svg{width:18px;height:18px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--sage);color:var(--ink);
+  display:grid;place-items:center;font-weight:700;font-size:13px}
+
+.body{flex:1;overflow-y:auto;padding:18px 18px 90px}
+.body::-webkit-scrollbar{display:none}
+
+.kicker{font-size:11px;color:var(--fg2);margin-bottom:14px}
+.h1{font-weight:700;font-size:26px;letter-spacing:-.02em;margin-bottom:2px}
+.sub{color:var(--fg2);font-size:13px;margin-bottom:18px}
+
+/* segmented */
+.seg{display:inline-flex;gap:2px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r-md);padding:2px;margin-bottom:18px}
+.seg button{border:0;background:transparent;color:var(--fg2);font:inherit;font-size:13px;
+  font-weight:500;padding:7px 14px;border-radius:5px;cursor:pointer}
+.seg button.on{background:var(--sage);color:var(--ink)}
+
+/* stat grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px}
+.stat .lbl{font-size:11px;color:var(--fg2);display:block;margin-bottom:10px}
+.stat .val{display:flex;align-items:baseline;gap:5px}
+.stat .val .n{font-size:34px}
+.stat .val .u{font-size:13px;color:var(--fg2)}
+.stat .delta{font-size:12px;font-weight:500;margin-top:8px;display:block}
+.up{color:var(--success)} .down{color:var(--danger)}
+
+/* pipeline tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:14px;overflow-x:auto}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{border:0;background:transparent;color:var(--fg2);font:inherit;font-size:13px;font-weight:500;
+  padding:10px 12px;position:relative;white-space:nowrap;cursor:pointer}
+.tabs button.on{color:var(--fg)}
+.tabs button.on::after{content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:2px;
+  background:var(--sage);border-radius:2px}
+.count{display:inline-block;margin-left:6px;background:var(--surface2);border-radius:20px;
+  padding:1px 7px;font-size:11px;color:var(--fg2)}
+
+/* lead row */
+.lead{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--border)}
+.lead .av{width:38px;height:38px;border-radius:50%;background:var(--surface2);color:var(--sage);
+  display:grid;place-items:center;font-weight:700;font-size:14px;flex:0 0 auto}
+.lead .nm{font-size:14px;font-weight:500}
+.lead .mt{font-size:12px;color:var(--fg2);margin-top:1px}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:var(--r-sm);
+  padding:3px 8px;font-size:10.5px;font-weight:500;border:1px solid;margin-left:auto;white-space:nowrap}
+.b-sage{color:var(--sage);border-color:rgba(163,183,183,.3);background:rgba(163,183,183,.12)}
+.b-succ{color:var(--success);border-color:rgba(110,154,123,.3);background:rgba(110,154,123,.12)}
+.b-warn{color:var(--warning);border-color:rgba(201,161,90,.3);background:rgba(201,161,90,.12)}
+.b-dngr{color:var(--danger);border-color:rgba(180,97,75,.3);background:rgba(180,97,75,.12)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* rank list */
+.rank{display:flex;flex-direction:column;gap:4px}
+.rk{display:flex;align-items:center;gap:12px;padding:11px 8px;border-radius:var(--r-md)}
+.rk.podium{background:var(--surface)}
+.rk .pos{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;
+  font-weight:700;font-size:14px;flex:0 0 auto;background:var(--surface2);color:var(--fg2)}
+.rk .pos.g{background:var(--gold);color:var(--ink)}
+.rk .pos.s{background:var(--silver);color:var(--ink)}
+.rk .pos.b{background:var(--bronze);color:var(--ink)}
+.rk .rbody{flex:1;min-width:0}
+.rk .rtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.rk .rnm{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk .rsc{font-size:17px}
+.rk .rmt{font-size:10px;color:var(--fg2);margin-top:1px}
+.bar{height:6px;background:var(--input);border-radius:20px;overflow:hidden;margin-top:7px}
+.bar>i{display:block;height:100%;border-radius:20px}
+.bar>i.g{background:var(--gold)} .bar>i.s{background:var(--silver)}
+.bar>i.b{background:var(--bronze)} .bar>i.p{background:var(--sage)}
+
+/* stepper */
+.stepper{display:flex;align-items:center;gap:12px;margin-top:6px}
+.stepper button{width:48px;height:48px;border-radius:var(--r-md);border:1px solid var(--border);
+  background:var(--surface2);color:var(--fg);font-size:24px;cursor:pointer}
+.stepper .field{flex:1;height:48px;border-radius:var(--r-md);border:1px solid var(--input);
+  background:var(--surface);display:grid;place-items:center;font-size:28px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;
+  border-radius:var(--r-md);font:inherit;font-size:14px;font-weight:500;border:0;cursor:pointer;width:100%}
+.btn-primary{background:var(--sage);color:var(--ink)}
+.btn-ghost{background:transparent;color:var(--fg);border:1px solid var(--border)}
+
+/* tab bar */
+.tabbar{position:absolute;bottom:0;left:0;right:0;height:76px;padding-bottom:14px;
+  display:flex;justify-content:space-around;align-items:center;
+  border-top:1px solid var(--border);background:rgba(21,21,21,.85);backdrop-filter:blur(12px);z-index:20}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--fg2);
+  font-size:10px;text-decoration:none}
+.tabbar a.on{color:var(--sage)}
+.tabbar svg{width:22px;height:22px}
+.homeind{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
+  width:134px;height:5px;border-radius:3px;background:#5a5a58;z-index:30}
+
+.section-label{font-size:11px;color:var(--fg2);margin:22px 2px 10px}
+.podium-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:8px 8px 12px}
+</style>
+</head>
+<body>
+
+<!-- ================= SCREEN 1: DASHBOARD MANAGER ================= -->
+<div>
+<div class="phone"><div class="notch"></div><div class="screen">
+  <div class="statusbar"><span>21:47</span><span class="r">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4" width="3" height="8" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+    <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2 0 3.8.8 5.1 2l1.2-1.3C13.1 1.6 10.9.7 8.5.7S3.9 1.6 2.2 3.2L3.4 4.5c1.3-1.2 3.1-2 5.1-2z" opacity=".9"/><path d="M8.5 6c1 0 2 .4 2.7 1.1l1.2-1.2C11.3 4.8 10 4.2 8.5 4.2S5.7 4.8 4.6 5.9l1.2 1.2C6.5 6.4 7.5 6 8.5 6z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+    <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="1" y="1" width="21" height="10" rx="3" stroke="currentColor" opacity=".5"/><rect x="3" y="3" width="16" height="6" rx="1.5" fill="currentColor"/><rect x="23" y="4" width="2" height="4" rx="1" fill="currentColor" opacity=".5"/></svg>
+  </span></div>
+
+  <div class="appbar">
+    <img src="../public/brand/hertz-wordmark-white.png" alt="hertz" />
+    <span class="sep"></span><span class="title">Dashboard</span>
+    <span class="sp">
+      <button class="iconbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></button>
+      <span class="avatar">MR</span>
+    </span>
+  </div>
+
+  <div class="body">
+    <div class="kicker mono">Panoramica · Manager</div>
+    <div class="h1">Ciao, Marco</div>
+    <div class="sub">3 eventi attivi questa settimana</div>
+
+    <div class="seg"><button class="on">Oggi</button><button>Settimana</button><button>Mese</button></div>
+
+    <div class="grid">
+      <div class="card stat"><span class="lbl mono">Ingressi</span><span class="val"><span class="num n">1.284</span></span><span class="delta up">↑ 12% vs mese scorso</span></div>
+      <div class="card stat"><span class="lbl mono">Liste attive</span><span class="val"><span class="num n">47</span></span><span class="delta up">↑ 8 nuove</span></div>
+      <div class="card stat"><span class="lbl mono">Incasso stimato</span><span class="val"><span class="num n">18,4</span><span class="u">K€</span></span><span class="delta up">↑ 5%</span></div>
+      <div class="card stat"><span class="lbl mono">Tasso conferma</span><span class="val"><span class="num n">68</span><span class="u">%</span></span><span class="delta down">↓ 3%</span></div>
+    </div>
+
+    <div class="section-label mono">Top squadre · questo mese</div>
+    <div class="podium-card">
+      <div class="rank">
+        <div class="rk podium"><span class="pos g">1</span><div class="rbody"><div class="rtop"><span class="rnm">Team Aurora</span><span class="num rsc">412</span></div><div class="rmt mono">Capo · Giulia F.</div><div class="bar"><i class="g" style="width:100%"></i></div></div></div>
+        <div class="rk podium"><span class="pos s">2</span><div class="rbody"><div class="rtop"><span class="rnm">Neon Collective</span><span class="num rsc">357</span></div><div class="rmt mono">Capo · Dario V.</div><div class="bar"><i class="s" style="width:87%"></i></div></div></div>
+        <div class="rk podium"><span class="pos b">3</span><div class="rbody"><div class="rtop"><span class="rnm">Basement Crew</span><span class="num rsc">298</span></div><div class="rmt mono">Capo · Sara L.</div><div class="bar"><i class="b" style="width:72%"></i></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabbar">
+    <a class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>Home</a>
+    <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg>Lead</a>
+    <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Eventi</a>
+    <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5 4-2 4 2-2-5"/><circle cx="12" cy="8" r="6"/></svg>Classifiche</a>
+  </nav>
+  <div class="homeind"></div>
+</div></div>
+<div class="caption"><b>01 · Dashboard Manager</b> — wordmark ufficiale nell'app bar</div>
+</div>
+
+<!-- ================= SCREEN 2: LEAD CRM ================= -->
+<div>
+<div class="phone"><div class="notch"></div><div class="screen">
+  <div class="statusbar"><span>21:47</span><span class="r">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4" width="3" height="8" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+    <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="1" y="1" width="21" height="10" rx="3" stroke="currentColor" opacity=".5"/><rect x="3" y="3" width="16" height="6" rx="1.5" fill="currentColor"/></svg>
+  </span></div>
+  <div class="appbar">
+    <img src="../public/brand/hertz-wordmark-white.png" alt="hertz" />
+    <span class="sep"></span><span class="title">Lead</span>
+    <span class="sp"><button class="iconbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button></span>
+  </div>
+  <div class="body">
+    <div class="kicker mono">Pipeline · Capo PR</div>
+    <div class="h1" style="margin-bottom:14px">I miei lead</div>
+    <div class="tabs">
+      <button class="on">Nuovi<span class="count">12</span></button>
+      <button>Contattati<span class="count">8</span></button>
+      <button>In lista<span class="count">23</span></button>
+      <button>Confermati<span class="count">15</span></button>
+      <button>Persi<span class="count">4</span></button>
+    </div>
+    <div class="lead"><span class="av">AC</span><div><div class="nm">Alessia Conti</div><div class="mt mono">+39 340 · IG @alec</div></div><span class="badge b-sage"><span class="dot"></span>Nuovo</span></div>
+    <div class="lead"><span class="av">FB</span><div><div class="nm">Fabio Bianchi</div><div class="mt mono">+39 328 · IG @fabb</div></div><span class="badge b-warn"><span class="dot"></span>Da ricontattare</span></div>
+    <div class="lead"><span class="av">MR</span><div><div class="nm">Martina Ruggeri</div><div class="mt mono">+39 351 · IG @mru</div></div><span class="badge b-succ"><span class="dot"></span>In lista</span></div>
+    <div class="lead"><span class="av">LG</span><div><div class="nm">Luca Greco</div><div class="mt mono">+39 333 · IG @lucag</div></div><span class="badge b-sage"><span class="dot"></span>Nuovo</span></div>
+    <div class="lead"><span class="av">SV</span><div><div class="nm">Sofia Vitale</div><div class="mt mono">+39 347 · IG @sofi</div></div><span class="badge b-dngr"><span class="dot"></span>Perso</span></div>
+    <div class="lead"><span class="av">DC</span><div><div class="nm">Davide Costa</div><div class="mt mono">+39 340 · IG @dcosta</div></div><span class="badge b-succ"><span class="dot"></span>Confermato</span></div>
+  </div>
+  <nav class="tabbar">
+    <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>Home</a>
+    <a class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg>Lead</a>
+    <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Eventi</a>
+    <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5 4-2 4 2-2-5"/><circle cx="12" cy="8" r="6"/></svg>Classifiche</a>
+  </nav>
+  <div class="homeind"></div>
+</div></div>
+<div class="caption"><b>02 · Lead CRM</b> — tab pipeline + badge di stato</div>
+</div>
+
+<!-- ================= SCREEN 3: CLASSIFICHE ================= -->
+<div>
+<div class="phone"><div class="notch"></div><div class="screen">
+  <div class="statusbar"><span>21:47</span><span class="r">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4" width="3" height="8" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+    <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="1" y="1" width="21" height="10" rx="3" stroke="currentColor" opacity=".5"/><rect x="3" y="3" width="16" height="6" rx="1.5" fill="currentColor"/></svg>
+  </span></div>
+  <div class="appbar">
+    <img src="../public/brand/hertz-wordmark-white.png" alt="hertz" />
+    <span class="sep"></span><span class="title">Classifiche</span>
+  </div>
+  <div class="body">
+    <div class="kicker mono">Stagione · Autunno 2025</div>
+    <div class="h1" style="margin-bottom:14px">Top PR</div>
+    <div class="seg"><button class="on">Ingressi</button><button>Incasso</button><button>Conversione</button></div>
+    <div class="rank">
+      <div class="rk podium"><span class="pos g">1</span><div class="rbody"><div class="rtop"><span class="rnm">Giulia Ferrari</span><span class="num rsc">238</span></div><div class="rmt mono">Team Aurora</div><div class="bar"><i class="g" style="width:100%"></i></div></div></div>
+      <div class="rk podium"><span class="pos s">2</span><div class="rbody"><div class="rtop"><span class="rnm">Dario Villa</span><span class="num rsc">211</span></div><div class="rmt mono">Neon Collective</div><div class="bar"><i class="s" style="width:89%"></i></div></div></div>
+      <div class="rk podium"><span class="pos b">3</span><div class="rbody"><div class="rtop"><span class="rnm">Sara Lombardi</span><span class="num rsc">187</span></div><div class="rmt mono">Basement Crew</div><div class="bar"><i class="b" style="width:79%"></i></div></div></div>
+      <div class="rk"><span class="pos">4</span><div class="rbody"><div class="rtop"><span class="rnm">Marco Testa</span><span class="num rsc">164</span></div><div class="rmt mono">Team Aurora</div><div class="bar"><i class="p" style="width:69%"></i></div></div></div>
+      <div class="rk"><span class="pos">5</span><div class="rbody"><div class="rtop"><span class="rnm">Elena Rizzo</span><span class="num rsc">142</span></div><div class="rmt mono">Neon Collective</div><div class="bar"><i class="p" style="width:60%"></i></div></div></div>
+      <div class="rk"><span class="pos">6</span><div class="rbody"><div class="rtop"><span class="rnm">Paolo Serra</span><span class="num rsc">128</span></div><div class="rmt mono">Basement Crew</div><div class="bar"><i class="p" style="width:54%"></i></div></div></div>
+    </div>
+  </div>
+  <nav class="tabbar">
+    <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>Home</a>
+    <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Lead</a>
+    <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Eventi</a>
+    <a class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5 4-2 4 2-2-5"/><circle cx="12" cy="8" r="6"/></svg>Classifiche</a>
+  </nav>
+  <div class="homeind"></div>
+</div></div>
+<div class="caption"><b>03 · Classifiche</b> — podio oro/argento/bronzo (muted brand)</div>
+</div>
+
+<!-- ================= SCREEN 4: EVENTO — inserimento numeri ================= -->
+<div>
+<div class="phone"><div class="notch"></div><div class="screen">
+  <div class="statusbar"><span>21:47</span><span class="r">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4" width="3" height="8" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+    <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="1" y="1" width="21" height="10" rx="3" stroke="currentColor" opacity=".5"/><rect x="3" y="3" width="16" height="6" rx="1.5" fill="currentColor"/></svg>
+  </span></div>
+  <div class="appbar">
+    <img src="../public/brand/hertz-wordmark-white.png" alt="hertz" />
+    <span class="sep"></span><span class="title">Evento</span>
+  </div>
+  <div class="body">
+    <div class="kicker mono">Sabato · Main Room</div>
+    <div class="h1">Techno Sequence</div>
+    <div class="sub">14 giu · chiusura liste 23:30</div>
+
+    <div class="card" style="margin-bottom:14px">
+      <span class="lbl mono" style="font-size:11px;color:var(--fg2);display:block;margin-bottom:14px">Inserimento numeri</span>
+      <div style="margin-bottom:16px"><div class="mono" style="font-size:11px;color:var(--fg2);margin-bottom:8px">Ingressi lista</div>
+        <div class="stepper"><button>−</button><div class="field num">124</div><button>+</button></div></div>
+      <div><div class="mono" style="font-size:11px;color:var(--fg2);margin-bottom:8px">Paganti in cassa</div>
+        <div class="stepper"><button>−</button><div class="field num">58</div><button>+</button></div></div>
+    </div>
+
+    <div class="grid" style="margin-bottom:18px">
+      <div class="card stat"><span class="lbl mono">Totale</span><span class="val"><span class="num n">182</span></span></div>
+      <div class="card stat"><span class="lbl mono">Capienza</span><span class="val"><span class="num n">76</span><span class="u">%</span></span></div>
+    </div>
+    <button class="btn btn-primary" style="margin-bottom:10px">Salva numeri</button>
+    <button class="btn btn-ghost">Chiudi serata</button>
+  </div>
+  <div class="homeind"></div>
+</div></div>
+<div class="caption"><b>04 · Evento</b> — stepper numerico (target 48px) + azioni</div>
+</div>
+
+</body>
+</html>
