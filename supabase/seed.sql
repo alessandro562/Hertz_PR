@@ -1,0 +1,12 @@
+-- Seed data for local development (`npx supabase db reset` runs this after
+-- migrations). We deliberately do NOT insert into auth.users here — auth users
+-- must be created through Supabase Auth so passwords are hashed correctly and
+-- the handle_new_user() trigger fills in the profile.
+--
+-- To create the first Manager, use ONE of:
+--   1) npm run seed:manager        (service-role script, see scripts/seed-manager.ts)
+--   2) Supabase Studio -> Authentication -> Add user
+--        - Auto Confirm User: ON
+--        - User Metadata: {"role":"manager","full_name":"Alessandro"}
+--
+-- Phase 2+ demo rows (leads, teams, events, ...) will be added here later.
