@@ -71,7 +71,7 @@ export function GroupMembership({
                   type="button"
                   size="sm"
                   variant={isMember ? "secondary" : "outline"}
-                  className={cn("h-8 gap-1.5", isMember && "text-emerald-600 dark:text-emerald-400")}
+                  className={cn("h-8 gap-1.5", isMember && "text-success")}
                   onClick={() => toggle(g.id, isMember)}
                   disabled={pending}
                 >

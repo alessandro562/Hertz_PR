@@ -26,8 +26,8 @@ export function LeadForm({ initialUsername = "" }: { initialUsername?: string })
   return (
     <form action={action} className="space-y-4">
       {state.duplicate ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
-          <p className="flex items-center gap-2 font-medium text-amber-700 dark:text-amber-400">
+        <div className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
+          <p className="flex items-center gap-2 font-medium text-warning">
             <UserCheck className="size-4" /> Profilo già presente
           </p>
           <p className="mt-1 text-muted-foreground">

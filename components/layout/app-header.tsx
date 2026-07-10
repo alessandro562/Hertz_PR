@@ -3,6 +3,7 @@
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { ROLE_LABELS } from "@/lib/constants/roles";
 import { Badge } from "@/components/ui/badge";
+import { Logo } from "@/components/pr-hub/logo";
 import { SignOutButton } from "@/components/navigation/sign-out-button";
 
 function initialsOf(name: string): string {
@@ -19,8 +20,8 @@ export function AppHeader() {
   const { profile } = useCurrentUser();
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/80 px-4 backdrop-blur md:px-6">
-      <span className="font-semibold tracking-tight md:hidden">Hertz PR Hub</span>
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background px-4 md:px-6">
+      <Logo variant="wordmark" height={20} priority className="md:hidden" />
       <span className="hidden text-sm text-muted-foreground md:inline">
         {profile.full_name}
       </span>

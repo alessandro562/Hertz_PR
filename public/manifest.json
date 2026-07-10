@@ -1,13 +1,13 @@
 {
-  "name": "Hertz PR Hub",
-  "short_name": "PR Hub",
-  "description": "CRM operativo per gestione PR, collaboratori e performance eventi.",
+  "name": "hertz PR Hub",
+  "short_name": "hertz PR",
+  "description": "CRM operativo per PR e capi promoter — hertz",
   "id": "/",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "background_color": "#151515",
+  "theme_color": "#151515",
   "orientation": "portrait",
   "lang": "it",
   "dir": "ltr",
@@ -35,7 +35,7 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/maskable-512.png",
+      "src": "/icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

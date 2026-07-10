@@ -30,7 +30,7 @@ export function LeadCard({ lead }: { lead: Lead }) {
 
             <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               {lead.priority === "high" ? (
-                <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                <span className="inline-flex items-center gap-1 text-warning">
                   <Star className="size-3 fill-current" /> Alta
                 </span>
               ) : null}
@@ -39,7 +39,7 @@ export function LeadCard({ lead }: { lead: Lead }) {
                 <span
                   className={cn(
                     "inline-flex items-center gap-1",
-                    overdue && "font-medium text-red-600 dark:text-red-400",
+                    overdue && "font-medium text-destructive",
                   )}
                 >
                   <Clock className="size-3" /> {shortDate(lead.next_follow_up_at)}

@@ -132,6 +132,7 @@ export default async function PerformancePage() {
               ? `${formatSigned(scoreDelta)} pt vs precedente`
               : latestPoint.label
           }
+          hintTone={scoreDelta === null ? "muted" : scoreDelta >= 0 ? "success" : "danger"}
         />
       </div>
 
