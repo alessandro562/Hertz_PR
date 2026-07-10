@@ -55,16 +55,16 @@ const EMPTY_TOTALS: PerformanceTotals = {
   score: 0,
 };
 
+type PerformanceRow = {
+  list_names_count: number;
+  tickets_sold_count: number;
+  tables_count: number;
+  actual_entries_count: number;
+  performance_score: number;
+};
+
 /** Sum a set of performance rows (event totals, per-team totals, ...). */
-export function sumPerformances(
-  rows: {
-    list_names_count: number;
-    tickets_sold_count: number;
-    tables_count: number;
-    actual_entries_count: number;
-    performance_score: number;
-  }[],
-): PerformanceTotals {
+export function sumPerformances(rows: PerformanceRow[]): PerformanceTotals {
   return rows.reduce(
     (acc, r) => ({
       listNames: acc.listNames + r.list_names_count,
@@ -75,4 +75,30 @@ export function sumPerformances(
     }),
     EMPTY_TOTALS,
   );
+}
+
+export interface RankedGroup extends PerformanceTotals {
+  key: string;
+  count: number;
+}
+
+/**
+ * Groups performance rows by an arbitrary key (team, capo, collaborator, ...),
+ * sums each group's totals, and sorts by score descending. Used for every
+ * leaderboard in the app (per-event and cross-event).
+ */
+export function groupPerformances<T extends PerformanceRow>(
+  rows: T[],
+  keyFn: (row: T) => string,
+): RankedGroup[] {
+  const byKey = new Map<string, T[]>();
+  for (const row of rows) {
+    const key = keyFn(row);
+    const bucket = byKey.get(key);
+    if (bucket) bucket.push(row);
+    else byKey.set(key, [row]);
+  }
+  return [...byKey.entries()]
+    .map(([key, group]) => ({ key, count: group.length, ...sumPerformances(group) }))
+    .sort((a, b) => b.score - a.score);
 }

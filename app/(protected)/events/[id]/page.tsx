@@ -2,16 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Target, ClipboardList, Trophy } from "lucide-react";
 import { differenceInCalendarDays } from "date-fns";
-import {
-  getEvent,
-  getEventTeamAssignments,
-  getEventPerformances,
-  type EventPerformance,
-} from "@/lib/events/queries";
-import { listTeams, listCollaborators, type Collaborator } from "@/lib/network/queries";
+import { getEvent, getEventTeamAssignments, getEventPerformances } from "@/lib/events/queries";
+import { listTeams, listCollaborators } from "@/lib/network/queries";
 import { getSessionUser } from "@/lib/auth/session";
 import { isManager } from "@/lib/permissions";
-import { sumPerformances } from "@/lib/performance";
+import { sumPerformances, groupPerformances } from "@/lib/performance";
+import { displayName } from "@/lib/format";
 import { EventStatusBadge } from "@/components/events/status-badge";
 import { EventStatusSelect } from "@/components/events/status-select";
 import { TeamAssign } from "@/components/events/team-assign";
@@ -20,13 +16,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { longDate } from "@/lib/dates";
-
-function collabName(c: Collaborator | undefined): string {
-  if (!c) return "—";
-  return (
-    [c.first_name, c.last_name].filter(Boolean).join(" ") || `@${c.instagram_username}`
-  );
-}
 
 export default async function EventDetailPage({
   params,
@@ -60,25 +49,22 @@ export default async function EventDetailPage({
 
   const totals = sumPerformances(performances);
 
-  const byTeam = new Map<string, EventPerformance[]>();
-  for (const p of performances) {
-    const key = p.team_id ?? "senza-squadra";
-    byTeam.set(key, [...(byTeam.get(key) ?? []), p]);
-  }
-  const teamRanking = [...byTeam.entries()]
-    .map(([teamId, rows]) => ({
-      teamId,
-      name: teamById[teamId]?.name ?? "Senza squadra",
-      ...sumPerformances(rows),
-    }))
-    .sort((a, b) => b.score - a.score);
+  const teamRanking = groupPerformances(performances, (p) => p.team_id ?? "senza-squadra").map(
+    (g) => ({ teamId: g.key, name: teamById[g.key]?.name ?? "Senza squadra", score: g.score }),
+  );
 
   const collabRanking = [...performances]
     .sort((a, b) => b.performance_score - a.performance_score)
     .slice(0, 10)
     .map((p) => ({
       id: p.collaborator_id,
-      name: collabName(collabById[p.collaborator_id]),
+      name: displayName(
+        collabById[p.collaborator_id] ?? {
+          first_name: null,
+          last_name: null,
+          instagram_username: "sconosciuto",
+        },
+      ),
       score: p.performance_score,
     }));
 

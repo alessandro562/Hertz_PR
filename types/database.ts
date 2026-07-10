@@ -494,6 +494,19 @@ export interface Database {
           last_update: string;
         }[];
       };
+      ranking_collaborators: {
+        Args: Record<string, never>;
+        Returns: {
+          id: string;
+          first_name: string | null;
+          last_name: string | null;
+          instagram_username: string;
+          team_id: string | null;
+          level: CollaboratorLevel;
+          status: CollaboratorStatus;
+          last_active_at: string | null;
+        }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

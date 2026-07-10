@@ -11,3 +11,8 @@ export function displayName(entity: NameableEntity): string {
     `@${entity.instagram_username}`
   );
 }
+
+/** "+12" / "-5" / "0" — for growth/trend figures where the sign carries meaning. */
+export function formatSigned(n: number): string {
+  return n > 0 ? `+${n}` : `${n}`;
+}

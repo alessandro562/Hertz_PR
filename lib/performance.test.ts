@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculatePerformanceScore, sumPerformances } from "./performance";
+import { calculatePerformanceScore, sumPerformances, groupPerformances } from "./performance";
 
 const zero = {
   confirmed_support: false,
@@ -126,5 +126,46 @@ describe("sumPerformances", () => {
       entries: 6,
       score: 35,
     });
+  });
+});
+
+describe("groupPerformances", () => {
+  const rows = [
+    {
+      team: "fede",
+      list_names_count: 5,
+      tickets_sold_count: 1,
+      tables_count: 0,
+      actual_entries_count: 2,
+      performance_score: 10,
+    },
+    {
+      team: "fede",
+      list_names_count: 2,
+      tickets_sold_count: 0,
+      tables_count: 0,
+      actual_entries_count: 1,
+      performance_score: 4,
+    },
+    {
+      team: "tommaso",
+      list_names_count: 3,
+      tickets_sold_count: 2,
+      tables_count: 1,
+      actual_entries_count: 4,
+      performance_score: 25,
+    },
+  ];
+
+  it("groups by key, sums each group, and sorts by score descending", () => {
+    const ranking = groupPerformances(rows, (r) => r.team);
+    expect(ranking).toEqual([
+      { key: "tommaso", count: 1, listNames: 3, tickets: 2, tables: 1, entries: 4, score: 25 },
+      { key: "fede", count: 2, listNames: 7, tickets: 1, tables: 0, entries: 3, score: 14 },
+    ]);
+  });
+
+  it("returns an empty ranking for no rows", () => {
+    expect(groupPerformances([], (r: (typeof rows)[number]) => r.team)).toEqual([]);
   });
 });
