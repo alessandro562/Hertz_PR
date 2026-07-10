@@ -1,12 +1,5 @@
 import Link from "next/link";
-import {
-  Calendar,
-  Inbox,
-  MessageCircleReply,
-  AlarmClockOff,
-  UserCheck,
-  Trophy,
-} from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "./stat-card";
@@ -53,36 +46,20 @@ export function CapoPrDashboard({
       <div>
         <h2 className="mb-3 text-sm font-medium text-muted-foreground">I miei task</h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard label="Lead da contattare" value={tasks.toContact} icon={Inbox} />
-          <StatCard
-            label="Hanno risposto"
-            value={tasks.replied}
-            icon={MessageCircleReply}
-          />
-          <StatCard label="Follow-up oggi" value={tasks.followUpToday} icon={Calendar} />
-          <StatCard
-            label="Follow-up scaduti"
-            value={tasks.overdueFollowUps}
-            icon={AlarmClockOff}
-          />
+          <StatCard label="Lead da contattare" value={tasks.toContact} />
+          <StatCard label="Hanno risposto" value={tasks.replied} />
+          <StatCard label="Follow-up oggi" value={tasks.followUpToday} />
+          <StatCard label="Follow-up scaduti" value={tasks.overdueFollowUps} />
         </div>
       </div>
 
       <div>
         <h2 className="mb-3 text-sm font-medium text-muted-foreground">La mia squadra</h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard
-            label="Collaboratori"
-            value={team.collaboratorsCount}
-            icon={UserCheck}
-          />
-          <StatCard label="Attivi" value={team.active} icon={UserCheck} />
-          <StatCard label="Dormienti" value={team.dormant} icon={UserCheck} />
-          <StatCard
-            label="Score ultimo evento"
-            value={team.latestEventScore}
-            icon={Trophy}
-          />
+          <StatCard label="Collaboratori" value={team.collaboratorsCount} />
+          <StatCard label="Attivi" value={team.active} />
+          <StatCard label="Dormienti" value={team.dormant} />
+          <StatCard label="Score ultimo evento" value={team.latestEventScore} unit="pt" />
         </div>
       </div>
 

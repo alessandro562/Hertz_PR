@@ -1,30 +1,34 @@
-import type { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+/**
+ * StatCard — dashboard KPI unit. Mono kicker label, big brand numeral (.num),
+ * optional unit suffix and a trend hint (success/danger). No icon: the numeral
+ * carries the hierarchy, per the brand specimen.
+ */
 export function StatCard({
   label,
   value,
-  icon: Icon,
+  unit,
   hint,
   hintTone = "muted",
 }: {
   label: string;
   value: string | number;
-  icon?: LucideIcon;
+  unit?: string;
   hint?: string;
   hintTone?: "muted" | "success" | "danger";
 }) {
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="flex items-center justify-between gap-2">
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-            {label}
-          </span>
-          {Icon ? <Icon className="size-4 text-muted-foreground" /> : null}
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+          {label}
+        </span>
+        <div className="mt-2 flex items-baseline gap-1">
+          <span className="num text-3xl">{value}</span>
+          {unit ? <span className="text-sm text-muted-foreground">{unit}</span> : null}
         </div>
-        <div className="num mt-2 text-3xl">{value}</div>
         {hint ? (
           <p
             className={cn(

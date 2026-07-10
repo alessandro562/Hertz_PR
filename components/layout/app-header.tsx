@@ -21,7 +21,13 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background px-4 md:px-6">
-      <Logo variant="lockup" height={40} priority className="md:hidden" />
+      <div className="flex items-center gap-2.5 md:hidden">
+        <Logo variant="lockup" height={38} priority />
+        <span className="h-5 w-px bg-border" aria-hidden />
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          PR Hub
+        </span>
+      </div>
       <span className="hidden text-sm text-muted-foreground md:inline">
         {profile.full_name}
       </span>
