@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { getLead } from "@/lib/leads/queries";
+import { getLead, getLeadInteractions } from "@/lib/leads/queries";
 import { setLeadAvatar } from "@/lib/leads/actions";
 import { getSessionUser } from "@/lib/auth/session";
 import { canEditLead } from "@/lib/permissions";
 import { QuickActions } from "@/components/leads/quick-actions";
 import { EditLeadForm } from "@/components/leads/edit-lead-form";
 import { StatusBadge } from "@/components/leads/status-badge";
+import { AddNoteForm } from "@/components/leads/add-note-form";
+import { LeadTimeline } from "@/components/leads/lead-timeline";
 import { AvatarUpload } from "@/components/common/avatar-upload";
 import { PersonAvatar } from "@/components/common/person-avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PRIORITY_LABELS, INTEREST_LABELS } from "@/lib/constants/leads";
-import { longDate } from "@/lib/dates";
+import { longDate, dateTime } from "@/lib/dates";
 import { displayName } from "@/lib/format";
 
 export default async function LeadDetailPage({
@@ -21,7 +23,11 @@ export default async function LeadDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [lead, current] = await Promise.all([getLead(id), getSessionUser()]);
+  const [lead, current, interactions] = await Promise.all([
+    getLead(id),
+    getSessionUser(),
+    getLeadInteractions(id),
+  ]);
   if (!lead) notFound();
 
   const profile = current?.profile ?? null;
@@ -58,6 +64,21 @@ export default async function LeadDetailPage({
       <Card>
         <CardContent className="pt-6">
           <QuickActions lead={lead} canEdit={canEdit} canAssign={canAssign} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Attività</CardTitle>
+          {lead.last_contact_at ? (
+            <p className="text-xs text-muted-foreground">
+              Ultimo contatto: {dateTime(lead.last_contact_at)}
+            </p>
+          ) : null}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {canEdit ? <AddNoteForm leadId={lead.id} /> : null}
+          <LeadTimeline interactions={interactions} />
         </CardContent>
       </Card>
 

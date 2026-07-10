@@ -13,6 +13,32 @@ function nullify(v: FormDataEntryValue | null | undefined): string | null {
   return s.length > 0 ? s : null;
 }
 
+type SupabaseServer = Awaited<ReturnType<typeof createClient>>;
+type SessionUser = NonNullable<Awaited<ReturnType<typeof getSessionUser>>>;
+type InteractionType =
+  | "note"
+  | "status_change"
+  | "contacted"
+  | "created"
+  | "converted";
+
+/** Append one entry to a lead's activity log (author denormalized for display). */
+async function insertInteraction(
+  supabase: SupabaseServer,
+  current: SessionUser,
+  leadId: string,
+  type: InteractionType,
+  body: string | null,
+): Promise<void> {
+  await supabase.from("lead_interactions").insert({
+    lead_id: leadId,
+    author_user_id: current.id,
+    author_name: current.profile.full_name,
+    type,
+    body,
+  });
+}
+
 export interface CreateLeadState {
   error?: string;
   duplicate?: { owner_name: string; lead_status: string };
@@ -83,6 +109,8 @@ export async function createLead(
     return { error: "Errore nel salvataggio del lead." };
   }
 
+  await insertInteraction(supabase, current, data.id, "created", null);
+
   revalidatePath("/leads");
   redirect(`/leads/${data.id}`);
 }
@@ -143,11 +171,55 @@ export async function setLeadStatus(
   id: string,
   status: LeadStatus,
 ): Promise<{ error?: string }> {
+  const current = await getSessionUser();
   const supabase = await createClient();
   const { error } = await supabase.from("leads").update({ status }).eq("id", id);
   if (error) return { error: "Impossibile aggiornare lo stato." };
+  if (current) await insertInteraction(supabase, current, id, "status_change", status);
   revalidatePath("/leads");
   revalidatePath(`/leads/${id}`);
+  return {};
+}
+
+export interface AddNoteState {
+  error?: string;
+  ok?: boolean;
+}
+
+export async function addLeadNote(
+  _prev: AddNoteState,
+  formData: FormData,
+): Promise<AddNoteState> {
+  const current = await getSessionUser();
+  if (!current) return { error: "Non autenticato." };
+  const leadId = String(formData.get("lead_id") ?? "");
+  const body = nullify(formData.get("body"));
+  if (!leadId) return { error: "Lead non trovato." };
+  if (!body) return { error: "Scrivi qualcosa." };
+
+  const supabase = await createClient();
+  await insertInteraction(supabase, current, leadId, "note", body);
+  await supabase
+    .from("leads")
+    .update({ last_contact_at: new Date().toISOString() })
+    .eq("id", leadId);
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${leadId}`);
+  return { ok: true };
+}
+
+/** Quick "I just reached out" — logs a contact and bumps last_contact_at. */
+export async function logLeadContact(leadId: string): Promise<{ error?: string }> {
+  const current = await getSessionUser();
+  if (!current) return { error: "Non autenticato." };
+  const supabase = await createClient();
+  await insertInteraction(supabase, current, leadId, "contacted", null);
+  await supabase
+    .from("leads")
+    .update({ last_contact_at: new Date().toISOString() })
+    .eq("id", leadId);
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${leadId}`);
   return {};
 }
 

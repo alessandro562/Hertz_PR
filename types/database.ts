@@ -182,6 +182,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      lead_interactions: {
+        Row: {
+          id: string;
+          lead_id: string;
+          author_user_id: string | null;
+          author_name: string | null;
+          type: "note" | "status_change" | "contacted" | "created" | "converted";
+          body: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id: string;
+          author_user_id?: string | null;
+          author_name?: string | null;
+          type: "note" | "status_change" | "contacted" | "created" | "converted";
+          body?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string;
+          author_user_id?: string | null;
+          author_name?: string | null;
+          type?: "note" | "status_change" | "contacted" | "created" | "converted";
+          body?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       teams: {
         Row: {
           id: string;

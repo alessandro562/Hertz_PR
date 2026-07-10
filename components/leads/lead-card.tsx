@@ -45,6 +45,9 @@ export function LeadCard({ lead }: { lead: Lead }) {
                   <Clock className="size-3" /> {shortDate(lead.next_follow_up_at)}
                 </span>
               ) : null}
+              {lead.last_contact_at ? (
+                <span>Contatto {shortDate(lead.last_contact_at)}</span>
+              ) : null}
             </div>
           </div>
         </div>
