@@ -16,3 +16,12 @@ export function displayName(entity: NameableEntity): string {
 export function formatSigned(n: number): string {
   return n > 0 ? `+${n}` : `${n}`;
 }
+
+/** "Marti Rossi" -> "MR", "@marti.rossi" -> "MR", "Squadra Fede" -> "SF". Avatar fallback text. */
+export function initials(name: string): string {
+  const parts = name
+    .replace(/^@/, "")
+    .split(/[\s._-]+/)
+    .filter(Boolean);
+  return parts.slice(0, 2).map((p) => p[0]!.toUpperCase()).join("") || "?";
+}

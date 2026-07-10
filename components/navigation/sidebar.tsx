@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { SIDEBAR_NAV, navForRole } from "@/lib/constants/navigation";
 import { useRole } from "@/hooks/use-role";
+import { Logo } from "@/components/pr-hub/logo";
 
 function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -17,11 +18,8 @@ export function Sidebar({ className }: { className?: string }) {
 
   return (
     <aside className={cn("flex-col gap-1 border-r bg-sidebar p-3", className)}>
-      <div className="mb-4 flex items-center gap-2 px-2 py-2">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-          HZ
-        </div>
-        <span className="font-semibold tracking-tight">Hertz PR Hub</span>
+      <div className="mb-4 px-2 py-2">
+        <Logo variant="wordmark" height={22} priority />
       </div>
 
       <nav className="flex flex-col gap-1">

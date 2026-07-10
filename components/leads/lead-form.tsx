@@ -1,26 +1,33 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
-import { TriangleAlert, UserCheck } from "lucide-react";
+import { TriangleAlert, UserCheck, ExternalLink } from "lucide-react";
 import { createLead, type CreateLeadState } from "@/lib/leads/actions";
 import { LEAD_STATUS_LABELS } from "@/lib/constants/leads";
+import { instagramUrl, normalizeInstagramUsername } from "@/lib/instagram";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { LeadStatus } from "@/types/database";
-
-const SELECT =
-  "h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function LeadForm({ initialUsername = "" }: { initialUsername?: string }) {
   const [state, action, pending] = useActionState(createLead, {} as CreateLeadState);
+  const [username, setUsername] = useState(initialUsername);
+  const cleanUsername = normalizeInstagramUsername(username);
 
   return (
     <form action={action} className="space-y-4">
       {state.duplicate ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
-          <p className="flex items-center gap-2 font-medium text-amber-700 dark:text-amber-400">
+        <div className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
+          <p className="flex items-center gap-2 font-medium text-warning">
             <UserCheck className="size-4" /> Profilo già presente
           </p>
           <p className="mt-1 text-muted-foreground">
@@ -57,7 +64,8 @@ export function LeadForm({ initialUsername = "" }: { initialUsername?: string })
           <Input
             id="instagram_username"
             name="instagram_username"
-            defaultValue={initialUsername}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
             autoFocus
             autoCapitalize="none"
@@ -66,9 +74,21 @@ export function LeadForm({ initialUsername = "" }: { initialUsername?: string })
             className="border-0 shadow-none focus-visible:ring-0"
           />
         </div>
-        <p className="text-xs text-muted-foreground">
-          Puoi incollare anche il link del profilo Instagram.
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">
+            Puoi incollare anche il link del profilo Instagram.
+          </p>
+          {cleanUsername ? (
+            <a
+              href={instagramUrl(cleanUsername)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+              Apri profilo <ExternalLink className="size-3" />
+            </a>
+          ) : null}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -108,24 +128,29 @@ export function LeadForm({ initialUsername = "" }: { initialUsername?: string })
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label htmlFor="priority">Priorità</Label>
-          <select id="priority" name="priority" defaultValue="medium" className={SELECT}>
-            <option value="low">Bassa</option>
-            <option value="medium">Media</option>
-            <option value="high">Alta</option>
-          </select>
+          <Select name="priority" defaultValue="medium">
+            <SelectTrigger id="priority" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">Bassa</SelectItem>
+              <SelectItem value="medium">Media</SelectItem>
+              <SelectItem value="high">Alta</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="interest_level">Interesse</Label>
-          <select
-            id="interest_level"
-            name="interest_level"
-            defaultValue="warm"
-            className={SELECT}
-          >
-            <option value="cold">Freddo</option>
-            <option value="warm">Tiepido</option>
-            <option value="hot">Caldo</option>
-          </select>
+          <Select name="interest_level" defaultValue="warm">
+            <SelectTrigger id="interest_level" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="cold">Freddo</SelectItem>
+              <SelectItem value="warm">Tiepido</SelectItem>
+              <SelectItem value="hot">Caldo</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

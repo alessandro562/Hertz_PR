@@ -5,10 +5,14 @@ import { createTeam, type CreateState } from "@/lib/network/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Profile } from "@/lib/network/queries";
-
-const SELECT =
-  "h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function CreateTeamForm({ capi }: { capi: Profile[] }) {
   const [state, action, pending] = useActionState(createTeam, {} as CreateState);
@@ -28,14 +32,18 @@ export function CreateTeamForm({ capi }: { capi: Profile[] }) {
 
       <div className="space-y-2">
         <Label htmlFor="t_capo">Capo PR</Label>
-        <select id="t_capo" name="capo_pr_user_id" required className={SELECT}>
-          <option value="">Scegli…</option>
-          {capi.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.full_name}
-            </option>
-          ))}
-        </select>
+        <Select name="capo_pr_user_id" required>
+          <SelectTrigger id="t_capo" className="w-full">
+            <SelectValue placeholder="Scegli…" />
+          </SelectTrigger>
+          <SelectContent>
+            {capi.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.full_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {capi.length === 0 ? (
           <p className="text-xs text-muted-foreground">
             Nessun Capo PR ancora registrato: deve prima accedere una volta all&apos;app.

@@ -64,6 +64,29 @@
   --color-border: #2c2c2c;
   --color-input: #3a3a3a;
   --color-ring: var(--color-sage-400);
+
+  /* --- heading face (same Helvetica Neue family, weight set per component) --- */
+  --font-heading: var(--font-sans);
+
+  /* --- legacy single-radius alias (kept for libs that read a bare --radius) --- */
+  --radius: var(--radius-md);
+
+  /* --- charts (Performance trends) — brand-muted hues, no invented accent --- */
+  --color-chart-1: var(--color-sage-400);
+  --color-chart-2: var(--color-steel);
+  --color-chart-3: var(--color-warning);
+  --color-chart-4: var(--color-bronze);
+  --color-chart-5: var(--color-olive);
+
+  /* --- sidebar surface (desktop nav) — flat panel, hairline-separated --- */
+  --color-sidebar: var(--color-card);
+  --color-sidebar-foreground: var(--color-foreground);
+  --color-sidebar-primary: var(--color-primary);
+  --color-sidebar-primary-foreground: var(--color-primary-foreground);
+  --color-sidebar-accent: var(--color-accent);
+  --color-sidebar-accent-foreground: var(--color-accent-foreground);
+  --color-sidebar-border: var(--color-border);
+  --color-sidebar-ring: var(--color-ring);
 }
 
 /* =============================================================================

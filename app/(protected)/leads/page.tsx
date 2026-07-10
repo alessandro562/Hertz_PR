@@ -16,9 +16,7 @@ export default async function LeadsPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Lead</h1>
-          <p className="text-sm text-muted-foreground">
-            {leads.length} {leads.length === 1 ? "lead" : "lead"} in pipeline
-          </p>
+          <p className="text-sm text-muted-foreground">{leads.length} lead in pipeline</p>
         </div>
         <Link href="/leads/new" className={cn(buttonVariants(), "h-10 gap-2")}>
           <Plus className="size-4" /> Nuovo

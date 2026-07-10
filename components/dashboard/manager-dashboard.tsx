@@ -132,7 +132,7 @@ export function ManagerDashboard({
               <ul className="space-y-2">
                 {alerts.map((a) => (
                   <li key={a} className="flex items-center gap-2 text-sm">
-                    <TriangleAlert className="size-4 shrink-0 text-amber-500" /> {a}
+                    <TriangleAlert className="size-4 shrink-0 text-warning" /> {a}
                   </li>
                 ))}
               </ul>

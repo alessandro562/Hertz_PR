@@ -176,7 +176,7 @@ function ToggleChip({
         "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
         active
           ? tone === "negative"
-            ? "border-red-500/40 bg-red-500/15 text-red-600 dark:text-red-400"
+            ? "border-destructive/40 bg-destructive/15 text-destructive"
             : "border-primary bg-primary text-primary-foreground"
           : "border-input text-muted-foreground hover:bg-accent",
       )}
@@ -195,26 +195,44 @@ function Stepper({
   value: number;
   onChange: (delta: number) => void;
 }) {
+  const btn =
+    "flex size-11 shrink-0 items-center justify-center rounded-md border border-border " +
+    "bg-secondary text-foreground transition-colors hover:bg-accent active:bg-input " +
+    "disabled:pointer-events-none disabled:opacity-40";
+
   return (
-    <div className="flex items-center justify-between rounded-md border border-input px-2 py-1.5">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <div className="flex items-center gap-1">
+    <div className="flex flex-col gap-1.5">
+      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+        {label}
+      </span>
+      <div className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={() => onChange(-1)}
-          className="flex size-6 items-center justify-center rounded-md hover:bg-accent"
+          disabled={value <= 0}
+          className={btn}
           aria-label={`Diminuisci ${label}`}
         >
-          <Minus className="size-3.5" />
+          <Minus className="size-4" />
         </button>
-        <span className="w-6 text-center text-sm font-medium tabular-nums">{value}</span>
+        <input
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={value}
+          onChange={(e) => {
+            const next = Math.max(0, parseInt(e.target.value.replace(/\D/g, "") || "0", 10));
+            onChange(next - value);
+          }}
+          className="num h-11 min-w-0 flex-1 rounded-md border border-input bg-card text-center text-xl text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={label}
+        />
         <button
           type="button"
           onClick={() => onChange(1)}
-          className="flex size-6 items-center justify-center rounded-md hover:bg-accent"
+          className={btn}
           aria-label={`Aumenta ${label}`}
         >
-          <Plus className="size-3.5" />
+          <Plus className="size-4" />
         </button>
       </div>
     </div>

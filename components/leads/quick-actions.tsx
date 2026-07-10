@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, type ChangeEvent } from "react";
+import { useTransition } from "react";
 import { AtSign, MessageCircle, UserCheck, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
 import { setLeadStatus, assignOwnerToMe } from "@/lib/leads/actions";
@@ -10,12 +10,16 @@ import { whatsappLink, hasWhatsapp } from "@/lib/whatsapp";
 import { BUILT_IN_TEMPLATES } from "@/lib/templates";
 import { LEAD_STATUSES, LEAD_STATUS_LABELS } from "@/lib/constants/leads";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { Lead } from "@/lib/leads/queries";
 import type { LeadStatus } from "@/types/database";
-
-const SELECT =
-  "h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
 
 export function QuickActions({
   lead,
@@ -29,8 +33,8 @@ export function QuickActions({
   const [pending, start] = useTransition();
   const waText = lead.first_name ? `Ciao ${lead.first_name}!` : "Ciao!";
 
-  function onStatus(e: ChangeEvent<HTMLSelectElement>) {
-    const status = e.target.value as LeadStatus;
+  function onStatus(status: LeadStatus | null) {
+    if (!status) return;
     start(async () => {
       const res = await setLeadStatus(lead.id, status);
       if (res.error) toast.error(res.error);
@@ -95,19 +99,18 @@ export function QuickActions({
           <label htmlFor="lead-status" className="text-sm text-muted-foreground">
             Stato
           </label>
-          <select
-            id="lead-status"
-            className={SELECT}
-            defaultValue={lead.status}
-            onChange={onStatus}
-            disabled={pending}
-          >
-            {LEAD_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {LEAD_STATUS_LABELS[s]}
-              </option>
-            ))}
-          </select>
+          <Select defaultValue={lead.status} onValueChange={onStatus} disabled={pending}>
+            <SelectTrigger id="lead-status" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LEAD_STATUSES.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {LEAD_STATUS_LABELS[s]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       ) : null}
 

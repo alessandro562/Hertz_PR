@@ -11,12 +11,15 @@ import { getCollaboratorPerformances, listEvents } from "@/lib/events/queries";
 import { getSessionUser } from "@/lib/auth/session";
 import { canEditCollaborator } from "@/lib/permissions";
 import { displayName } from "@/lib/format";
+import { setCollaboratorAvatar } from "@/lib/network/actions";
 import { CollaboratorActions } from "@/components/collaborators/collaborator-actions";
 import { GroupMembership } from "@/components/collaborators/group-membership";
 import { EditCollaboratorForm } from "@/components/collaborators/edit-collaborator-form";
 import { PerformanceHistory } from "@/components/collaborators/performance-history";
 import { LevelBadge } from "@/components/collaborators/level-badge";
 import { CollabStatusBadge } from "@/components/collaborators/status-badge";
+import { AvatarUpload } from "@/components/common/avatar-upload";
+import { PersonAvatar } from "@/components/common/person-avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function CollaboratorDetailPage({
@@ -43,10 +46,21 @@ export default async function CollaboratorDetailPage({
 
   return (
     <div className="mx-auto max-w-lg space-y-5">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Link href="/collaborators" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="size-5" />
         </Link>
+        {canEdit ? (
+          <AvatarUpload
+            entity="collaborators"
+            entityId={collaborator.id}
+            name={name}
+            avatarUrl={collaborator.avatar_url}
+            onUploaded={setCollaboratorAvatar.bind(null, collaborator.id)}
+          />
+        ) : (
+          <PersonAvatar name={name} avatarUrl={collaborator.avatar_url} size="lg" />
+        )}
         <div className="min-w-0">
           <h1 className="truncate text-2xl font-semibold tracking-tight">{name}</h1>
           <div className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">

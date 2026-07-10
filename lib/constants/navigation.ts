@@ -39,7 +39,7 @@ export const SIDEBAR_NAV: NavItem[] = [
   { label: "La mia squadra", href: "/team", icon: UsersRound, roles: [ROLE.CAPO_PR] },
   { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
   { label: "Eventi", href: "/events", icon: Calendar },
-  { label: "Performance", href: "/performance", icon: BarChart3, roles: [ROLE.MANAGER] },
+  { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },
   { label: "Template", href: "/templates", icon: MessageSquareText },
   { label: "Settings", href: "/settings", icon: Settings },
@@ -49,7 +49,7 @@ export const SIDEBAR_NAV: NavItem[] = [
 export const MORE_NAV: NavItem[] = [
   { label: "Squadre PR", href: "/teams", icon: UsersRound, roles: [ROLE.MANAGER] },
   { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
-  { label: "Performance", href: "/performance", icon: BarChart3, roles: [ROLE.MANAGER] },
+  { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },
   { label: "Template", href: "/templates", icon: MessageSquareText },
   { label: "Settings", href: "/settings", icon: Settings },

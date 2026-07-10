@@ -75,7 +75,13 @@ export function PipelineTabs({ leads }: { leads: Lead[] }) {
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center text-muted-foreground">
           <Inbox className="size-8" />
-          <p className="text-sm">Nessun lead in questa fase.</p>
+          <p className="text-sm">
+            {q
+              ? `Nessun risultato per "${q}".`
+              : leads.length === 0
+                ? "Nessun lead ancora. Tocca “Nuovo” per aggiungere il primo profilo Instagram."
+                : "Nessun lead in questa fase."}
+          </p>
         </div>
       ) : (
         <div className="space-y-2">

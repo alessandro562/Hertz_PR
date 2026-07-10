@@ -2,11 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getLead } from "@/lib/leads/queries";
+import { setLeadAvatar } from "@/lib/leads/actions";
 import { getSessionUser } from "@/lib/auth/session";
 import { canEditLead } from "@/lib/permissions";
 import { QuickActions } from "@/components/leads/quick-actions";
 import { EditLeadForm } from "@/components/leads/edit-lead-form";
 import { StatusBadge } from "@/components/leads/status-badge";
+import { AvatarUpload } from "@/components/common/avatar-upload";
+import { PersonAvatar } from "@/components/common/person-avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PRIORITY_LABELS, INTEREST_LABELS } from "@/lib/constants/leads";
 import { longDate } from "@/lib/dates";
@@ -28,10 +31,21 @@ export default async function LeadDetailPage({
 
   return (
     <div className="mx-auto max-w-lg space-y-5">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Link href="/leads" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="size-5" />
         </Link>
+        {canEdit ? (
+          <AvatarUpload
+            entity="leads"
+            entityId={lead.id}
+            name={name}
+            avatarUrl={lead.avatar_url}
+            onUploaded={setLeadAvatar.bind(null, lead.id)}
+          />
+        ) : (
+          <PersonAvatar name={name} avatarUrl={lead.avatar_url} size="lg" />
+        )}
         <div className="min-w-0">
           <h1 className="truncate text-2xl font-semibold tracking-tight">{name}</h1>
           <div className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">

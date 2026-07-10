@@ -15,7 +15,7 @@ export function BottomTabs({ className }: { className?: string }) {
   return (
     <nav
       className={cn(
-        "fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur",
+        "fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t bg-background pb-[env(safe-area-inset-bottom)]",
         className,
       )}
     >
