@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, Target, ClipboardList, Trophy } from "lucide-react";
+import { MapPin, Target, ClipboardList, Trophy } from "lucide-react";
 import { differenceInCalendarDays } from "date-fns";
 import { getEvent, getEventPerformances } from "@/lib/events/queries";
 import { listCollaborators, profilesNameMap } from "@/lib/network/queries";
@@ -12,7 +12,9 @@ import { EventStatusBadge } from "@/components/events/status-badge";
 import { EventStatusSelect } from "@/components/events/status-select";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { buttonVariants } from "@/components/ui/button";
+import { BackLink } from "@/components/common/back-link";
 import { cn } from "@/lib/utils";
 import { longDate } from "@/lib/dates";
 
@@ -72,9 +74,7 @@ export default async function EventDetailPage({
   return (
     <div className="mx-auto max-w-lg space-y-5">
       <div className="flex items-center gap-2">
-        <Link href="/events" className="text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="size-5" />
-        </Link>
+        <BackLink href="/events" />
         <div className="min-w-0">
           <h1 className="truncate text-2xl font-semibold tracking-tight">
             {event.name}
@@ -119,6 +119,37 @@ export default async function EventDetailPage({
         <StatCard label="Tavoli" value={totals.tables} />
         <StatCard label="Score" value={totals.score} />
       </div>
+
+      <Card>
+        <CardContent className="space-y-3 pt-6">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                Ingressi
+              </span>
+              <div className="mt-1 flex items-baseline gap-1">
+                <span className="num text-3xl">{totals.entries}</span>
+                {event.target_attendance ? (
+                  <span className="text-sm text-muted-foreground">
+                    / {event.target_attendance} obiettivo
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            {event.target_attendance ? (
+              <span className="num text-lg text-primary">
+                {Math.round((totals.entries / event.target_attendance) * 100)}%
+              </span>
+            ) : null}
+          </div>
+          {event.target_attendance ? (
+            <Progress
+              value={(totals.entries / event.target_attendance) * 100}
+              tone={totals.entries >= event.target_attendance ? "success" : "primary"}
+            />
+          ) : null}
+        </CardContent>
+      </Card>
 
       <Link
         href={`/events/${event.id}/performance`}

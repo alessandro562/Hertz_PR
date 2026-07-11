@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Inbox } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { getEvent, getEventPerformances } from "@/lib/events/queries";
 import {
   listCollaborators,
@@ -11,7 +10,11 @@ import { getSessionUser } from "@/lib/auth/session";
 import { isManager } from "@/lib/permissions";
 import { displayName } from "@/lib/format";
 import { LEVEL_LABELS } from "@/lib/constants/collaborators";
-import { PerformanceCard } from "@/components/events/performance-card";
+import {
+  PerformanceEntry,
+  type EntryGroup,
+} from "@/components/events/performance-entry";
+import { BackLink } from "@/components/common/back-link";
 import type { Collaborator } from "@/lib/network/queries";
 
 export default async function EventPerformancePage({
@@ -56,23 +59,28 @@ export default async function EventPerformancePage({
     if (bucket) bucket.push(c);
     else groupsMap.set(key, [c]);
   }
-  const groups = [...groupsMap.entries()]
+  const entryGroups: EntryGroup[] = [...groupsMap.entries()]
     .map(([key, list]) => ({
       key,
-      name: key === "senza-capo" ? "Senza Capo PR" : (names[key] ?? "—"),
-      collaborators: list,
+      label: key === "senza-capo" ? "Senza Capo PR" : (names[key] ?? "—"),
+      list,
     }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => a.label.localeCompare(b.label))
+    .map((g) => ({
+      key: g.key,
+      name: manager ? g.label : null,
+      rows: g.list.map((c) => ({
+        collaboratorId: c.id,
+        name: displayName(c),
+        subtitle: LEVEL_LABELS[c.level],
+        initial: performanceByCollaborator[c.id],
+      })),
+    }));
 
   return (
     <div className="mx-auto max-w-lg space-y-5">
       <div className="flex items-center gap-2">
-        <Link
-          href={`/events/${event.id}`}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-5" />
-        </Link>
+        <BackLink href={`/events/${event.id}`} />
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Numeri evento</h1>
           <p className="text-sm text-muted-foreground">{event.name}</p>
@@ -89,27 +97,7 @@ export default async function EventPerformancePage({
           </p>
         </div>
       ) : (
-        groups.map((g) => (
-          <div key={g.key} className="space-y-3">
-            {manager ? (
-              <h2 className="text-sm font-medium text-muted-foreground">
-                {g.name}
-              </h2>
-            ) : null}
-            <div className="space-y-3">
-              {g.collaborators.map((c) => (
-                <PerformanceCard
-                  key={c.id}
-                  eventId={event.id}
-                  collaboratorId={c.id}
-                  name={displayName(c)}
-                  subtitle={LEVEL_LABELS[c.level]}
-                  initial={performanceByCollaborator[c.id]}
-                />
-              ))}
-            </div>
-          </div>
-        ))
+        <PerformanceEntry eventId={event.id} groups={entryGroups} />
       )}
     </div>
   );
