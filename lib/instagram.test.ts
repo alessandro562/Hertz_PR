@@ -28,6 +28,14 @@ describe("normalizeInstagramUsername", () => {
     const b = normalizeInstagramUsername("https://instagram.com/marti.rossi");
     expect(a).toBe(b);
   });
+
+  it("returns empty for post/reel/story URLs, not a fake handle", () => {
+    expect(normalizeInstagramUsername("https://www.instagram.com/p/ABC123/")).toBe("");
+    expect(normalizeInstagramUsername("https://instagram.com/reel/XYZ")).toBe("");
+    expect(normalizeInstagramUsername("https://instagram.com/stories/foo/123")).toBe(
+      "",
+    );
+  });
 });
 
 describe("instagramUrl", () => {

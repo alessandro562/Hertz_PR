@@ -20,7 +20,7 @@ export function AppHeader() {
   const { profile } = useCurrentUser();
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background px-4 md:px-6">
+    <header className="sticky top-0 z-30 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center justify-between border-b bg-background px-4 pt-[env(safe-area-inset-top)] md:px-6">
       <div className="flex items-center gap-2.5 md:hidden">
         <Logo variant="lockup" height={38} priority />
         <span className="h-5 w-px bg-border" aria-hidden />
