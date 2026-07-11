@@ -51,7 +51,6 @@ export const SIDEBAR_NAV: NavItem[] = [
 /** Extra links shown on the mobile "Altro" page. */
 export const MORE_NAV: NavItem[] = [
   { label: "Capi PR", href: "/capi-pr", icon: UsersRound, roles: [ROLE.MANAGER] },
-  { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },
   { label: "Template", href: "/templates", icon: MessageSquareText },
