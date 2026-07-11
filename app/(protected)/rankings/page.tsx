@@ -50,7 +50,13 @@ export default async function RankingsPage() {
   const bestCapoLastEvent: RankingItem[] = groupPerformances(
     latestEventPerformances,
     (p) => p.capo_pr_user_id ?? "senza-capo",
-  ).map((g) => ({ id: g.key, name: capoName(g.key), value: `${g.score} pt`, weight: g.score }));
+  ).map((g) => ({
+    id: g.key,
+    name: capoName(g.key),
+    value: `${g.score}`,
+    unit: "pt",
+    weight: g.score,
+  }));
 
   const bestCollabLastEvent: RankingItem[] = [...latestEventPerformances]
     .sort((a, b) => b.performance_score - a.performance_score)
@@ -61,7 +67,8 @@ export default async function RankingsPage() {
         id: p.collaborator_id,
         name: c ? displayName(c) : "—",
         sublabel: c?.capo_pr_user_id ? capoName(c.capo_pr_user_id) : undefined,
-        value: `${p.performance_score} pt`,
+        value: `${p.performance_score}`,
+        unit: "pt",
         href: `/collaborators/${p.collaborator_id}`,
         avatarUrl: c?.avatar_url,
         weight: p.performance_score,
@@ -71,7 +78,13 @@ export default async function RankingsPage() {
   const bestCapoMonth: RankingItem[] = groupPerformances(
     monthlyPerformances,
     (p) => p.capo_pr_user_id ?? "senza-capo",
-  ).map((g) => ({ id: g.key, name: capoName(g.key), value: `${g.score} pt`, weight: g.score }));
+  ).map((g) => ({
+    id: g.key,
+    name: capoName(g.key),
+    value: `${g.score}`,
+    unit: "pt",
+    weight: g.score,
+  }));
 
   const capoGrowth: RankingItem[] = computeGrowth(
     performances
@@ -84,7 +97,17 @@ export default async function RankingsPage() {
       })),
   )
     .slice(0, 10)
-    .map((g) => ({ id: g.key, name: capoName(g.key), value: formatSigned(g.growth) }));
+    .map((g) => ({
+      id: g.key,
+      name: capoName(g.key),
+      value: formatSigned(g.growth),
+      valueTone:
+        g.growth > 0
+          ? ("up" as const)
+          : g.growth < 0
+            ? ("down" as const)
+            : undefined,
+    }));
 
   const dormantCollaborators: RankingItem[] = rankingCollaborators
     .filter((c) => c.status === "inattivo" || c.status === "da_riattivare")
@@ -220,7 +243,7 @@ export default async function RankingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RankingList items={hotLeadItems} emptyLabel="Nessuno, sei in pari 🎉" />
+          <RankingList items={hotLeadItems} emptyLabel="Nessuno, sei in pari." />
         </CardContent>
       </Card>
     </div>

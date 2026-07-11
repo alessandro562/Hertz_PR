@@ -8,6 +8,10 @@ export interface RankingItem {
   name: string;
   sublabel?: string;
   value: string;
+  /** Small muted suffix (e.g. "pt") kept out of the big .num numeral. */
+  unit?: string;
+  /** Signed value (growth): colours the number + adds a ▲/▼ glyph. */
+  valueTone?: "up" | "down";
   href?: string;
   avatarUrl?: string | null;
   /** Numeric magnitude for the bar. Omit for non-score lists (no bar drawn). */
@@ -61,13 +65,36 @@ export function RankingList({
                   </span>
                 ) : null}
               </span>
-              <span
-                className={cn(
-                  "shrink-0 tabular-nums",
-                  hasBar ? "num text-lg" : "text-sm font-semibold text-muted-foreground",
-                )}
-              >
-                {item.value}
+              <span className="flex shrink-0 items-baseline gap-1">
+                {item.valueTone ? (
+                  <span
+                    className={cn(
+                      "text-xs",
+                      item.valueTone === "up" ? "text-success" : "text-destructive",
+                    )}
+                    aria-hidden
+                  >
+                    {item.valueTone === "up" ? "▲" : "▼"}
+                  </span>
+                ) : null}
+                <span
+                  className={cn(
+                    "tabular-nums",
+                    hasBar ? "num text-lg" : "text-sm font-semibold",
+                    item.valueTone === "up"
+                      ? "text-success"
+                      : item.valueTone === "down"
+                        ? "text-destructive"
+                        : hasBar
+                          ? "text-foreground"
+                          : "text-muted-foreground",
+                  )}
+                >
+                  {item.value}
+                </span>
+                {item.unit ? (
+                  <span className="text-xs text-muted-foreground">{item.unit}</span>
+                ) : null}
               </span>
             </div>
             {hasBar ? (
