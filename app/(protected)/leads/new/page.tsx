@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { LeadForm } from "@/components/leads/lead-form";
+import { BackLink } from "@/components/common/back-link";
 import { normalizeInstagramUsername } from "@/lib/instagram";
 
 export const metadata: Metadata = { title: "Nuovo lead" };
@@ -31,9 +30,7 @@ export default async function NewLeadPage({
   return (
     <div className="mx-auto max-w-lg space-y-5">
       <div className="flex items-center gap-2">
-        <Link href="/leads" className="text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="size-5" />
-        </Link>
+        <BackLink href="/leads" />
         <h1 className="text-2xl font-semibold tracking-tight">Nuovo lead</h1>
       </div>
       <LeadForm initialUsername={initialUsername} />

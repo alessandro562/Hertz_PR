@@ -18,7 +18,7 @@ export default async function LeadsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Lead</h1>
           <p className="text-sm text-muted-foreground">{leads.length} lead in pipeline</p>
         </div>
-        <Link href="/leads/new" className={cn(buttonVariants(), "h-10 gap-2")}>
+        <Link href="/leads/new" className={cn(buttonVariants(), "h-11 gap-2")}>
           <Plus className="size-4" /> Nuovo
         </Link>
       </div>

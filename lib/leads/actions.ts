@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { isManager } from "@/lib/permissions";
 import { normalizeInstagramUsername, instagramUrl } from "@/lib/instagram";
+import { checkDuplicate, type DuplicateInfo } from "@/lib/leads/queries";
 import { createLeadSchema, updateLeadSchema } from "@/lib/validations/lead";
 import type { LeadStatus } from "@/types/database";
 
@@ -43,6 +44,15 @@ async function insertInteraction(
 export interface CreateLeadState {
   error?: string;
   duplicate?: { owner_name: string; lead_status: string };
+}
+
+/** Live, privacy-safe duplicate lookup as the @ is typed in the new-lead form. */
+export async function checkLeadDuplicate(
+  username: string,
+): Promise<DuplicateInfo | null> {
+  const normalized = normalizeInstagramUsername(username);
+  if (normalized.length < 2) return null;
+  return checkDuplicate(normalized);
 }
 
 export async function createLead(

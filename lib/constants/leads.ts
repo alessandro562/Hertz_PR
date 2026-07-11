@@ -70,6 +70,42 @@ export function bucketForStatus(status: LeadStatus): PipelineBucket {
   return STATUS_TO_BUCKET[status];
 }
 
+/**
+ * Happy-path progression, for the one-tap "Avanza" button. Ends at
+ * inserito_bacheca — from there the person is converted via the Convert button,
+ * not by picking a status. Negative/terminal states are reached from the menu.
+ */
+const NEXT_STATUS: Partial<Record<LeadStatus, LeadStatus>> = {
+  da_contattare: "contattato",
+  da_ricontattare: "contattato",
+  contattato: "ha_risposto",
+  ha_risposto: "interessato",
+  interessato: "da_spiegare",
+  da_spiegare: "da_inserire_bacheca",
+  da_inserire_bacheca: "inserito_bacheca",
+};
+
+export function nextStatus(status: LeadStatus): LeadStatus | null {
+  return NEXT_STATUS[status] ?? null;
+}
+
+/**
+ * Statuses grouped by pipeline bucket for the manual status menu. Excludes
+ * "convertito" (conversion is the Convert button's job) and empty buckets.
+ */
+export function statusesByBucket(): {
+  key: PipelineBucket;
+  label: string;
+  statuses: LeadStatus[];
+}[] {
+  return PIPELINE_BUCKETS.map((b) => ({
+    ...b,
+    statuses: LEAD_STATUSES.filter(
+      (s) => bucketForStatus(s) === b.key && s !== "convertito_collaboratore",
+    ),
+  })).filter((b) => b.statuses.length > 0);
+}
+
 /** Coarse tone for status badges. */
 export function statusTone(
   status: LeadStatus,

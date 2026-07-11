@@ -1,11 +1,16 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { TriangleAlert, UserCheck, ExternalLink } from "lucide-react";
-import { createLead, type CreateLeadState } from "@/lib/leads/actions";
+import {
+  createLead,
+  checkLeadDuplicate,
+  type CreateLeadState,
+} from "@/lib/leads/actions";
 import { LEAD_STATUS_LABELS } from "@/lib/constants/leads";
 import { instagramUrl, normalizeInstagramUsername } from "@/lib/instagram";
+import type { DuplicateInfo } from "@/lib/leads/queries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,23 +26,35 @@ import type { LeadStatus } from "@/types/database";
 export function LeadForm({ initialUsername = "" }: { initialUsername?: string }) {
   const [state, action, pending] = useActionState(createLead, {} as CreateLeadState);
   const [username, setUsername] = useState(initialUsername);
+  const [liveDup, setLiveDup] = useState<DuplicateInfo | null>(null);
   const cleanUsername = normalizeInstagramUsername(username);
+
+  // Catch the duplicate as the @ is typed, not after the whole form is filled.
+  useEffect(() => {
+    const handle = cleanUsername;
+    const t = setTimeout(async () => {
+      setLiveDup(handle.length >= 2 ? await checkLeadDuplicate(handle) : null);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [cleanUsername]);
+
+  const dup = liveDup ?? state.duplicate ?? null;
 
   return (
     <form action={action} className="space-y-4">
-      {state.duplicate ? (
+      {dup ? (
         <div className="rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
           <p className="flex items-center gap-2 font-medium text-warning">
-            <UserCheck className="size-4" /> Profilo già presente
+            <UserCheck className="size-4" /> Questo @ è già seguito
           </p>
           <p className="mt-1 text-muted-foreground">
-            Owner: <b>{state.duplicate.owner_name}</b>
-            {state.duplicate.lead_status ? (
+            Owner: <b>{dup.owner_name}</b>
+            {dup.lead_status ? (
               <>
                 {" · "}Stato:{" "}
                 <b>
-                  {LEAD_STATUS_LABELS[state.duplicate.lead_status as LeadStatus] ??
-                    state.duplicate.lead_status}
+                  {LEAD_STATUS_LABELS[dup.lead_status as LeadStatus] ??
+                    dup.lead_status}
                 </b>
               </>
             ) : null}
