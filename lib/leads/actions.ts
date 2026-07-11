@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
+import { isManager } from "@/lib/permissions";
 import { normalizeInstagramUsername, instagramUrl } from "@/lib/instagram";
 import { createLeadSchema, updateLeadSchema } from "@/lib/validations/lead";
 import type { LeadStatus } from "@/types/database";
@@ -236,6 +237,39 @@ export async function assignOwnerToMe(
   if (error) return { error: "Impossibile assegnare il lead." };
   revalidatePath("/leads");
   revalidatePath(`/leads/${id}`);
+  return {};
+}
+
+/**
+ * Hard-delete a lead (Manager only). If it was converted, the linked
+ * collaborator is the same person, so we remove that record too. Deleting
+ * frees the unique @, so the lead can be re-created (useful while testing).
+ */
+export async function deleteLead(id: string): Promise<{ error?: string }> {
+  const current = await getSessionUser();
+  if (!current) return { error: "Non autenticato." };
+  if (!isManager(current.profile)) {
+    return { error: "Solo un Manager può eliminare un lead." };
+  }
+  const supabase = await createClient();
+
+  const { data: lead } = await supabase
+    .from("leads")
+    .select("converted_collaborator_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (lead?.converted_collaborator_id) {
+    await supabase
+      .from("collaborators")
+      .delete()
+      .eq("id", lead.converted_collaborator_id);
+  }
+
+  const { error } = await supabase.from("leads").delete().eq("id", id);
+  if (error) return { error: "Impossibile eliminare il lead." };
+
+  revalidatePath("/leads");
+  revalidatePath("/collaborators");
   return {};
 }
 
