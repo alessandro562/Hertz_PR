@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { getLead, getLeadInteractions } from "@/lib/leads/queries";
 import { setLeadAvatar } from "@/lib/leads/actions";
 import { getSessionUser } from "@/lib/auth/session";
@@ -13,6 +11,7 @@ import { AddNoteForm } from "@/components/leads/add-note-form";
 import { LeadTimeline } from "@/components/leads/lead-timeline";
 import { AvatarUpload } from "@/components/common/avatar-upload";
 import { PersonAvatar } from "@/components/common/person-avatar";
+import { BackLink } from "@/components/common/back-link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PRIORITY_LABELS, INTEREST_LABELS } from "@/lib/constants/leads";
 import { longDate, dateTime } from "@/lib/dates";
@@ -40,9 +39,7 @@ export default async function LeadDetailPage({
   return (
     <div className="mx-auto max-w-lg space-y-5">
       <div className="flex items-center gap-3">
-        <Link href="/leads" className="text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="size-5" />
-        </Link>
+        <BackLink href="/leads" />
         {canEdit ? (
           <AvatarUpload
             entity="leads"

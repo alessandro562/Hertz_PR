@@ -10,18 +10,24 @@ export interface MessageTemplate {
   body: string;
 }
 
+/** Fill placeholders in a template. `{nome}` expands to " Marco" (or "" if
+ * unknown), so "Ehi{nome}!" reads "Ehi Marco!" or "Ehi!". */
+export function fillTemplate(body: string, firstName?: string | null): string {
+  return body.replace(/\{nome\}/g, firstName ? ` ${firstName}` : "");
+}
+
 export const BUILT_IN_TEMPLATES: MessageTemplate[] = [
   {
     id: "primo_contatto",
     title: "Primo contatto",
     category: "primo_contatto",
-    body: "Ehi! Ti seguo e mi piace un sacco il tuo profilo 🔥 Facciamo parte di un giro di eventi qui in zona e cerchiamo persone giuste — ti va se ti spiego in due parole?",
+    body: "Ehi{nome}! Ti seguo e mi piace un sacco il tuo profilo 🔥 Facciamo parte di un giro di eventi qui in zona e cerchiamo persone giuste — ti va se ti spiego in due parole?",
   },
   {
     id: "follow_up",
     title: "Follow-up",
     category: "follow_up",
-    body: "Ciao! Ci eravamo scritti qualche giorno fa 🙌 Ti va di riprendere il discorso? Nessun impegno, giusto per capire se ti interessa.",
+    body: "Ciao{nome}! Ci eravamo scritti qualche giorno fa 🙌 Ti va di riprendere il discorso? Nessun impegno, giusto per capire se ti interessa.",
   },
   {
     id: "spiegazione_bacheca",
