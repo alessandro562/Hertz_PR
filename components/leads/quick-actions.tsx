@@ -32,6 +32,11 @@ export function QuickActions({
 }) {
   const [pending, start] = useTransition();
   const waText = lead.first_name ? `Ciao ${lead.first_name}!` : "Ciao!";
+  // Conversion is a one-way door owned by the Convert button below. Setting the
+  // status to "convertito" by hand used to fake it without creating a
+  // collaborator, so it's not a manual status option.
+  const isConverted =
+    lead.converted_to_collaborator || lead.status === "convertito_collaboratore";
 
   function onStatus(status: LeadStatus | null) {
     if (!status) return;
@@ -94,7 +99,7 @@ export function QuickActions({
         )}
       </div>
 
-      {canEdit ? (
+      {canEdit && !isConverted ? (
         <div className="space-y-2">
           <label htmlFor="lead-status" className="text-sm text-muted-foreground">
             Stato
@@ -104,13 +109,20 @@ export function QuickActions({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {LEAD_STATUSES.map((s) => (
+              {LEAD_STATUSES.filter((s) => s !== "convertito_collaboratore").map((s) => (
                 <SelectItem key={s} value={s}>
                   {LEAD_STATUS_LABELS[s]}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+        </div>
+      ) : canEdit ? (
+        <div className="space-y-2">
+          <span className="text-sm text-muted-foreground">Stato</span>
+          <div className="flex h-11 items-center rounded-md border border-input px-3 text-sm text-muted-foreground">
+            Convertito in collaboratore
+          </div>
         </div>
       ) : null}
 

@@ -44,17 +44,17 @@ export function TrendChart({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
         <XAxis
           dataKey="eventDate"
           tickFormatter={(v: string) => shortDate(v)}
-          stroke="var(--muted-foreground)"
+          stroke="var(--color-muted-foreground)"
           fontSize={12}
           tickLine={false}
         />
         <YAxis
           allowDecimals={false}
-          stroke="var(--muted-foreground)"
+          stroke="var(--color-muted-foreground)"
           fontSize={12}
           tickLine={false}
           axisLine={false}
@@ -62,12 +62,13 @@ export function TrendChart({
         <Tooltip
           labelFormatter={(label) => shortDate(String(label))}
           contentStyle={{
-            background: "var(--popover)",
-            border: "1px solid var(--border)",
+            background: "var(--color-popover)",
+            border: "1px solid var(--color-border)",
             borderRadius: "var(--radius-md)",
-            color: "var(--popover-foreground)",
+            color: "var(--color-popover-foreground)",
             fontSize: 13,
           }}
+          itemStyle={{ color: "var(--color-popover-foreground)" }}
         />
         {series.length > 1 ? <Legend wrapperStyle={{ fontSize: 12 }} /> : null}
         {series.map((key, i) => (
