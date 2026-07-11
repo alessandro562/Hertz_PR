@@ -37,23 +37,16 @@ export type LeadPriority = "low" | "medium" | "high";
 export type LeadInterest = "cold" | "warm" | "hot";
 
 export type CollaboratorLevel =
-  | "bacheca"
-  | "collaboratore_occasionale"
-  | "sotto_pr"
+  | "occasionale"
+  | "condivisioni_attive"
   | "pr_attivo"
-  | "pr_stretto"
-  | "capo_pr"
-  | "core_team";
+  | "pr_con_potenziale";
 
 export type CollaboratorStatus =
-  | "in_prova"
   | "attivo"
-  | "molto_attivo"
-  | "occasionale"
-  | "dormiente"
-  | "da_riattivare"
-  | "non_affidabile"
-  | "uscito";
+  | "affidabile"
+  | "inattivo"
+  | "da_riattivare";
 
 export type GroupType = "bacheca" | "pr" | "sotto_pr";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { AtSign, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -10,7 +10,13 @@ import {
 } from "@/lib/network/actions";
 import { instagramUrl } from "@/lib/instagram";
 import { whatsappLink, hasWhatsapp } from "@/lib/whatsapp";
-import { LEVELS, LEVEL_LABELS, COLLAB_STATUSES, COLLAB_STATUS_LABELS } from "@/lib/constants/collaborators";
+import {
+  LEVELS,
+  LEVEL_LABELS,
+  LEVEL_DESCRIPTIONS,
+  COLLAB_STATUSES,
+  COLLAB_STATUS_LABELS,
+} from "@/lib/constants/collaborators";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Select,
@@ -35,11 +41,20 @@ export function CollaboratorActions({
   canAssignCapo: boolean;
 }) {
   const [pending, start] = useTransition();
+  const [level, setLevel] = useState<CollaboratorLevel>(collaborator.level);
 
-  function onLevel(level: CollaboratorLevel | null) {
-    if (!level) return;
+  // Only show the current capo as selected if it's an actual (active) Capo PR;
+  // a lead converted by a Manager carries the Manager's id, which isn't in the
+  // list — without this guard the Select would render the raw UUID.
+  const currentCapo = capi.some((c) => c.id === collaborator.capo_pr_user_id)
+    ? collaborator.capo_pr_user_id
+    : null;
+
+  function onLevel(next: CollaboratorLevel | null) {
+    if (!next) return;
+    setLevel(next);
     start(async () => {
-      const res = await setCollaboratorLevel(collaborator.id, level);
+      const res = await setCollaboratorLevel(collaborator.id, next);
       if (res.error) toast.error(res.error);
       else toast.success("Livello aggiornato");
     });
@@ -90,45 +105,44 @@ export function CollaboratorActions({
       </div>
 
       {canEdit ? (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <label className="text-sm text-muted-foreground">Livello</label>
-            <Select
-              defaultValue={collaborator.level}
-              onValueChange={onLevel}
-              disabled={pending}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LEVELS.map((l) => (
-                  <SelectItem key={l} value={l}>
-                    {LEVEL_LABELS[l]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="text-sm text-muted-foreground">Livello</label>
+              <Select value={level} onValueChange={onLevel} disabled={pending}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LEVELS.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {LEVEL_LABELS[l]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm text-muted-foreground">Stato</label>
+              <Select
+                defaultValue={collaborator.status}
+                onValueChange={onStatus}
+                disabled={pending}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {COLLAB_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {COLLAB_STATUS_LABELS[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm text-muted-foreground">Stato</label>
-            <Select
-              defaultValue={collaborator.status}
-              onValueChange={onStatus}
-              disabled={pending}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {COLLAB_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {COLLAB_STATUS_LABELS[s]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <p className="text-xs text-muted-foreground">{LEVEL_DESCRIPTIONS[level]}</p>
         </div>
       ) : null}
 
@@ -136,7 +150,7 @@ export function CollaboratorActions({
         <div className="space-y-2">
           <label className="text-sm text-muted-foreground">Capo PR</label>
           <Select
-            defaultValue={collaborator.capo_pr_user_id}
+            defaultValue={currentCapo}
             onValueChange={onCapo}
             disabled={pending}
           >

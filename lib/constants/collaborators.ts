@@ -5,25 +5,29 @@ import type {
 } from "@/types/database";
 
 export const LEVEL_LABELS: Record<CollaboratorLevel, string> = {
-  bacheca: "Bacheca",
-  collaboratore_occasionale: "Occasionale",
-  sotto_pr: "Sotto PR",
+  occasionale: "Occasionale",
+  condivisioni_attive: "Condivisioni attive",
   pr_attivo: "PR attivo",
-  pr_stretto: "PR stretto",
-  capo_pr: "Capo PR",
-  core_team: "Core team",
+  pr_con_potenziale: "PR con potenziale",
 };
 export const LEVELS = Object.keys(LEVEL_LABELS) as CollaboratorLevel[];
 
+/** One-liner per livello, per aiutare a taggare e analizzare i collaboratori. */
+export const LEVEL_DESCRIPTIONS: Record<CollaboratorLevel, string> = {
+  occasionale:
+    "Potrebbe venire e condividere ogni tanto, ma è impegnato e non punta a partecipare attivamente.",
+  condivisioni_attive:
+    "Condivide attivamente, ma non è detto che venga con costanza alle serate.",
+  pr_attivo: "Viene alle serate e porta gente in lista.",
+  pr_con_potenziale:
+    "Sposta tanta gente in lista; a breve può avere lista autonoma e sotto-PR.",
+};
+
 export const COLLAB_STATUS_LABELS: Record<CollaboratorStatus, string> = {
-  in_prova: "In prova",
   attivo: "Attivo",
-  molto_attivo: "Molto attivo",
-  occasionale: "Occasionale",
-  dormiente: "Dormiente",
+  affidabile: "Affidabile",
+  inattivo: "Inattivo",
   da_riattivare: "Da riattivare",
-  non_affidabile: "Non affidabile",
-  uscito: "Uscito",
 };
 export const COLLAB_STATUSES = Object.keys(
   COLLAB_STATUS_LABELS,
@@ -32,11 +36,10 @@ export const COLLAB_STATUSES = Object.keys(
 export function collabStatusTone(
   s: CollaboratorStatus,
 ): "new" | "neutral" | "active" | "warning" | "positive" | "negative" {
-  if (s === "in_prova") return "new";
-  if (s === "attivo" || s === "molto_attivo") return "positive";
-  if (s === "dormiente" || s === "da_riattivare") return "warning";
-  if (s === "non_affidabile" || s === "uscito") return "negative";
-  return "neutral";
+  if (s === "attivo") return "active";
+  if (s === "affidabile") return "positive";
+  if (s === "da_riattivare") return "warning";
+  return "neutral"; // inattivo
 }
 
 export const GROUP_TYPE_LABELS: Record<GroupType, string> = {

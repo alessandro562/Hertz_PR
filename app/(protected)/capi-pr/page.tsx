@@ -15,9 +15,9 @@ import type { Collaborator } from "@/lib/network/queries";
 export const metadata: Metadata = { title: "Capi PR" };
 
 const isActive = (c: Collaborator) =>
-  c.status === "attivo" || c.status === "molto_attivo";
+  c.status === "attivo" || c.status === "affidabile";
 const isDormant = (c: Collaborator) =>
-  c.status === "dormiente" || c.status === "da_riattivare";
+  c.status === "inattivo" || c.status === "da_riattivare";
 
 /** Score of a capo's most recent event (same logic as the Capo PR dashboard). */
 function latestEventScore(
