@@ -39,6 +39,45 @@ export function calculatePerformanceScore(input: PerformanceInput): number {
   return score;
 }
 
+export interface ScoreLine {
+  label: string;
+  points: number;
+}
+
+/**
+ * Per-line breakdown of a performance score, so the number is explainable in
+ * the UI (a lone "-2" reads like an error otherwise). Mirrors
+ * calculatePerformanceScore exactly — keep the two in sync.
+ */
+export function scoreBreakdown(input: PerformanceInput): ScoreLine[] {
+  const lines: ScoreLine[] = [];
+  if (input.list_names_count)
+    lines.push({ label: "Lista ×1", points: input.list_names_count });
+  if (input.tickets_sold_count)
+    lines.push({ label: "Ticket ×3", points: input.tickets_sold_count * 3 });
+  if (input.tables_count)
+    lines.push({ label: "Tavoli ×8", points: input.tables_count * 8 });
+  if (input.actual_entries_count)
+    lines.push({ label: "Ingressi ×2", points: input.actual_entries_count * 2 });
+  if (input.shared_story) lines.push({ label: "Story condivisa", points: 1 });
+  if (input.broadcast_sent) lines.push({ label: "Broadcast", points: 1 });
+
+  const noResults =
+    input.list_names_count === 0 &&
+    input.tickets_sold_count === 0 &&
+    input.tables_count === 0 &&
+    input.actual_entries_count === 0 &&
+    !input.shared_story &&
+    !input.broadcast_sent;
+
+  if (input.confirmed_support && noResults)
+    lines.push({ label: "Confermato, ancora nessun numero", points: -2 });
+  if (input.negative_behavior)
+    lines.push({ label: "Comportamento negativo", points: -5 });
+
+  return lines;
+}
+
 export interface PerformanceTotals {
   listNames: number;
   tickets: number;
