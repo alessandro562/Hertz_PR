@@ -4,9 +4,10 @@ import { ArrowLeft } from "lucide-react";
 import { getLead, getLeadInteractions } from "@/lib/leads/queries";
 import { setLeadAvatar } from "@/lib/leads/actions";
 import { getSessionUser } from "@/lib/auth/session";
-import { canEditLead } from "@/lib/permissions";
+import { canEditLead, isManager } from "@/lib/permissions";
 import { QuickActions } from "@/components/leads/quick-actions";
 import { EditLeadForm } from "@/components/leads/edit-lead-form";
+import { DeleteLeadButton } from "@/components/leads/delete-lead-button";
 import { StatusBadge } from "@/components/leads/status-badge";
 import { AddNoteForm } from "@/components/leads/add-note-form";
 import { LeadTimeline } from "@/components/leads/lead-timeline";
@@ -33,6 +34,7 @@ export default async function LeadDetailPage({
   const profile = current?.profile ?? null;
   const canEdit = canEditLead(profile, lead);
   const canAssign = canEdit && lead.owner_user_id !== current?.id;
+  const manager = isManager(profile);
   const name = displayName(lead);
 
   return (
@@ -112,6 +114,20 @@ export default async function LeadDetailPage({
           </CardContent>
         </Card>
       )}
+
+      {manager ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base text-destructive">Elimina</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DeleteLeadButton
+              leadId={lead.id}
+              isConverted={lead.converted_to_collaborator}
+            />
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }

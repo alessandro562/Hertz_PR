@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
+import { isManager } from "@/lib/permissions";
 import {
   createTeamSchema,
   createGroupSchema,
@@ -119,6 +120,46 @@ export async function assignCollaboratorCapo(
   revalidatePath(`/collaborators/${id}`);
   revalidatePath("/collaborators");
   revalidatePath("/capi-pr");
+  return {};
+}
+
+/**
+ * Hard-delete a collaborator (Manager only). If it came from a lead, that lead
+ * is sent back to the pipeline (un-converted) instead of being left pointing at
+ * a record that no longer exists.
+ */
+export async function deleteCollaborator(
+  id: string,
+): Promise<{ error?: string }> {
+  const current = await getSessionUser();
+  if (!current) return { error: "Non autenticato." };
+  if (!isManager(current.profile)) {
+    return { error: "Solo un Manager può eliminare un collaboratore." };
+  }
+  const supabase = await createClient();
+
+  const { data: collab } = await supabase
+    .from("collaborators")
+    .select("lead_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  const { error } = await supabase.from("collaborators").delete().eq("id", id);
+  if (error) return { error: "Impossibile eliminare il collaboratore." };
+
+  if (collab?.lead_id) {
+    await supabase
+      .from("leads")
+      .update({
+        converted_to_collaborator: false,
+        converted_collaborator_id: null,
+        status: "da_contattare",
+      })
+      .eq("id", collab.lead_id);
+  }
+
+  revalidatePath("/collaborators");
+  revalidatePath("/leads");
   return {};
 }
 

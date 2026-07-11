@@ -9,6 +9,7 @@ import { displayName } from "@/lib/format";
 import { setCollaboratorAvatar } from "@/lib/network/actions";
 import { CollaboratorActions } from "@/components/collaborators/collaborator-actions";
 import { EditCollaboratorForm } from "@/components/collaborators/edit-collaborator-form";
+import { DeleteCollaboratorButton } from "@/components/collaborators/delete-collaborator-button";
 import { PerformanceHistory } from "@/components/collaborators/performance-history";
 import { LevelBadge } from "@/components/collaborators/level-badge";
 import { CollabStatusBadge } from "@/components/collaborators/status-badge";
@@ -33,6 +34,7 @@ export default async function CollaboratorDetailPage({
   if (!collaborator) notFound();
 
   const canEdit = canEditCollaborator(current?.profile, collaborator);
+  const manager = isManager(current?.profile);
   const name = displayName(collaborator);
   const eventById = Object.fromEntries(events.map((e) => [e.id, e]));
 
@@ -90,6 +92,20 @@ export default async function CollaboratorDetailPage({
           </CardHeader>
           <CardContent>
             <EditCollaboratorForm collaborator={collaborator} />
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {manager ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base text-destructive">Elimina</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DeleteCollaboratorButton
+              collaboratorId={collaborator.id}
+              fromLead={!!collaborator.lead_id}
+            />
           </CardContent>
         </Card>
       ) : null}
