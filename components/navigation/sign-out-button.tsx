@@ -11,6 +11,7 @@ export function SignOutButton() {
         type="submit"
         variant="ghost"
         size="sm"
+        aria-label="Esci"
         className="gap-2 text-muted-foreground"
       >
         <LogOut className="size-4" />

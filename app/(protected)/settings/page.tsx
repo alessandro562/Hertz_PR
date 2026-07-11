@@ -10,6 +10,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "@/components/navigation/sign-out-button";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
+import { InstallAppCard } from "@/components/settings/install-app-card";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -55,6 +56,15 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <ChangePasswordForm />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">App</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <InstallAppCard />
         </CardContent>
       </Card>
 
