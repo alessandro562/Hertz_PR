@@ -9,6 +9,8 @@ import { getSessionUser } from "@/lib/auth/session";
 import { isManager } from "@/lib/permissions";
 import { sumPerformances } from "@/lib/performance";
 import { CollaboratorCard } from "@/components/collaborators/collaborator-card";
+import { CapoAssign } from "@/components/collaborators/capo-assign";
+import { StatCard } from "@/components/dashboard/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Collaborator } from "@/lib/network/queries";
 
@@ -19,17 +21,21 @@ const isActive = (c: Collaborator) =>
 const isDormant = (c: Collaborator) =>
   c.status === "inattivo" || c.status === "da_riattivare";
 
-/** Score of a capo's most recent event (same logic as the Capo PR dashboard). */
-function latestEventScore(
+/** Score + name of a capo's most recent event, so cards say WHICH event. */
+function latestEventStat(
   perfs: EventPerformance[],
   dateById: Record<string, string>,
-): number {
-  if (perfs.length === 0) return 0;
+  nameById: Record<string, string>,
+): { score: number; eventName: string | null } {
+  if (perfs.length === 0) return { score: 0, eventName: null };
   const latestEventId = [...perfs].sort((a, b) =>
     (dateById[b.event_id] ?? "").localeCompare(dateById[a.event_id] ?? ""),
   )[0]?.event_id;
-  if (!latestEventId) return 0;
-  return sumPerformances(perfs.filter((p) => p.event_id === latestEventId)).score;
+  if (!latestEventId) return { score: 0, eventName: null };
+  return {
+    score: sumPerformances(perfs.filter((p) => p.event_id === latestEventId)).score,
+    eventName: nameById[latestEventId] ?? null,
+  };
 }
 
 export default async function CapiPrPage() {
@@ -46,19 +52,24 @@ export default async function CapiPrPage() {
   const dateById: Record<string, string> = Object.fromEntries(
     events.map((e: Event) => [e.id, e.event_date]),
   );
+  const nameById: Record<string, string> = Object.fromEntries(
+    events.map((e: Event) => [e.id, e.name]),
+  );
   const capiIds = new Set(capi.map((c) => c.id));
 
   const groups = capi
     .map((capo) => {
       const pairs = collaborators.filter((c) => c.capo_pr_user_id === capo.id);
       const perfs = performances.filter((p) => p.capo_pr_user_id === capo.id);
+      const last = latestEventStat(perfs, dateById, nameById);
       return {
         id: capo.id,
         name: capo.full_name,
         pairs,
         active: pairs.filter(isActive).length,
         dormant: pairs.filter(isDormant).length,
-        score: latestEventScore(perfs, dateById),
+        score: last.score,
+        eventName: last.eventName,
       };
     })
     .sort((a, b) => b.pairs.length - a.pairs.length);
@@ -66,6 +77,10 @@ export default async function CapiPrPage() {
   const orphans = collaborators.filter(
     (c) => !c.capo_pr_user_id || !capiIds.has(c.capo_pr_user_id),
   );
+
+  const pairedCount = collaborators.length - orphans.length;
+  const activeTotal = collaborators.filter(isActive).length;
+  const dormantTotal = collaborators.filter(isDormant).length;
 
   return (
     <div className="space-y-6">
@@ -93,21 +108,29 @@ export default async function CapiPrPage() {
             </p>
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="PR abbinati" value={pairedCount} />
+          <StatCard label="Attivi" value={activeTotal} />
+          <StatCard label="Dormienti" value={dormantTotal} />
+          <StatCard label="Senza Capo" value={orphans.length} />
+        </div>
+      )}
 
       {groups.map((g) => (
         <Card key={g.id}>
           <CardHeader className="gap-1">
             <div className="flex items-baseline justify-between gap-2">
               <CardTitle className="text-base">{g.name}</CardTitle>
-              <span className="shrink-0 text-sm text-muted-foreground">
+              <span className="shrink-0 text-right text-sm text-muted-foreground">
                 <span className="num text-base text-foreground">{g.score}</span> pt
-                <span className="ml-1 text-xs">ult. evento</span>
+                <span className="ml-1 text-xs">
+                  {g.eventName ? `· ${g.eventName}` : "· nessun evento"}
+                </span>
               </span>
             </div>
             <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-              {g.pairs.length} {g.pairs.length === 1 ? "PR" : "PR"} · {g.active}{" "}
-              attivi · {g.dormant} dormienti
+              {g.pairs.length} PR · {g.active} attivi · {g.dormant} dormienti
             </p>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -116,9 +139,7 @@ export default async function CapiPrPage() {
                 Nessun PR abbinato. Abbinali dalla scheda del collaboratore.
               </p>
             ) : (
-              g.pairs.map((c) => (
-                <CollaboratorCard key={c.id} collaborator={c} />
-              ))
+              g.pairs.map((c) => <CollaboratorCard key={c.id} collaborator={c} />)
             )}
           </CardContent>
         </Card>
@@ -132,9 +153,17 @@ export default async function CapiPrPage() {
               {orphans.length} da abbinare
             </p>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             {orphans.map((c) => (
-              <CollaboratorCard key={c.id} collaborator={c} />
+              <div
+                key={c.id}
+                className="flex flex-col gap-2 sm:flex-row sm:items-center"
+              >
+                <div className="min-w-0 flex-1">
+                  <CollaboratorCard collaborator={c} />
+                </div>
+                <CapoAssign collaboratorId={c.id} capi={capi} />
+              </div>
             ))}
           </CardContent>
         </Card>

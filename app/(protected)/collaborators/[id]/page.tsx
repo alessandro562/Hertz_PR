@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { getCollaborator, listCapiPr } from "@/lib/network/queries";
 import { getCollaboratorPerformances, listEvents } from "@/lib/events/queries";
 import { getSessionUser } from "@/lib/auth/session";
 import { canEditCollaborator, isManager } from "@/lib/permissions";
+import { LEVEL_DESCRIPTIONS } from "@/lib/constants/collaborators";
 import { displayName } from "@/lib/format";
 import { setCollaboratorAvatar } from "@/lib/network/actions";
 import { CollaboratorActions } from "@/components/collaborators/collaborator-actions";
@@ -15,6 +14,7 @@ import { LevelBadge } from "@/components/collaborators/level-badge";
 import { CollabStatusBadge } from "@/components/collaborators/status-badge";
 import { AvatarUpload } from "@/components/common/avatar-upload";
 import { PersonAvatar } from "@/components/common/person-avatar";
+import { BackLink } from "@/components/common/back-link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function CollaboratorDetailPage({
@@ -41,9 +41,7 @@ export default async function CollaboratorDetailPage({
   return (
     <div className="mx-auto max-w-lg space-y-5">
       <div className="flex items-center gap-3">
-        <Link href="/collaborators" className="text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="size-5" />
-        </Link>
+        <BackLink href="/collaborators" />
         {canEdit ? (
           <AvatarUpload
             entity="collaborators"
@@ -64,6 +62,10 @@ export default async function CollaboratorDetailPage({
           </div>
         </div>
       </div>
+
+      <p className="text-sm text-muted-foreground">
+        {LEVEL_DESCRIPTIONS[collaborator.level]}
+      </p>
 
       <Card>
         <CardContent className="pt-6">

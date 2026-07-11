@@ -57,21 +57,23 @@ export default async function DashboardPage() {
       .slice(0, 3)
       .map((g) => ({ id: g.key, name: names[g.key] ?? "—", score: g.score }));
 
-    const alerts: string[] = [];
+    const alerts: { label: string; href: string }[] = [];
     const overdueFollowUps = leads.filter((l) => isOverdue(l.next_follow_up_at)).length;
     const unownedLeads = leads.filter((l) => !l.owner_user_id).length;
     if (overdueFollowUps > 0) {
-      alerts.push(
-        `${overdueFollowUps} follow-up ${overdueFollowUps === 1 ? "scaduto" : "scaduti"}`,
-      );
+      alerts.push({
+        label: `${overdueFollowUps} follow-up ${overdueFollowUps === 1 ? "scaduto" : "scaduti"}`,
+        href: "/leads",
+      });
     }
     if (unownedLeads > 0) {
-      alerts.push(`${unownedLeads} lead senza owner`);
+      alerts.push({ label: `${unownedLeads} lead senza owner`, href: "/leads" });
     }
     if (dormantCollaborators.length > 0) {
-      alerts.push(
-        `${dormantCollaborators.length} collaboratori dormienti da riattivare`,
-      );
+      alerts.push({
+        label: `${dormantCollaborators.length} collaboratori dormienti da riattivare`,
+        href: "/collaborators",
+      });
     }
 
     return (

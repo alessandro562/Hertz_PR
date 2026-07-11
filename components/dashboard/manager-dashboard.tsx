@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, TriangleAlert } from "lucide-react";
+import { Calendar, TriangleAlert, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "./stat-card";
@@ -18,7 +18,7 @@ interface ManagerDashboardProps {
     avgScore: number;
   };
   topCapos: { id: string; name: string; score: number }[];
-  alerts: string[];
+  alerts: { label: string; href: string }[];
 }
 
 export function ManagerDashboard({
@@ -113,10 +113,17 @@ export function ManagerDashboard({
                 Tutto in ordine, nessun alert al momento.
               </p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-1">
                 {alerts.map((a) => (
-                  <li key={a} className="flex items-center gap-2 text-sm">
-                    <TriangleAlert className="size-4 shrink-0 text-warning" /> {a}
+                  <li key={a.label}>
+                    <Link
+                      href={a.href}
+                      className="flex items-center gap-2 rounded-md py-1.5 text-sm transition-colors hover:text-foreground"
+                    >
+                      <TriangleAlert className="size-4 shrink-0 text-warning" />
+                      <span className="flex-1">{a.label}</span>
+                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                    </Link>
                   </li>
                 ))}
               </ul>
