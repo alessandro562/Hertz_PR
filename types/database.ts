@@ -518,9 +518,11 @@ export interface Database {
       check_lead_duplicate: {
         Args: { p_username: string };
         Returns: {
+          lead_id: string;
           owner_name: string;
           lead_status: string;
           last_update: string;
+          can_open: boolean;
         }[];
       };
       ranking_collaborators: {

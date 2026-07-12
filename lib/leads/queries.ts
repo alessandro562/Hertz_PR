@@ -39,9 +39,11 @@ export async function getLeadInteractions(
 }
 
 export interface DuplicateInfo {
+  lead_id: string;
   owner_name: string;
   lead_status: string;
   last_update: string;
+  can_open: boolean;
 }
 
 /** Global, privacy-aware duplicate check. Pass a normalized handle. */

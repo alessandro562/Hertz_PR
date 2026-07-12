@@ -43,7 +43,12 @@ async function insertInteraction(
 
 export interface CreateLeadState {
   error?: string;
-  duplicate?: { owner_name: string; lead_status: string };
+  duplicate?: {
+    lead_id: string;
+    owner_name: string;
+    lead_status: string;
+    can_open: boolean;
+  };
 }
 
 /** Live, privacy-safe duplicate lookup as the @ is typed in the new-lead form. */
@@ -88,8 +93,10 @@ export async function createLead(
   if (dup && dup.length > 0) {
     return {
       duplicate: {
+        lead_id: dup[0].lead_id,
         owner_name: dup[0].owner_name,
         lead_status: dup[0].lead_status,
+        can_open: dup[0].can_open,
       },
     };
   }
@@ -115,7 +122,14 @@ export async function createLead(
 
   if (error) {
     if (error.code === "23505") {
-      return { duplicate: { owner_name: "un altro PR", lead_status: "" } };
+      return {
+        duplicate: {
+          lead_id: "",
+          owner_name: "un altro PR",
+          lead_status: "",
+          can_open: false,
+        },
+      };
     }
     return { error: "Errore nel salvataggio del lead." };
   }

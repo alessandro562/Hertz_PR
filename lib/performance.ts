@@ -25,15 +25,6 @@ export function calculatePerformanceScore(input: PerformanceInput): number {
   score += input.tables_count * 8;
   score += input.actual_entries_count * 2;
 
-  const noResults =
-    input.list_names_count === 0 &&
-    input.tickets_sold_count === 0 &&
-    input.tables_count === 0 &&
-    input.actual_entries_count === 0 &&
-    !input.shared_story &&
-    !input.broadcast_sent;
-
-  if (input.confirmed_support && noResults) score -= 2;
   if (input.negative_behavior) score -= 5;
 
   return score;
@@ -62,16 +53,6 @@ export function scoreBreakdown(input: PerformanceInput): ScoreLine[] {
   if (input.shared_story) lines.push({ label: "Story condivisa", points: 1 });
   if (input.broadcast_sent) lines.push({ label: "Broadcast", points: 1 });
 
-  const noResults =
-    input.list_names_count === 0 &&
-    input.tickets_sold_count === 0 &&
-    input.tables_count === 0 &&
-    input.actual_entries_count === 0 &&
-    !input.shared_story &&
-    !input.broadcast_sent;
-
-  if (input.confirmed_support && noResults)
-    lines.push({ label: "Confermato, ancora nessun numero", points: -2 });
   if (input.negative_behavior)
     lines.push({ label: "Comportamento negativo", points: -5 });
 

@@ -59,9 +59,18 @@ export function LeadForm({ initialUsername = "" }: { initialUsername?: string })
               </>
             ) : null}
           </p>
-          <Link href="/leads" className="mt-2 inline-block text-xs underline">
-            Vai alla lista lead
-          </Link>
+          {dup.can_open && dup.lead_id ? (
+            <Link
+              href={`/leads/${dup.lead_id}`}
+              className="mt-2 inline-block text-xs font-medium text-primary underline"
+            >
+              Apri scheda
+            </Link>
+          ) : (
+            <Link href="/leads" className="mt-2 inline-block text-xs underline">
+              Vai alla lista lead
+            </Link>
+          )}
         </div>
       ) : null}
 

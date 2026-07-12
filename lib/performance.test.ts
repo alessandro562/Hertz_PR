@@ -41,13 +41,13 @@ describe("calculatePerformanceScore", () => {
     expect(calculatePerformanceScore({ ...zero, actual_entries_count: 3 })).toBe(6);
   });
 
-  it("-2 when support is confirmed but nothing came of it", () => {
+  it("confirmed support alone is neutral (no pre-event penalty)", () => {
     expect(
       calculatePerformanceScore({ ...zero, confirmed_support: true }),
-    ).toBe(-2);
+    ).toBe(0);
   });
 
-  it("does NOT apply the confirmed-but-zero penalty if any number is nonzero", () => {
+  it("confirmed support never subtracts, even alongside real numbers", () => {
     expect(
       calculatePerformanceScore({
         ...zero,
