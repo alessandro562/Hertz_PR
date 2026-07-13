@@ -8,6 +8,7 @@ import { isManager } from "@/lib/permissions";
 import { normalizeInstagramUsername, instagramUrl } from "@/lib/instagram";
 import { checkDuplicate, type DuplicateInfo } from "@/lib/leads/queries";
 import { createLeadSchema, updateLeadSchema } from "@/lib/validations/lead";
+import { sanitizeTags } from "@/lib/constants/leads";
 import type { LeadStatus } from "@/types/database";
 
 function nullify(v: FormDataEntryValue | null | undefined): string | null {
@@ -76,6 +77,8 @@ export async function createLead(
     source: formData.get("source") ?? undefined,
     priority: formData.get("priority") ?? undefined,
     interest_level: formData.get("interest_level") ?? undefined,
+    lead_type: formData.get("lead_type") ?? undefined,
+    tags: formData.getAll("tags"),
     notes: formData.get("notes") ?? undefined,
   });
   if (!parsed.success) {
@@ -113,6 +116,8 @@ export async function createLead(
       source: nullify(parsed.data.source),
       priority: parsed.data.priority ?? "medium",
       interest_level: parsed.data.interest_level ?? "warm",
+      lead_type: parsed.data.lead_type ?? "pr",
+      tags: sanitizeTags(parsed.data.tags ?? []),
       notes: nullify(parsed.data.notes),
       owner_user_id: current.id,
       created_by: current.id,
@@ -160,6 +165,8 @@ export async function updateLead(
     source: formData.get("source") ?? undefined,
     priority: formData.get("priority") ?? undefined,
     interest_level: formData.get("interest_level") ?? undefined,
+    lead_type: formData.get("lead_type") ?? undefined,
+    tags: formData.getAll("tags"),
     next_action: formData.get("next_action") ?? undefined,
     notes: formData.get("notes") ?? undefined,
     next_follow_up_at: formData.get("next_follow_up_at") ?? undefined,
@@ -179,6 +186,8 @@ export async function updateLead(
       source: nullify(parsed.data.source),
       priority: parsed.data.priority ?? "medium",
       interest_level: parsed.data.interest_level ?? "warm",
+      lead_type: parsed.data.lead_type ?? "pr",
+      tags: sanitizeTags(parsed.data.tags ?? []),
       next_action: nullify(parsed.data.next_action),
       notes: nullify(parsed.data.notes),
       next_follow_up_at: nullify(parsed.data.next_follow_up_at),

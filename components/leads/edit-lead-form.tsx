@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toDateInput } from "@/lib/dates";
+import { LEAD_TYPES, LEAD_TYPE_LABELS } from "@/lib/constants/leads";
+import { TagPicker } from "./tag-picker";
 import type { Lead } from "@/lib/leads/queries";
 
 const AREA =
@@ -85,6 +87,27 @@ export function EditLeadForm({ lead }: { lead: Lead }) {
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="e_type">Tipo</Label>
+        <Select name="lead_type" defaultValue={lead.lead_type}>
+          <SelectTrigger id="e_type" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {LEAD_TYPES.map((t) => (
+              <SelectItem key={t} value={t}>
+                {LEAD_TYPE_LABELS[t]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Etichette</Label>
+        <TagPicker defaultValue={lead.tags} />
       </div>
 
       <div className="space-y-2">

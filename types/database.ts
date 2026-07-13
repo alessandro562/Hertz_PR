@@ -35,6 +35,7 @@ export type LeadStatus =
 
 export type LeadPriority = "low" | "medium" | "high";
 export type LeadInterest = "cold" | "warm" | "hot";
+export type LeadType = "pr" | "festaiolo" | "supporter_social";
 
 export type CollaboratorLevel =
   | "occasionale"
@@ -108,6 +109,8 @@ export interface Database {
           status: LeadStatus;
           priority: LeadPriority;
           interest_level: LeadInterest;
+          lead_type: LeadType;
+          tags: string[];
           owner_user_id: string | null;
           owner_team_id: string | null;
           created_by: string | null;
@@ -134,6 +137,8 @@ export interface Database {
           status?: LeadStatus;
           priority?: LeadPriority;
           interest_level?: LeadInterest;
+          lead_type?: LeadType;
+          tags?: string[];
           owner_user_id?: string | null;
           owner_team_id?: string | null;
           created_by?: string | null;
@@ -160,6 +165,8 @@ export interface Database {
           status?: LeadStatus;
           priority?: LeadPriority;
           interest_level?: LeadInterest;
+          lead_type?: LeadType;
+          tags?: string[];
           owner_user_id?: string | null;
           owner_team_id?: string | null;
           created_by?: string | null;
