@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { SignOutButton } from "@/components/navigation/sign-out-button";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
 import { InstallAppCard } from "@/components/settings/install-app-card";
+import { NotificationsCard } from "@/components/settings/notifications-card";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -65,6 +66,15 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <InstallAppCard />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Notifiche</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NotificationsCard />
         </CardContent>
       </Card>
 

@@ -4,7 +4,7 @@
  * Richer runtime caching can be layered in during Phase 8 (PWA polish).
  * Bump VERSION to invalidate old caches on deploy.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = `hertz-pr-hub-${VERSION}`;
 const PRECACHE = [
   "/offline.html",
@@ -74,4 +74,46 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Everything else: straight to the network.
+});
+
+// --- Web Push --------------------------------------------------------------
+// The server sends a JSON payload { title, body, url }. Showing a notification
+// is mandatory (we subscribed with userVisibleOnly: true).
+self.addEventListener("push", (event) => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch {
+    payload = { body: event.data ? event.data.text() : "" };
+  }
+
+  const title = payload.title || "hertz PR Hub";
+  const options = {
+    body: payload.body || "",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    data: { url: payload.url || "/oggi" },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Tapping the notification focuses an open tab (if any) or opens the app.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || "/oggi";
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if ("focus" in client) {
+            client.navigate(target).catch(() => {});
+            return client.focus();
+          }
+        }
+        return self.clients.openWindow(target);
+      }),
+  );
 });
