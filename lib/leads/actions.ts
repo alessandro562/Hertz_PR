@@ -264,6 +264,70 @@ export async function assignOwnerToMe(
   return {};
 }
 
+export interface BulkResult {
+  error?: string;
+  count?: number;
+}
+
+/**
+ * Change status on many leads at once. RLS scopes which of `ids` actually
+ * update (a Capo PR only touches their own; a Manager touches all), so no extra
+ * ownership check is needed here — mirrors setLeadStatus() with `.in()` and a
+ * single batched interaction insert instead of one round-trip per lead.
+ */
+export async function bulkSetLeadStatus(
+  ids: string[],
+  status: LeadStatus,
+): Promise<BulkResult> {
+  const current = await getSessionUser();
+  if (!current) return { error: "Non autenticato." };
+  if (ids.length === 0) return { count: 0 };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("leads")
+    .update({ status })
+    .in("id", ids)
+    .select("id");
+  if (error) return { error: "Impossibile aggiornare gli stati." };
+
+  const changedIds = (data ?? []).map((r) => r.id);
+  if (changedIds.length > 0) {
+    await supabase.from("lead_interactions").insert(
+      changedIds.map((leadId) => ({
+        lead_id: leadId,
+        author_user_id: current.id,
+        author_name: current.profile.full_name,
+        type: "status_change" as const,
+        body: status,
+      })),
+    );
+  }
+
+  revalidatePath("/leads");
+  revalidatePath("/oggi");
+  return { count: changedIds.length };
+}
+
+/** Assign many leads to the current user at once (mirrors assignOwnerToMe). */
+export async function bulkAssignOwner(ids: string[]): Promise<BulkResult> {
+  const current = await getSessionUser();
+  if (!current) return { error: "Non autenticato." };
+  if (ids.length === 0) return { count: 0 };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("leads")
+    .update({ owner_user_id: current.id })
+    .in("id", ids)
+    .select("id");
+  if (error) return { error: "Impossibile assegnare i lead." };
+
+  revalidatePath("/leads");
+  revalidatePath("/oggi");
+  return { count: (data ?? []).length };
+}
+
 /**
  * Hard-delete a lead (Manager only). If it was converted, the linked
  * collaborator is the same person, so we remove that record too. Deleting

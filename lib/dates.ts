@@ -1,4 +1,4 @@
-import { format, isPast } from "date-fns";
+import { format, isPast, isToday as isTodayFns } from "date-fns";
 import { it } from "date-fns/locale";
 
 /** e.g. "15 lug" */
@@ -23,6 +23,11 @@ export function toDateInput(iso: string | null): string {
 
 export function isOverdue(iso: string | null): boolean {
   return !!iso && isPast(new Date(iso));
+}
+
+/** True when the timestamp falls on the current calendar day. */
+export function isToday(iso: string | null): boolean {
+  return !!iso && isTodayFns(new Date(iso));
 }
 
 /** ISO timestamp for "N days ago" — a rolling window cutoff (e.g. "last 30 days"). */

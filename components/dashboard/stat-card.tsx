@@ -1,10 +1,12 @@
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 /**
  * StatCard — dashboard KPI unit. Mono kicker label, big brand numeral (.num),
  * optional unit suffix and a trend hint (success/danger). No icon: the numeral
- * carries the hierarchy, per the brand specimen.
+ * carries the hierarchy, per the brand specimen. Pass `href` to make the whole
+ * card a tap target (e.g. follow-up counts → /oggi).
  */
 export function StatCard({
   label,
@@ -12,15 +14,17 @@ export function StatCard({
   unit,
   hint,
   hintTone = "muted",
+  href,
 }: {
   label: string;
   value: string | number;
   unit?: string;
   hint?: string;
   hintTone?: "muted" | "success" | "danger";
+  href?: string;
 }) {
-  return (
-    <Card>
+  const card = (
+    <Card className={cn(href && "transition-colors hover:bg-accent/50")}>
       <CardContent className="p-4">
         <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
           {label}
@@ -43,5 +47,13 @@ export function StatCard({
         ) : null}
       </CardContent>
     </Card>
+  );
+
+  return href ? (
+    <Link href={href} className="block">
+      {card}
+    </Link>
+  ) : (
+    card
   );
 }

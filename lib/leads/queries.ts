@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
+import { TERMINAL_LEAD_STATUSES } from "@/lib/constants/leads";
 
 export type Lead = Database["public"]["Tables"]["leads"]["Row"];
 export type LeadInteraction =
@@ -17,6 +18,25 @@ export async function listLeads(): Promise<Lead[]> {
     .eq("is_archived", false)
     .order("updated_at", { ascending: false });
   return data ?? [];
+}
+
+/**
+ * Leads with a follow-up date set (not archived, not in a terminal status),
+ * oldest-due first. RLS scopes visibility exactly like listLeads(). The caller
+ * splits these into "scaduti" vs "oggi" with isOverdue()/isToday(); leads whose
+ * follow-up is still in the future are returned too but filtered out there.
+ */
+export async function listFollowUpsDue(): Promise<Lead[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("leads")
+    .select("*")
+    .eq("is_archived", false)
+    .not("next_follow_up_at", "is", null)
+    .order("next_follow_up_at", { ascending: true });
+  return (data ?? []).filter(
+    (lead) => !TERMINAL_LEAD_STATUSES.has(lead.status),
+  );
 }
 
 export async function getLead(id: string): Promise<Lead | null> {

@@ -66,7 +66,11 @@ export function ManagerDashboard({
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           <StatCard label="Lead totali" value={stats.totalLeads} />
           <StatCard label="Da contattare" value={stats.toContact} />
-          <StatCard label="Follow-up scaduti" value={stats.overdueFollowUps} />
+          <StatCard
+            label="Follow-up scaduti"
+            value={stats.overdueFollowUps}
+            href="/oggi"
+          />
           <StatCard label="Collaboratori attivi" value={stats.activeCollaborators} />
           <StatCard label="Capi PR" value={stats.capiCount} />
           <StatCard label="Score medio" value={stats.avgScore} unit="pt" />

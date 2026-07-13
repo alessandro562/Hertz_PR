@@ -19,6 +19,17 @@ export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
 
 export const LEAD_STATUSES = Object.keys(LEAD_STATUS_LABELS) as LeadStatus[];
 
+/**
+ * Statuses where the lead is "done" — converted, or definitively lost. A lead in
+ * one of these never needs a follow-up, so the "cosa fare oggi" view and the
+ * hot-leads ranking both exclude them.
+ */
+export const TERMINAL_LEAD_STATUSES = new Set<LeadStatus>([
+  "convertito_collaboratore",
+  "non_interessato",
+  "scartato",
+]);
+
 export const PRIORITY_LABELS: Record<LeadPriority, string> = {
   low: "Bassa",
   medium: "Media",

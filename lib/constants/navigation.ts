@@ -5,6 +5,7 @@ import {
   UserPlus,
   UserCog,
   Calendar,
+  CalendarCheck,
   BarChart3,
   Trophy,
   MessageSquareText,
@@ -36,6 +37,7 @@ export const BOTTOM_NAV: NavItem[] = [
 /** Desktop sidebar (spec §7). Some entries are Manager-only. */
 export const SIDEBAR_NAV: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: Home },
+  { label: "Oggi", href: "/oggi", icon: CalendarCheck },
   { label: "Lead CRM", href: "/leads", icon: Users },
   { label: "Capi PR", href: "/capi-pr", icon: UsersRound, roles: [ROLE.MANAGER] },
   { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
@@ -50,6 +52,7 @@ export const SIDEBAR_NAV: NavItem[] = [
 
 /** Extra links shown on the mobile "Altro" page. */
 export const MORE_NAV: NavItem[] = [
+  { label: "Oggi", href: "/oggi", icon: CalendarCheck },
   { label: "Capi PR", href: "/capi-pr", icon: UsersRound, roles: [ROLE.MANAGER] },
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },

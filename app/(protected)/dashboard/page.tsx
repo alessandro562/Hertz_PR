@@ -63,7 +63,7 @@ export default async function DashboardPage() {
     if (overdueFollowUps > 0) {
       alerts.push({
         label: `${overdueFollowUps} follow-up ${overdueFollowUps === 1 ? "scaduto" : "scaduti"}`,
-        href: "/leads",
+        href: "/oggi",
       });
     }
     if (unownedLeads > 0) {
