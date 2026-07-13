@@ -144,6 +144,28 @@ si testa sull'URL Vercel, non su `localhost`.
 - **Web Share Target (Android):** condividendo un profilo/link Instagram da un'altra
   app si può scegliere "hertz PR Hub" per pre-compilare un nuovo lead.
 
+## 8. Notifiche push (Web Push)
+
+Le notifiche arrivano allo smartphone **senza app store**, tramite il service worker
+della PWA installata. **Android:** supporto pieno. **iPhone/iPad:** funziona da iOS
+16.4+ **solo se l'app è stata aggiunta alla schermata Home** (non da una scheda Safari).
+
+Ogni mattina un cron invia il promemoria «cosa fare oggi» (follow-up scaduti + di oggi)
+a chi ha attivato le notifiche.
+
+Setup (una tantum):
+
+1. Genera le chiavi VAPID: `npx web-push generate-vapid-keys`.
+2. Su **Vercel → Settings → Environment Variables** (scope Production) aggiungi:
+   `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`
+   (es. `mailto:tua@email`), `CRON_SECRET` (stringa random). Poi **Redeploy**.
+3. Applica la migrazione `supabase/migrations/0011_push_subscriptions.sql`.
+4. Installa l'app in home e in **Impostazioni → Notifiche** tocca «Attiva notifiche».
+
+Il cron (`vercel.json`) gira una volta al giorno (`0 7 * * *` = ~09:00 in Italia) e va
+anche sul piano Vercel Hobby. La rotta `/api/cron/push` è protetta dal `CRON_SECRET`
+(Vercel lo invia in automatico nell'header `Authorization`).
+
 ## Struttura
 
 ```text

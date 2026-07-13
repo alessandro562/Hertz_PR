@@ -3,8 +3,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/types/database";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./config";
 
-/** Paths reachable without an authenticated session. */
-const PUBLIC_PATHS = ["/login", "/install", "/privacy", "/terms"];
+/**
+ * Paths reachable without an authenticated session. `/api/cron` is here so the
+ * (session-less) Vercel Cron request isn't redirected to /login before reaching
+ * the route — the route itself guards with CRON_SECRET.
+ */
+const PUBLIC_PATHS = ["/login", "/install", "/privacy", "/terms", "/api/cron"];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some(
