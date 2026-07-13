@@ -8,7 +8,12 @@ import {
   checkLeadDuplicate,
   type CreateLeadState,
 } from "@/lib/leads/actions";
-import { LEAD_STATUS_LABELS } from "@/lib/constants/leads";
+import {
+  LEAD_STATUS_LABELS,
+  LEAD_TYPES,
+  LEAD_TYPE_LABELS,
+} from "@/lib/constants/leads";
+import { TagPicker } from "./tag-picker";
 import { instagramUrl, normalizeInstagramUsername } from "@/lib/instagram";
 import type { DuplicateInfo } from "@/lib/leads/queries";
 import { Button } from "@/components/ui/button";
@@ -178,6 +183,30 @@ export function LeadForm({ initialUsername = "" }: { initialUsername?: string })
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="lead_type">Tipo</Label>
+        <Select name="lead_type" defaultValue="pr">
+          <SelectTrigger id="lead_type" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {LEAD_TYPES.map((t) => (
+              <SelectItem key={t} value={t}>
+                {LEAD_TYPE_LABELS[t]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          PR = porta gente. Festaiolo = cliente. Supporter = ci condivide sui social.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Etichette</Label>
+        <TagPicker />
       </div>
 
       <div className="space-y-2">

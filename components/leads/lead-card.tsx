@@ -4,7 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "./status-badge";
+import { LeadTypeBadge } from "./lead-type-badge";
 import { PersonAvatar } from "@/components/common/person-avatar";
+import { LEAD_TAG_LABELS } from "@/lib/constants/leads";
 import { shortDate, isOverdue } from "@/lib/dates";
 import { displayName } from "@/lib/format";
 import type { Lead } from "@/lib/leads/queries";
@@ -60,6 +62,25 @@ export function LeadCard({
             <span>Contatto {shortDate(lead.last_contact_at)}</span>
           ) : null}
         </div>
+
+        {lead.lead_type !== "pr" || lead.tags.length > 0 ? (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            {lead.lead_type !== "pr" ? <LeadTypeBadge type={lead.lead_type} /> : null}
+            {lead.tags.slice(0, 3).map((t) => (
+              <span
+                key={t}
+                className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
+              >
+                {LEAD_TAG_LABELS[t] ?? t}
+              </span>
+            ))}
+            {lead.tags.length > 3 ? (
+              <span className="text-[11px] text-muted-foreground">
+                +{lead.tags.length - 3}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );

@@ -7,13 +7,19 @@ import { QuickActions } from "@/components/leads/quick-actions";
 import { EditLeadForm } from "@/components/leads/edit-lead-form";
 import { DeleteLeadButton } from "@/components/leads/delete-lead-button";
 import { StatusBadge } from "@/components/leads/status-badge";
+import { LeadTypeBadge } from "@/components/leads/lead-type-badge";
 import { AddNoteForm } from "@/components/leads/add-note-form";
 import { LeadTimeline } from "@/components/leads/lead-timeline";
 import { AvatarUpload } from "@/components/common/avatar-upload";
 import { PersonAvatar } from "@/components/common/person-avatar";
 import { BackLink } from "@/components/common/back-link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PRIORITY_LABELS, INTEREST_LABELS } from "@/lib/constants/leads";
+import {
+  PRIORITY_LABELS,
+  INTEREST_LABELS,
+  LEAD_TYPE_LABELS,
+  LEAD_TAG_LABELS,
+} from "@/lib/constants/leads";
 import { longDate, dateTime } from "@/lib/dates";
 import { displayName } from "@/lib/format";
 
@@ -56,6 +62,7 @@ export default async function LeadDetailPage({
           <div className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">
             <span className="truncate">@{lead.instagram_username}</span>
             <StatusBadge status={lead.status} />
+            {lead.lead_type !== "pr" ? <LeadTypeBadge type={lead.lead_type} /> : null}
           </div>
         </div>
       </div>
@@ -101,6 +108,15 @@ export default async function LeadDetailPage({
             <Row label="Fonte" value={lead.source} />
             <Row label="Priorità" value={PRIORITY_LABELS[lead.priority]} />
             <Row label="Interesse" value={INTEREST_LABELS[lead.interest_level]} />
+            <Row label="Tipo" value={LEAD_TYPE_LABELS[lead.lead_type]} />
+            <Row
+              label="Etichette"
+              value={
+                lead.tags.length
+                  ? lead.tags.map((t) => LEAD_TAG_LABELS[t] ?? t).join(", ")
+                  : null
+              }
+            />
             <Row
               label="Follow-up"
               value={lead.next_follow_up_at ? longDate(lead.next_follow_up_at) : null}

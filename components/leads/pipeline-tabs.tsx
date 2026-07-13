@@ -20,17 +20,22 @@ import {
   bucketForStatus,
   statusesByBucket,
   LEAD_STATUS_LABELS,
+  LEAD_TYPES,
+  LEAD_TYPE_LABELS,
+  LEAD_TAGS,
   type PipelineBucket,
 } from "@/lib/constants/leads";
 import { bulkSetLeadStatus, bulkAssignOwner } from "@/lib/leads/actions";
 import { LeadCard } from "./lead-card";
 import { BulkWhatsapp } from "./bulk-whatsapp";
 import type { Lead } from "@/lib/leads/queries";
-import type { LeadStatus } from "@/types/database";
+import type { LeadStatus, LeadType } from "@/types/database";
 
 export function PipelineTabs({ leads }: { leads: Lead[] }) {
   const [bucket, setBucket] = useState<PipelineBucket>("da_contattare");
   const [q, setQ] = useState("");
+  const [typeFilter, setTypeFilter] = useState<LeadType | "all">("all");
+  const [tagFilter, setTagFilter] = useState<string>("all");
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showWhatsapp, setShowWhatsapp] = useState(false);
@@ -38,19 +43,14 @@ export function PipelineTabs({ leads }: { leads: Lead[] }) {
 
   const statusGroups = statusesByBucket();
 
-  const counts = useMemo(() => {
-    const c: Partial<Record<PipelineBucket, number>> = {};
-    for (const l of leads) {
-      const b = bucketForStatus(l.status);
-      c[b] = (c[b] ?? 0) + 1;
-    }
-    return c;
-  }, [leads]);
-
-  const filtered = useMemo(() => {
+  // Everything except the pipeline bucket: type + tag + search. Bucket counts
+  // and the visible list both derive from this, so the tab numbers match what
+  // the active filters actually show.
+  const base = useMemo(() => {
     const query = q.trim().toLowerCase();
     return leads
-      .filter((l) => bucketForStatus(l.status) === bucket)
+      .filter((l) => typeFilter === "all" || l.lead_type === typeFilter)
+      .filter((l) => tagFilter === "all" || l.tags.includes(tagFilter))
       .filter((l) => {
         if (!query) return true;
         const name = `${l.first_name ?? ""} ${l.last_name ?? ""}`.toLowerCase();
@@ -59,7 +59,21 @@ export function PipelineTabs({ leads }: { leads: Lead[] }) {
           name.includes(query)
         );
       });
-  }, [leads, bucket, q]);
+  }, [leads, typeFilter, tagFilter, q]);
+
+  const counts = useMemo(() => {
+    const c: Partial<Record<PipelineBucket, number>> = {};
+    for (const l of base) {
+      const b = bucketForStatus(l.status);
+      c[b] = (c[b] ?? 0) + 1;
+    }
+    return c;
+  }, [base]);
+
+  const filtered = useMemo(
+    () => base.filter((l) => bucketForStatus(l.status) === bucket),
+    [base, bucket],
+  );
 
   const selectedLeads = useMemo(
     () => leads.filter((l) => selectedIds.has(l.id)),
@@ -145,6 +159,38 @@ export function PipelineTabs({ leads }: { leads: Lead[] }) {
             </>
           )}
         </Button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Select
+          value={typeFilter}
+          onValueChange={(v) => setTypeFilter((v as LeadType | "all") ?? "all")}
+        >
+          <SelectTrigger size="sm" className="flex-1" aria-label="Filtra per tipo">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tutti i tipi</SelectItem>
+            {LEAD_TYPES.map((t) => (
+              <SelectItem key={t} value={t}>
+                {LEAD_TYPE_LABELS[t]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={tagFilter} onValueChange={(v) => setTagFilter(v ?? "all")}>
+          <SelectTrigger size="sm" className="flex-1" aria-label="Filtra per etichetta">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tutte le etichette</SelectItem>
+            {LEAD_TAGS.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="-mx-4 flex items-center gap-1 overflow-x-auto border-b border-border px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

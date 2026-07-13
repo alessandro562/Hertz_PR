@@ -1,4 +1,9 @@
-import type { LeadStatus, LeadPriority, LeadInterest } from "@/types/database";
+import type {
+  LeadStatus,
+  LeadPriority,
+  LeadInterest,
+  LeadType,
+} from "@/types/database";
 
 export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
   da_contattare: "Da contattare",
@@ -41,6 +46,44 @@ export const INTEREST_LABELS: Record<LeadInterest, string> = {
   warm: "Tiepido",
   hot: "Caldo",
 };
+
+// --- Tipo di contatto (classificazione, uno per lead) -----------------------
+export const LEAD_TYPE_LABELS: Record<LeadType, string> = {
+  pr: "PR",
+  festaiolo: "Festaiolo",
+  supporter_social: "Supporter social",
+};
+
+export const LEAD_TYPES = Object.keys(LEAD_TYPE_LABELS) as LeadType[];
+
+/** Badge tone for a lead type: PR = sage (core), supporter = steel, festaiolo = neutro. */
+export function leadTypeTone(type: LeadType): "primary" | "steel" | "neutral" {
+  if (type === "pr") return "primary";
+  if (type === "supporter_social") return "steel";
+  return "neutral";
+}
+
+// --- Etichette (tag, vocabolario fisso) -------------------------------------
+export const LEAD_TAGS: { value: string; label: string }[] = [
+  { value: "porta_gruppo", label: "Porta gruppo" },
+  { value: "vip", label: "VIP" },
+  { value: "compra_tavoli", label: "Compra tavoli" },
+  { value: "instagram_forte", label: "Instagram forte" },
+  { value: "habitue", label: "Habitué" },
+  { value: "amico_staff", label: "Amico staff" },
+];
+
+export const LEAD_TAG_VALUES = LEAD_TAGS.map((t) => t.value);
+
+export const LEAD_TAG_LABELS: Record<string, string> = Object.fromEntries(
+  LEAD_TAGS.map((t) => [t.value, t.label]),
+);
+
+/** Keep only known tag values (guards against stale/free-typed values). */
+export function sanitizeTags(values: string[]): string[] {
+  const allowed = new Set(LEAD_TAG_VALUES);
+  return values.filter((v) => allowed.has(v));
+}
 
 // --- Pipeline (mobile tabs, spec §11.3) -------------------------------------
 export type PipelineBucket =
