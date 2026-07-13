@@ -48,8 +48,12 @@ export function CapoPrDashboard({
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard label="Lead da contattare" value={tasks.toContact} />
           <StatCard label="Hanno risposto" value={tasks.replied} />
-          <StatCard label="Follow-up oggi" value={tasks.followUpToday} />
-          <StatCard label="Follow-up scaduti" value={tasks.overdueFollowUps} />
+          <StatCard label="Follow-up oggi" value={tasks.followUpToday} href="/oggi" />
+          <StatCard
+            label="Follow-up scaduti"
+            value={tasks.overdueFollowUps}
+            href="/oggi"
+          />
         </div>
       </div>
 

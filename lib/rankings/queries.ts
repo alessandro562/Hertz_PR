@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
 import type { EventPerformance } from "@/lib/events/queries";
 import type { Lead } from "@/lib/leads/queries";
+import { TERMINAL_LEAD_STATUSES } from "@/lib/constants/leads";
 
 export type RankingCollaborator =
   Database["public"]["Functions"]["ranking_collaborators"]["Returns"][number];
@@ -23,12 +24,6 @@ export async function listRankingCollaborators(): Promise<RankingCollaborator[]>
   const { data } = await supabase.rpc("ranking_collaborators");
   return data ?? [];
 }
-
-const TERMINAL_LEAD_STATUSES = new Set([
-  "convertito_collaboratore",
-  "non_interessato",
-  "scartato",
-]);
 
 /**
  * Hot leads with no follow-up date, or an overdue one (spec §16 ranking #7).
