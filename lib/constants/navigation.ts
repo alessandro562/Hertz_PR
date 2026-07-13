@@ -7,6 +7,7 @@ import {
   Calendar,
   CalendarCheck,
   BarChart3,
+  PieChart,
   Trophy,
   MessageSquareText,
   Settings,
@@ -42,6 +43,7 @@ export const SIDEBAR_NAV: NavItem[] = [
   { label: "Capi PR", href: "/capi-pr", icon: UsersRound, roles: [ROLE.MANAGER] },
   { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
   { label: "Eventi", href: "/events", icon: Calendar },
+  { label: "Dati", href: "/dati", icon: PieChart },
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },
   { label: "Template", href: "/templates", icon: MessageSquareText },
@@ -54,6 +56,7 @@ export const SIDEBAR_NAV: NavItem[] = [
 export const MORE_NAV: NavItem[] = [
   { label: "Oggi", href: "/oggi", icon: CalendarCheck },
   { label: "Capi PR", href: "/capi-pr", icon: UsersRound, roles: [ROLE.MANAGER] },
+  { label: "Dati", href: "/dati", icon: PieChart },
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },
   { label: "Template", href: "/templates", icon: MessageSquareText },
