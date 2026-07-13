@@ -1,0 +1,132 @@
+import { describe, it, expect } from "vitest";
+import {
+  countBy,
+  weekStart,
+  byWeek,
+  funnelCounts,
+  leadTypeCounts,
+  tagCounts,
+  sourceCounts,
+} from "./analytics";
+import type { Lead } from "@/lib/leads/queries";
+
+function lead(partial: Partial<Lead>): Lead {
+  return {
+    status: "da_contattare",
+    lead_type: "pr",
+    tags: [],
+    source: null,
+    created_at: "2026-01-01T00:00:00Z",
+    ...partial,
+  } as unknown as Lead;
+}
+
+describe("countBy", () => {
+  it("counts and sorts desc, skipping null/empty keys", () => {
+    const items = [{ c: "a" }, { c: "a" }, { c: "b" }, { c: "" }, { c: null }];
+    expect(countBy(items, (i) => i.c)).toEqual([
+      { key: "a", label: "a", count: 2 },
+      { key: "b", label: "b", count: 1 },
+    ]);
+  });
+
+  it("applies a label function", () => {
+    expect(countBy([{ c: "x" }], (i) => i.c, (k) => k.toUpperCase())).toEqual([
+      { key: "x", label: "X", count: 1 },
+    ]);
+  });
+});
+
+describe("weekStart", () => {
+  it("returns the Monday of the week (UTC)", () => {
+    // 2026-01-01 is a Thursday → its Monday is 2025-12-29.
+    expect(weekStart("2026-01-01T12:00:00Z")).toBe("2025-12-29");
+    expect(weekStart("2025-12-29T00:00:00Z")).toBe("2025-12-29"); // a Monday maps to itself
+    expect(weekStart("2026-01-04T23:00:00Z")).toBe("2025-12-29"); // Sunday → same week's Monday
+  });
+});
+
+describe("byWeek", () => {
+  it("groups by week, chronological, with the given series name", () => {
+    const rows = [
+      { d: "2025-12-29T00:00:00Z" },
+      { d: "2025-12-31T00:00:00Z" },
+      { d: "2026-01-06T00:00:00Z" },
+    ];
+    expect(byWeek(rows, (r) => r.d, "Nuovi")).toEqual([
+      { eventDate: "2025-12-29", Nuovi: 2 },
+      { eventDate: "2026-01-05", Nuovi: 1 },
+    ]);
+  });
+
+  it("skips rows without a date", () => {
+    expect(byWeek([{ d: null }], (r) => r.d)).toEqual([]);
+  });
+});
+
+describe("funnelCounts", () => {
+  it("returns every bucket in pipeline order with correct counts", () => {
+    const f = funnelCounts([
+      lead({ status: "da_contattare" }),
+      lead({ status: "contattato" }),
+      lead({ status: "convertito_collaboratore" }),
+    ]);
+    expect(f.map((x) => x.key)).toEqual([
+      "da_contattare",
+      "contattati",
+      "interessati",
+      "da_inserire",
+      "convertiti",
+      "persi",
+    ]);
+    expect(f.find((x) => x.key === "da_contattare")!.count).toBe(1);
+    expect(f.find((x) => x.key === "convertiti")!.count).toBe(1);
+    expect(f.find((x) => x.key === "interessati")!.count).toBe(0);
+  });
+});
+
+describe("leadTypeCounts", () => {
+  it("shows all three types in order, including zeros", () => {
+    const counts = leadTypeCounts([
+      lead({ lead_type: "pr" }),
+      lead({ lead_type: "festaiolo" }),
+      lead({ lead_type: "festaiolo" }),
+    ]);
+    expect(counts).toEqual([
+      { key: "pr", label: "PR", count: 1 },
+      { key: "festaiolo", label: "Festaiolo", count: 2 },
+      { key: "supporter_social", label: "Supporter social", count: 0 },
+    ]);
+  });
+});
+
+describe("tagCounts", () => {
+  it("counts each tag a lead carries, sorted desc", () => {
+    const t = tagCounts([
+      lead({ tags: ["vip", "porta_gruppo"] }),
+      lead({ tags: ["vip"] }),
+    ]);
+    expect(t[0]).toEqual({ key: "vip", label: "VIP", count: 2 });
+    expect(t.find((x) => x.key === "porta_gruppo")!.count).toBe(1);
+    expect(t.find((x) => x.key === "amico_staff")!.count).toBe(0);
+  });
+});
+
+describe("sourceCounts", () => {
+  it("folds the tail past topN into Altro", () => {
+    const s = sourceCounts(
+      [
+        lead({ source: "a" }),
+        lead({ source: "a" }),
+        lead({ source: "b" }),
+        lead({ source: "c" }),
+      ],
+      2,
+    );
+    expect(s).toEqual([
+      { key: "a", label: "a", count: 2 },
+      { key: "b", label: "b", count: 1 },
+      { key: "__altro", label: "Altro", count: 1 },
+    ]);
+  });
+});
