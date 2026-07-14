@@ -3,11 +3,14 @@ import { Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "./stat-card";
+import { AnnouncementWidget } from "@/components/announcements/announcement-widget";
 import { longDate } from "@/lib/dates";
 import type { Event } from "@/lib/events/queries";
+import type { Announcement } from "@/lib/announcements/queries";
 
 interface CapoPrDashboardProps {
   name: string;
+  latestAnnouncement: Announcement | null;
   nextEvent: Event | null;
   tasks: {
     toContact: number;
@@ -26,6 +29,7 @@ interface CapoPrDashboardProps {
 
 export function CapoPrDashboard({
   name,
+  latestAnnouncement,
   nextEvent,
   tasks,
   team,
@@ -42,6 +46,8 @@ export function CapoPrDashboard({
         </div>
         <Badge variant="secondary">Capo PR</Badge>
       </div>
+
+      <AnnouncementWidget announcement={latestAnnouncement} />
 
       <div>
         <h2 className="mb-3 text-sm font-medium text-muted-foreground">I miei task</h2>

@@ -242,6 +242,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      announcements: {
+        Row: {
+          id: string;
+          author_user_id: string | null;
+          author_name: string | null;
+          title: string;
+          body: string;
+          pinned: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_user_id?: string | null;
+          author_name?: string | null;
+          title: string;
+          body: string;
+          pinned?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          author_user_id?: string | null;
+          author_name?: string | null;
+          title?: string;
+          body?: string;
+          pinned?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       teams: {
         Row: {
           id: string;

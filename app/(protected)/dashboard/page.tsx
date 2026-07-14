@@ -5,6 +5,7 @@ import { listLeads } from "@/lib/leads/queries";
 import { listCollaborators, listCapiPr, profilesNameMap } from "@/lib/network/queries";
 import { listEvents } from "@/lib/events/queries";
 import { listAllPerformances } from "@/lib/rankings/queries";
+import { listAnnouncements } from "@/lib/announcements/queries";
 import { groupPerformances, sumPerformances } from "@/lib/performance";
 import { isOverdue } from "@/lib/dates";
 import { ManagerDashboard } from "@/components/dashboard/manager-dashboard";
@@ -22,14 +23,17 @@ export default async function DashboardPage() {
 
   const firstName = current.profile.full_name.split(" ")[0];
 
-  const [leads, collaborators, capi, events, performances, names] = await Promise.all([
-    listLeads(),
-    listCollaborators(),
-    listCapiPr(),
-    listEvents(),
-    listAllPerformances(),
-    profilesNameMap(),
-  ]);
+  const [leads, collaborators, capi, events, performances, names, announcements] =
+    await Promise.all([
+      listLeads(),
+      listCollaborators(),
+      listCapiPr(),
+      listEvents(),
+      listAllPerformances(),
+      profilesNameMap(),
+      listAnnouncements(),
+    ]);
+  const latestAnnouncement = announcements[0] ?? null;
 
   const now = new Date().toISOString();
   const nextEvent =
@@ -79,6 +83,7 @@ export default async function DashboardPage() {
     return (
       <ManagerDashboard
         name={firstName}
+        latestAnnouncement={latestAnnouncement}
         nextEvent={nextEvent}
         stats={{
           totalLeads: leads.length,
@@ -126,6 +131,7 @@ export default async function DashboardPage() {
   return (
     <CapoPrDashboard
       name={firstName}
+      latestAnnouncement={latestAnnouncement}
       nextEvent={nextEvent}
       tasks={{
         toContact: leads.filter((l) => l.status === "da_contattare").length,
