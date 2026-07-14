@@ -7,6 +7,9 @@ import {
   leadTypeCounts,
   tagCounts,
   sourceCounts,
+  progressiveIndex,
+  conversionFunnel,
+  conversionBySource,
 } from "./analytics";
 import type { Lead } from "@/lib/leads/queries";
 
@@ -128,5 +131,45 @@ describe("sourceCounts", () => {
       { key: "b", label: "b", count: 1 },
       { key: "__altro", label: "Altro", count: 1 },
     ]);
+  });
+});
+
+describe("progressiveIndex", () => {
+  it("maps statuses to their progressive stage index, -1 for the lost branch", () => {
+    expect(progressiveIndex("da_contattare")).toBe(0);
+    expect(progressiveIndex("contattato")).toBe(1);
+    expect(progressiveIndex("convertito_collaboratore")).toBe(4);
+    expect(progressiveIndex("non_interessato")).toBe(-1);
+  });
+});
+
+describe("conversionFunnel", () => {
+  it("counts reached-at-least per stage and stage-to-stage conversion %", () => {
+    const f = conversionFunnel([0, 0, 2, 4]);
+    expect(f.map((s) => s.reached)).toEqual([4, 2, 2, 1, 1]);
+    expect(f[0].conversionPct).toBe(100);
+    expect(f[1].conversionPct).toBe(50); // 2 of 4
+    expect(f[2].conversionPct).toBe(100); // 2 of 2
+    expect(f[3].conversionPct).toBe(50); // 1 of 2
+  });
+});
+
+describe("conversionBySource", () => {
+  it("computes converted/total and % per source, sorted by volume", () => {
+    const rows = conversionBySource([
+      lead({
+        source: "ig",
+        status: "convertito_collaboratore",
+        converted_to_collaborator: true,
+      }),
+      lead({ source: "ig" }),
+      lead({ source: "passaparola", converted_to_collaborator: true }),
+    ]);
+    expect(rows[0]).toMatchObject({ key: "ig", total: 2, converted: 1, pct: 50 });
+    expect(rows.find((r) => r.key === "passaparola")).toMatchObject({
+      total: 1,
+      converted: 1,
+      pct: 100,
+    });
   });
 });
