@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { sumPerformances } from "@/lib/performance";
-import { StatCard } from "@/components/dashboard/stat-card";
 import { shortDate } from "@/lib/dates";
 import type { EventPerformance } from "@/lib/events/queries";
 
+/** Event-by-event detail under the scorecard (KPIs live in PerformanceScorecard). */
 export function PerformanceHistory({
   performances,
   eventById,
@@ -19,8 +18,6 @@ export function PerformanceHistory({
     );
   }
 
-  const totals = sumPerformances(performances);
-  const avgScore = Math.round(totals.score / performances.length);
   const history = [...performances].sort((a, b) => {
     const da = eventById[a.event_id]?.event_date ?? "";
     const db = eventById[b.event_id]?.event_date ?? "";
@@ -28,15 +25,8 @@ export function PerformanceHistory({
   });
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
-        <StatCard label="Eventi" value={performances.length} />
-        <StatCard label="Score medio" value={avgScore} />
-        <StatCard label="Score totale" value={totals.score} />
-      </div>
-
-      <div className="space-y-2">
-        {history.map((p) => {
+    <div className="space-y-2">
+      {history.map((p) => {
           const event = eventById[p.event_id];
           return (
             <Link
@@ -59,6 +49,5 @@ export function PerformanceHistory({
           );
         })}
       </div>
-    </div>
   );
 }

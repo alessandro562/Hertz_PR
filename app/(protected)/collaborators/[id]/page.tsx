@@ -9,6 +9,7 @@ import { setCollaboratorAvatar } from "@/lib/network/actions";
 import { CollaboratorActions } from "@/components/collaborators/collaborator-actions";
 import { EditCollaboratorForm } from "@/components/collaborators/edit-collaborator-form";
 import { DeleteCollaboratorButton } from "@/components/collaborators/delete-collaborator-button";
+import { PerformanceScorecard } from "@/components/collaborators/performance-scorecard";
 import { PerformanceHistory } from "@/components/collaborators/performance-history";
 import { LevelBadge } from "@/components/collaborators/level-badge";
 import { CollabStatusBadge } from "@/components/collaborators/status-badge";
@@ -82,7 +83,12 @@ export default async function CollaboratorDetailPage({
         <CardHeader>
           <CardTitle className="text-base">Performance</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <PerformanceScorecard
+            performances={performances}
+            eventById={eventById}
+            lastActiveAt={collaborator.last_active_at}
+          />
           <PerformanceHistory performances={performances} eventById={eventById} />
         </CardContent>
       </Card>
