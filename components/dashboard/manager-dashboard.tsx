@@ -3,11 +3,14 @@ import { Calendar, TriangleAlert, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "./stat-card";
+import { AnnouncementWidget } from "@/components/announcements/announcement-widget";
 import { longDate } from "@/lib/dates";
 import type { Event } from "@/lib/events/queries";
+import type { Announcement } from "@/lib/announcements/queries";
 
 interface ManagerDashboardProps {
   name: string;
+  latestAnnouncement: Announcement | null;
   nextEvent: Event | null;
   stats: {
     totalLeads: number;
@@ -23,6 +26,7 @@ interface ManagerDashboardProps {
 
 export function ManagerDashboard({
   name,
+  latestAnnouncement,
   nextEvent,
   stats,
   topCapos,
@@ -39,6 +43,8 @@ export function ManagerDashboard({
         </div>
         <Badge variant="secondary">Manager</Badge>
       </div>
+
+      <AnnouncementWidget announcement={latestAnnouncement} />
 
       <Card>
         <CardHeader>

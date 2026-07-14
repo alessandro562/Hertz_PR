@@ -6,6 +6,7 @@ import {
   UserCog,
   Calendar,
   CalendarCheck,
+  Megaphone,
   BarChart3,
   PieChart,
   Trophy,
@@ -43,6 +44,7 @@ export const SIDEBAR_NAV: NavItem[] = [
   { label: "Capi PR", href: "/capi-pr", icon: UsersRound, roles: [ROLE.MANAGER] },
   { label: "Collaboratori", href: "/collaborators", icon: UserPlus },
   { label: "Eventi", href: "/events", icon: Calendar },
+  { label: "Bacheca", href: "/bacheca", icon: Megaphone },
   { label: "Dati", href: "/dati", icon: PieChart },
   { label: "Performance", href: "/performance", icon: BarChart3 },
   { label: "Classifiche", href: "/rankings", icon: Trophy },
@@ -55,6 +57,7 @@ export const SIDEBAR_NAV: NavItem[] = [
 /** Extra links shown on the mobile "Altro" page. */
 export const MORE_NAV: NavItem[] = [
   { label: "Oggi", href: "/oggi", icon: CalendarCheck },
+  { label: "Bacheca", href: "/bacheca", icon: Megaphone },
   { label: "Capi PR", href: "/capi-pr", icon: UsersRound, roles: [ROLE.MANAGER] },
   { label: "Dati", href: "/dati", icon: PieChart },
   { label: "Performance", href: "/performance", icon: BarChart3 },
