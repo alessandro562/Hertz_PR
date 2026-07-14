@@ -19,8 +19,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/performance/trend-chart";
 import { BarPanel } from "./bar-panel";
+import { ConversionFunnel } from "./conversion-funnel";
+import { ConversionPanel } from "./conversion-panel";
 import {
-  funnelCounts,
   leadTypeCounts,
   tagCounts,
   sourceCounts,
@@ -28,7 +29,12 @@ import {
   countBy,
   collabByLevel,
   collabByStatus,
+  progressiveIndex,
+  conversionFunnel,
+  conversionBySource,
+  conversionByOwner,
 } from "@/lib/analytics";
+import { bucketForStatus } from "@/lib/constants/leads";
 import { sumPerformances, groupPerformances } from "@/lib/performance";
 import type { Lead } from "@/lib/leads/queries";
 import type { Collaborator } from "@/lib/network/queries";
@@ -57,6 +63,7 @@ export function DataDashboard({
   eventDates,
   names,
   capi,
+  reachedByLead,
 }: {
   leads: Lead[];
   collaborators: Collaborator[];
@@ -64,6 +71,7 @@ export function DataDashboard({
   eventDates: Record<string, string>;
   names: Record<string, string>;
   capi: { id: string; name: string }[];
+  reachedByLead: Record<string, number>;
 }) {
   const manager = isManager(useCurrentUser().profile);
   const [period, setPeriod] = useState<Period>("all");
@@ -119,6 +127,30 @@ export function DataDashboard({
   const newLeadsTrend = useMemo(
     () => byWeek(scopedLeads, (l) => l.created_at, "Nuovi"),
     [scopedLeads],
+  );
+
+  const funnel = useMemo(() => {
+    const reached = scopedLeads.map(
+      (l) => reachedByLead[l.id] ?? Math.max(0, progressiveIndex(l.status)),
+    );
+    const lost = scopedLeads.filter(
+      (l) => bucketForStatus(l.status) === "persi",
+    ).length;
+    const stages = conversionFunnel(reached);
+    const contacted = stages[1]?.reached ?? 0;
+    const responded = stages[2]?.reached ?? 0;
+    const responseRate =
+      contacted > 0 ? Math.round((responded / contacted) * 100) : 0;
+    return { stages, lost, responseRate };
+  }, [scopedLeads, reachedByLead]);
+
+  const convBySource = useMemo(
+    () => conversionBySource(scopedLeads),
+    [scopedLeads],
+  );
+  const convByOwner = useMemo(
+    () => conversionByOwner(scopedLeads, names),
+    [scopedLeads, names],
   );
 
   const collabKpis = useMemo(() => {
@@ -246,7 +278,12 @@ export function DataDashboard({
             />
           </div>
 
-          <BarPanel title="Funnel pipeline" items={funnelCounts(scopedLeads)} showPercent />
+          <ConversionFunnel stages={funnel.stages} lost={funnel.lost} />
+
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard label="Tasso di risposta" value={`${funnel.responseRate}%`} />
+            <StatCard label="Tasso di conversione" value={`${leadKpis.rate}%`} />
+          </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
             <BarPanel title="Per tipo" items={leadTypeCounts(scopedLeads)} showPercent />
@@ -262,6 +299,21 @@ export function DataDashboard({
             items={sourceCounts(scopedLeads)}
             emptyLabel="Nessuna fonte indicata."
           />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ConversionPanel
+              title="Conversione per fonte"
+              rows={convBySource}
+              emptyLabel="Nessuna fonte indicata."
+            />
+            {manager ? (
+              <ConversionPanel
+                title="Conversione per Capo"
+                rows={convByOwner}
+                emptyLabel="Nessun lead assegnato."
+              />
+            ) : null}
+          </div>
 
           <Card>
             <CardHeader>

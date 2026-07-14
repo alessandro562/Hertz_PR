@@ -39,6 +39,24 @@ export async function listFollowUpsDue(): Promise<Lead[]> {
   );
 }
 
+/**
+ * Status-change history across all visible leads (RLS-scoped like listLeads),
+ * used to reconstruct the furthest pipeline stage each lead ever reached — so a
+ * lost lead is still attributed to where it dropped in the conversion funnel.
+ */
+export async function listLeadStatusChanges(): Promise<
+  { lead_id: string; status: string }[]
+> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("lead_interactions")
+    .select("lead_id, body")
+    .eq("type", "status_change");
+  return (data ?? [])
+    .map((r) => ({ lead_id: r.lead_id, status: r.body ?? "" }))
+    .filter((r) => r.status !== "");
+}
+
 export async function getLead(id: string): Promise<Lead | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("leads").select("*").eq("id", id).single();

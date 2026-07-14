@@ -8,6 +8,7 @@
 import type { Lead } from "@/lib/leads/queries";
 import type { Collaborator } from "@/lib/network/queries";
 import type { TrendPoint } from "@/lib/performance-trends";
+import type { LeadStatus } from "@/types/database";
 import {
   PIPELINE_BUCKETS,
   bucketForStatus,
@@ -136,4 +137,103 @@ export function collabByStatus(collabs: Collaborator[]): CountItem[] {
     label: COLLAB_STATUS_LABELS[s],
     count: map.get(s) ?? 0,
   }));
+}
+
+// --- Conversione (funnel qualità) -------------------------------------------
+
+/** Stadi progressivi del funnel (esclusi i "persi", ramo laterale). */
+export const PROGRESSIVE_BUCKETS = PIPELINE_BUCKETS.filter(
+  (b) => b.key !== "persi",
+);
+
+/** Indice dello stadio progressivo di uno stato (0..N-1); -1 per "persi". */
+export function progressiveIndex(status: LeadStatus): number {
+  const bucket = bucketForStatus(status);
+  return PROGRESSIVE_BUCKETS.findIndex((b) => b.key === bucket);
+}
+
+export interface FunnelStage {
+  key: string;
+  label: string;
+  reached: number;
+  /** % dei lead dello stadio precedente arrivati fin qui (100 per il primo). */
+  conversionPct: number;
+}
+
+/**
+ * Funnel di conversione da un elenco di "indice massimo raggiunto" per lead
+ * (0..N-1): reached[i] = quanti hanno raggiunto almeno lo stadio i.
+ */
+export function conversionFunnel(reachedIndices: number[]): FunnelStage[] {
+  const base = PROGRESSIVE_BUCKETS.map((b, i) => ({
+    key: b.key,
+    label: b.label,
+    reached: reachedIndices.filter((r) => r >= i).length,
+  }));
+  return base.map((s, i) => ({
+    ...s,
+    conversionPct:
+      i === 0
+        ? 100
+        : base[i - 1].reached > 0
+          ? Math.round((s.reached / base[i - 1].reached) * 100)
+          : 0,
+  }));
+}
+
+export interface ConversionRow {
+  key: string;
+  label: string;
+  total: number;
+  converted: number;
+  pct: number;
+}
+
+/** A lead counts as converted once it became a collaborator. */
+export function isConvertedLead(lead: Lead): boolean {
+  return (
+    lead.converted_to_collaborator || lead.status === "convertito_collaboratore"
+  );
+}
+
+function groupConversion(
+  leads: Lead[],
+  keyFn: (l: Lead) => string | null | undefined,
+  labelFn: (key: string) => string,
+): ConversionRow[] {
+  const map = new Map<string, { total: number; converted: number }>();
+  for (const l of leads) {
+    const k = keyFn(l);
+    if (k == null || k === "") continue;
+    const cur = map.get(k) ?? { total: 0, converted: 0 };
+    cur.total++;
+    if (isConvertedLead(l)) cur.converted++;
+    map.set(k, cur);
+  }
+  return [...map.entries()]
+    .map(([key, v]) => ({
+      key,
+      label: labelFn(key),
+      total: v.total,
+      converted: v.converted,
+      pct: v.total > 0 ? Math.round((v.converted / v.total) * 100) : 0,
+    }))
+    .sort((a, b) => b.total - a.total);
+}
+
+/** Conversione per fonte del lead. */
+export function conversionBySource(leads: Lead[]): ConversionRow[] {
+  return groupConversion(leads, (l) => (l.source ?? "").trim() || null, (k) => k);
+}
+
+/** Conversione per owner (Capo/Manager) — volume vs qualità. */
+export function conversionByOwner(
+  leads: Lead[],
+  names: Record<string, string>,
+): ConversionRow[] {
+  return groupConversion(
+    leads,
+    (l) => l.owner_user_id,
+    (id) => names[id] ?? "—",
+  );
 }
