@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, TriangleAlert, ChevronRight } from "lucide-react";
+import { Calendar, TriangleAlert, ChevronRight, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "./stat-card";
@@ -21,6 +21,13 @@ interface ManagerDashboardProps {
     avgScore: number;
   };
   topCapos: { id: string; name: string; score: number }[];
+  leadsByPr: {
+    id: string;
+    name: string;
+    total: number;
+    converted: number;
+    pct: number;
+  }[];
   alerts: { label: string; href: string }[];
 }
 
@@ -30,6 +37,7 @@ export function ManagerDashboard({
   nextEvent,
   stats,
   topCapos,
+  leadsByPr,
   alerts,
 }: ManagerDashboardProps) {
   return (
@@ -82,6 +90,58 @@ export function ManagerDashboard({
           <StatCard label="Score medio" value={stats.avgScore} unit="pt" />
         </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Users className="size-4" /> Lead per PR
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {leadsByPr.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nessun lead ancora attribuito a un PR.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {leadsByPr.map((pr, i) => {
+                const max = leadsByPr[0].total || 1;
+                return (
+                  <div key={pr.id} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="text-muted-foreground">#{i + 1}</span>
+                        <span className="truncate">{pr.name}</span>
+                      </span>
+                      <span className="shrink-0 tabular-nums text-muted-foreground">
+                        <span className="font-medium text-foreground">{pr.total}</span> lead
+                        {" · "}
+                        <span
+                          className={pr.pct > 0 ? "text-success" : undefined}
+                        >
+                          {pr.pct}%
+                        </span>
+                      </span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{ width: `${Math.round((pr.total / max) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <Link
+            href="/dati"
+            className="mt-3 inline-block text-xs text-primary underline"
+          >
+            Analisi lead completa
+          </Link>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>

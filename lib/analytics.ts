@@ -8,7 +8,7 @@
 import type { Lead } from "@/lib/leads/queries";
 import type { Collaborator } from "@/lib/network/queries";
 import type { TrendPoint } from "@/lib/performance-trends";
-import type { LeadStatus } from "@/types/database";
+import type { LeadStatus, LeadType } from "@/types/database";
 import {
   PIPELINE_BUCKETS,
   bucketForStatus,
@@ -226,14 +226,59 @@ export function conversionBySource(leads: Lead[]): ConversionRow[] {
   return groupConversion(leads, (l) => (l.source ?? "").trim() || null, (k) => k);
 }
 
-/** Conversione per owner (Capo/Manager) — volume vs qualità. */
+/**
+ * The PR responsible for a lead: the current owner, falling back to whoever
+ * created (loaded) it. Both coincide at creation; they diverge only if the lead
+ * is later reassigned. Attribution and per-PR breakdowns key off this.
+ */
+export function leadOwnerId(lead: Lead): string | null {
+  return lead.owner_user_id ?? lead.created_by ?? null;
+}
+
+/** Lead volume per PR (owner, fallback creator), desc. Unattributed skipped. */
+export function leadsByOwner(
+  leads: Lead[],
+  names: Record<string, string>,
+): CountItem[] {
+  return countBy(leads, leadOwnerId, (id) => names[id] ?? "—");
+}
+
+/** Conversione per PR (owner, fallback creator) — volume vs qualità. */
 export function conversionByOwner(
   leads: Lead[],
   names: Record<string, string>,
 ): ConversionRow[] {
-  return groupConversion(
-    leads,
-    (l) => l.owner_user_id,
-    (id) => names[id] ?? "—",
-  );
+  return groupConversion(leads, leadOwnerId, (id) => names[id] ?? "—");
+}
+
+/**
+ * Per-PR scorecard: volume, converted, conversion %, and how many of each lead
+ * type they carry — the full "who does what, and how well" comparison. Sorted by
+ * volume desc. `names` resolves the PR id to a display name.
+ */
+export interface OwnerLeadStats extends ConversionRow {
+  byType: Record<LeadType, number>;
+}
+
+export function leadStatsByOwner(
+  leads: Lead[],
+  names: Record<string, string>,
+): OwnerLeadStats[] {
+  const conv = conversionByOwner(leads, names);
+  const types = new Map<string, Record<LeadType, number>>();
+  for (const l of leads) {
+    const id = leadOwnerId(l);
+    if (!id) continue;
+    const cur =
+      types.get(id) ??
+      (Object.fromEntries(LEAD_TYPES.map((t) => [t, 0])) as Record<LeadType, number>);
+    cur[l.lead_type] = (cur[l.lead_type] ?? 0) + 1;
+    types.set(id, cur);
+  }
+  return conv.map((row) => ({
+    ...row,
+    byType:
+      types.get(row.key) ??
+      (Object.fromEntries(LEAD_TYPES.map((t) => [t, 0])) as Record<LeadType, number>),
+  }));
 }

@@ -10,6 +10,10 @@ import {
   progressiveIndex,
   conversionFunnel,
   conversionBySource,
+  leadOwnerId,
+  leadsByOwner,
+  conversionByOwner,
+  leadStatsByOwner,
 } from "./analytics";
 import type { Lead } from "@/lib/leads/queries";
 
@@ -171,5 +175,61 @@ describe("conversionBySource", () => {
       converted: 1,
       pct: 100,
     });
+  });
+});
+
+describe("leadOwnerId", () => {
+  it("prefers owner, falls back to creator, else null", () => {
+    expect(leadOwnerId(lead({ owner_user_id: "o", created_by: "c" }))).toBe("o");
+    expect(leadOwnerId(lead({ owner_user_id: null, created_by: "c" }))).toBe("c");
+    expect(leadOwnerId(lead({ owner_user_id: null, created_by: null }))).toBeNull();
+  });
+});
+
+describe("leadsByOwner", () => {
+  it("counts lead volume per PR, resolving names, desc", () => {
+    const rows = leadsByOwner(
+      [
+        lead({ owner_user_id: "u1" }),
+        lead({ owner_user_id: "u1" }),
+        lead({ owner_user_id: null, created_by: "u2" }),
+      ],
+      { u1: "Andrea", u2: "Fede" },
+    );
+    expect(rows[0]).toEqual({ key: "u1", label: "Andrea", count: 2 });
+    expect(rows[1]).toEqual({ key: "u2", label: "Fede", count: 1 });
+  });
+});
+
+describe("conversionByOwner", () => {
+  it("attributes conversion to owner, falling back to creator", () => {
+    const rows = conversionByOwner(
+      [
+        lead({ owner_user_id: "u1", converted_to_collaborator: true }),
+        lead({ owner_user_id: "u1" }),
+        lead({ owner_user_id: null, created_by: "u2" }),
+      ],
+      { u1: "Andrea", u2: "Fede" },
+    );
+    expect(rows.find((r) => r.key === "u1")).toMatchObject({
+      total: 2,
+      converted: 1,
+      pct: 50,
+    });
+    expect(rows.find((r) => r.key === "u2")).toMatchObject({ total: 1, converted: 0 });
+  });
+});
+
+describe("leadStatsByOwner", () => {
+  it("adds a per-type breakdown to each PR's conversion row", () => {
+    const rows = leadStatsByOwner(
+      [
+        lead({ owner_user_id: "u1", lead_type: "pr" }),
+        lead({ owner_user_id: "u1", lead_type: "festaiolo" }),
+      ],
+      { u1: "Andrea" },
+    );
+    expect(rows[0]).toMatchObject({ key: "u1", total: 2 });
+    expect(rows[0].byType).toEqual({ pr: 1, festaiolo: 1, supporter_social: 0 });
   });
 });

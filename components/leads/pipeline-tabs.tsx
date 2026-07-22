@@ -26,16 +26,25 @@ import {
   type PipelineBucket,
 } from "@/lib/constants/leads";
 import { bulkSetLeadStatus, bulkAssignOwner } from "@/lib/leads/actions";
+import { leadOwnerId } from "@/lib/analytics";
 import { LeadCard } from "./lead-card";
 import { BulkWhatsapp } from "./bulk-whatsapp";
 import type { Lead } from "@/lib/leads/queries";
 import type { LeadStatus, LeadType } from "@/types/database";
 
-export function PipelineTabs({ leads }: { leads: Lead[] }) {
+export function PipelineTabs({
+  leads,
+  names = {},
+}: {
+  leads: Lead[];
+  /** id → full name, to attribute each lead to the PR who owns/loaded it. */
+  names?: Record<string, string>;
+}) {
   const [bucket, setBucket] = useState<PipelineBucket>("da_contattare");
   const [q, setQ] = useState("");
   const [typeFilter, setTypeFilter] = useState<LeadType | "all">("all");
   const [tagFilter, setTagFilter] = useState<string>("all");
+  const [ownerFilter, setOwnerFilter] = useState<string>("all");
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showWhatsapp, setShowWhatsapp] = useState(false);
@@ -43,14 +52,27 @@ export function PipelineTabs({ leads }: { leads: Lead[] }) {
 
   const statusGroups = statusesByBucket();
 
-  // Everything except the pipeline bucket: type + tag + search. Bucket counts
-  // and the visible list both derive from this, so the tab numbers match what
-  // the active filters actually show.
+  // The distinct PRs who own/loaded at least one lead, for the "per PR" filter.
+  const owners = useMemo(() => {
+    const ids = new Set<string>();
+    for (const l of leads) {
+      const id = leadOwnerId(l);
+      if (id) ids.add(id);
+    }
+    return [...ids]
+      .map((id) => ({ id, name: names[id] ?? "—" }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [leads, names]);
+
+  // Everything except the pipeline bucket: type + tag + owner + search. Bucket
+  // counts and the visible list both derive from this, so the tab numbers match
+  // what the active filters actually show.
   const base = useMemo(() => {
     const query = q.trim().toLowerCase();
     return leads
       .filter((l) => typeFilter === "all" || l.lead_type === typeFilter)
       .filter((l) => tagFilter === "all" || l.tags.includes(tagFilter))
+      .filter((l) => ownerFilter === "all" || leadOwnerId(l) === ownerFilter)
       .filter((l) => {
         if (!query) return true;
         const name = `${l.first_name ?? ""} ${l.last_name ?? ""}`.toLowerCase();
@@ -59,7 +81,7 @@ export function PipelineTabs({ leads }: { leads: Lead[] }) {
           name.includes(query)
         );
       });
-  }, [leads, typeFilter, tagFilter, q]);
+  }, [leads, typeFilter, tagFilter, ownerFilter, q]);
 
   const counts = useMemo(() => {
     const c: Partial<Record<PipelineBucket, number>> = {};
@@ -193,6 +215,22 @@ export function PipelineTabs({ leads }: { leads: Lead[] }) {
         </Select>
       </div>
 
+      {owners.length > 1 ? (
+        <Select value={ownerFilter} onValueChange={(v) => setOwnerFilter(v ?? "all")}>
+          <SelectTrigger size="sm" className="w-full" aria-label="Filtra per PR">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tutti i PR</SelectItem>
+            {owners.map((o) => (
+              <SelectItem key={o.id} value={o.id}>
+                {o.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : null}
+
       <div className="-mx-4 flex items-center gap-1 overflow-x-auto border-b border-border px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {PIPELINE_BUCKETS.map((b) => {
           const active = bucket === b.key;
@@ -252,19 +290,22 @@ export function PipelineTabs({ leads }: { leads: Lead[] }) {
         </div>
       ) : (
         <div className={cn("space-y-2", selectMode && selectedIds.size > 0 && "pb-24")}>
-          {filtered.map((l) =>
-            selectMode ? (
+          {filtered.map((l) => {
+            const owner = leadOwnerId(l);
+            const ownerName = owner ? (names[owner] ?? null) : null;
+            return selectMode ? (
               <LeadCard
                 key={l.id}
                 lead={l}
+                ownerName={ownerName}
                 selectMode
                 selected={selectedIds.has(l.id)}
                 onToggle={toggleOne}
               />
             ) : (
-              <LeadCard key={l.id} lead={l} />
-            ),
-          )}
+              <LeadCard key={l.id} lead={l} ownerName={ownerName} />
+            );
+          })}
         </div>
       )}
 

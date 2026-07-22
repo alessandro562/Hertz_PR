@@ -7,6 +7,7 @@ import { listEvents } from "@/lib/events/queries";
 import { listAllPerformances } from "@/lib/rankings/queries";
 import { listAnnouncements } from "@/lib/announcements/queries";
 import { groupPerformances, sumPerformances } from "@/lib/performance";
+import { leadStatsByOwner } from "@/lib/analytics";
 import { isOverdue } from "@/lib/dates";
 import { ManagerDashboard } from "@/components/dashboard/manager-dashboard";
 import { CapoPrDashboard } from "@/components/dashboard/capo-pr-dashboard";
@@ -61,6 +62,17 @@ export default async function DashboardPage() {
       .slice(0, 3)
       .map((g) => ({ id: g.key, name: names[g.key] ?? "—", score: g.score }));
 
+    // Per-PR lead scorecard: volume + conversion, top 6 by volume.
+    const leadsByPr = leadStatsByOwner(leads, names)
+      .slice(0, 6)
+      .map((r) => ({
+        id: r.key,
+        name: r.label,
+        total: r.total,
+        converted: r.converted,
+        pct: r.pct,
+      }));
+
     const alerts: { label: string; href: string }[] = [];
     const overdueFollowUps = leads.filter((l) => isOverdue(l.next_follow_up_at)).length;
     const unownedLeads = leads.filter((l) => !l.owner_user_id).length;
@@ -94,6 +106,7 @@ export default async function DashboardPage() {
           avgScore,
         }}
         topCapos={topCapos}
+        leadsByPr={leadsByPr}
         alerts={alerts}
       />
     );

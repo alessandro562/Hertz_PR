@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock, Star } from "lucide-react";
+import { Clock, Star, User } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
@@ -13,11 +13,14 @@ import type { Lead } from "@/lib/leads/queries";
 
 export function LeadCard({
   lead,
+  ownerName,
   selectMode = false,
   selected = false,
   onToggle,
 }: {
   lead: Lead;
+  /** Name of the PR who owns/loaded this lead (attribution). */
+  ownerName?: string | null;
   /** When true the card toggles selection instead of navigating to the lead. */
   selectMode?: boolean;
   selected?: boolean;
@@ -60,6 +63,11 @@ export function LeadCard({
           ) : null}
           {lead.last_contact_at ? (
             <span>Contatto {shortDate(lead.last_contact_at)}</span>
+          ) : null}
+          {ownerName ? (
+            <span className="inline-flex items-center gap-1">
+              <User className="size-3" /> {ownerName}
+            </span>
           ) : null}
         </div>
 

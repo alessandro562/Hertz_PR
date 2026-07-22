@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { listLeads } from "@/lib/leads/queries";
+import { profilesNameMap } from "@/lib/network/queries";
 import { PipelineTabs } from "@/components/leads/pipeline-tabs";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = { title: "Lead CRM" };
 
 export default async function LeadsPage() {
-  const leads = await listLeads();
+  const [leads, names] = await Promise.all([listLeads(), profilesNameMap()]);
 
   return (
     <div className="space-y-5">
@@ -23,7 +24,7 @@ export default async function LeadsPage() {
         </Link>
       </div>
 
-      <PipelineTabs leads={leads} />
+      <PipelineTabs leads={leads} names={names} />
     </div>
   );
 }

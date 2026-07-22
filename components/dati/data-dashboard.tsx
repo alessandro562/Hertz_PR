@@ -33,6 +33,7 @@ import {
   conversionFunnel,
   conversionBySource,
   conversionByOwner,
+  leadsByOwner,
 } from "@/lib/analytics";
 import { bucketForStatus } from "@/lib/constants/leads";
 import { sumPerformances, groupPerformances } from "@/lib/performance";
@@ -150,6 +151,10 @@ export function DataDashboard({
   );
   const convByOwner = useMemo(
     () => conversionByOwner(scopedLeads, names),
+    [scopedLeads, names],
+  );
+  const leadsByPr = useMemo(
+    () => leadsByOwner(scopedLeads, names),
     [scopedLeads, names],
   );
 
@@ -294,11 +299,19 @@ export function DataDashboard({
             />
           </div>
 
-          <BarPanel
-            title="Per fonte"
-            items={sourceCounts(scopedLeads)}
-            emptyLabel="Nessuna fonte indicata."
-          />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <BarPanel
+              title="Per fonte"
+              items={sourceCounts(scopedLeads)}
+              emptyLabel="Nessuna fonte indicata."
+            />
+            <BarPanel
+              title="Lead per PR"
+              items={leadsByPr}
+              showPercent
+              emptyLabel="Nessun lead attribuito a un PR."
+            />
+          </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
             <ConversionPanel
@@ -306,13 +319,11 @@ export function DataDashboard({
               rows={convBySource}
               emptyLabel="Nessuna fonte indicata."
             />
-            {manager ? (
-              <ConversionPanel
-                title="Conversione per Capo"
-                rows={convByOwner}
-                emptyLabel="Nessun lead assegnato."
-              />
-            ) : null}
+            <ConversionPanel
+              title="Conversione per PR"
+              rows={convByOwner}
+              emptyLabel="Nessun lead attribuito a un PR."
+            />
           </div>
 
           <Card>
