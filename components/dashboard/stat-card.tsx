@@ -24,9 +24,9 @@ export function StatCard({
   href?: string;
 }) {
   const card = (
-    <Card className={cn("flex flex-col", href && "transition-colors hover:bg-accent/50")}>
+    <Card className={cn("flex flex-col h-40", href && "transition-colors hover:bg-accent/50")}>
       <CardContent className="flex-1 p-4">
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground text-nowrap">
           {label}
         </span>
         <div className="mt-2 flex items-baseline gap-1">
