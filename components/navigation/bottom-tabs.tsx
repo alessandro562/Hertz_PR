@@ -20,7 +20,7 @@ export function BottomTabs({ className }: { className?: string }) {
     <nav
       aria-label="Navigazione principale"
       className={cn(
-        "fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t bg-background pb-[env(safe-area-inset-bottom)]",
+        "fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t bg-background pb-[env(safe-area-inset-bottom)]",
         className,
       )}
     >
