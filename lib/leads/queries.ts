@@ -7,8 +7,9 @@ export type LeadInteraction =
   Database["public"]["Tables"]["lead_interactions"]["Row"];
 
 /**
- * All leads visible to the current user (RLS decides: managers see everything,
- * a Capo PR sees only their own). Filtering/search happens client-side on top.
+ * All leads visible to all authenticated users (RLS allows full visibility).
+ * Edit/delete access is restricted by RLS to owner + manager.
+ * Filtering/search happens client-side on top.
  */
 export async function listLeads(): Promise<Lead[]> {
   const supabase = await createClient();
