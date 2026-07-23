@@ -5,13 +5,12 @@ import { BottomTabs } from "@/components/navigation/bottom-tabs";
 /**
  * Responsive shell: sidebar on desktop (md+), bottom-tab bar on mobile.
  *
- * Mobile: the shell is locked to the REAL device viewport height via the
- * `--app-height` CSS variable (set from visualViewport by an inline script in
- * layout.tsx, before first paint and on every resize/rotate). ONLY <main>
- * scrolls internally; the bottom tab bar is a normal flex child pinned at the
- * end of the column, so it sits at the true bottom of whatever phone opens the
- * app — no first-paint bounce (which raw `100dvh` causes) and no gap (which a
- * static `100svh` leaves). Desktop uses normal document flow.
+ * Mobile: the shell is `fixed inset-0`, so it covers exactly the device viewport
+ * box — no `vh/svh/dvh` height math to under/overshoot and leave a gap. The
+ * bottom tab bar is the last flex child, so it lands on the true bottom edge of
+ * the screen. ONLY <main> scrolls internally, so the browser chrome never
+ * auto-hides mid-scroll and the bar cannot drift or bounce. Desktop (md+) drops
+ * back to normal grid flow with the sidebar.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -23,7 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Salta al contenuto
       </a>
       <Sidebar className="hidden md:flex" />
-      <div className="flex h-[var(--app-height)] flex-col md:h-auto md:min-h-svh">
+      <div className="fixed inset-0 flex flex-col overflow-hidden md:static md:min-h-svh md:overflow-visible">
         <AppHeader />
         <main
           id="main"

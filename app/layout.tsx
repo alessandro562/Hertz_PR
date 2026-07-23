@@ -35,18 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it" suppressHydrationWarning className="h-full antialiased">
-      <body className="min-h-svh bg-background">
-        {/* Set --app-height to the real device viewport BEFORE first paint, then
-            keep it in sync on resize/rotate. Runs synchronously at the top of
-            <body> so the mobile shell is sized correctly on the very first frame
-            — the bottom tab bar lands at the true bottom of every phone, with no
-            first-paint bounce. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){function s(){var h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;document.documentElement.style.setProperty('--app-height',h+'px');}s();window.addEventListener('resize',s);window.addEventListener('orientationchange',s);if(window.visualViewport){window.visualViewport.addEventListener('resize',s);}})();",
-          }}
-        />
+      <body className="bg-background">
         <Providers>{children}</Providers>
         <ServiceWorkerRegister />
       </body>

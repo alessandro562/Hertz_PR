@@ -4,7 +4,7 @@
  * Richer runtime caching can be layered in during Phase 8 (PWA polish).
  * Bump VERSION to invalidate old caches on deploy.
  */
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = `hertz-pr-hub-${VERSION}`;
 const PRECACHE = [
   "/offline.html",
