@@ -134,6 +134,47 @@
     line-height: 0.9;
   }
 
+  /* 3D isometric bar chart (Dati comparisons). Depth is faked with two skewed
+     pseudo-faces in lighter/darker sage — genuine 3D read, brand palette only,
+     no library. `--bar3d-d` = extrusion depth. */
+  .chart3d {
+    display: flex;
+    align-items: flex-end;
+    gap: calc(var(--bar3d-d) + 20px);
+    overflow-x: auto;
+    scrollbar-width: none;
+    --bar3d-d: 13px;
+  }
+  .chart3d::-webkit-scrollbar { display: none; }
+  .bar3d {
+    position: relative;
+    width: 38px;
+    flex: 0 0 auto;
+    background: var(--color-sage-400);
+  }
+  .bar3d::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    height: var(--bar3d-d);
+    background: var(--color-sage-300);
+    transform: skewX(-45deg);
+    transform-origin: bottom left;
+  }
+  .bar3d::after {
+    content: "";
+    position: absolute;
+    top: calc(-1 * var(--bar3d-d));
+    left: 100%;
+    height: 100%;
+    width: var(--bar3d-d);
+    background: var(--color-sage-600);
+    transform: skewY(-45deg);
+    transform-origin: top left;
+  }
+
   /* Light theme (day / print). Add class="light" on <html>. */
   .light {
     --color-background: #f4f5f1;

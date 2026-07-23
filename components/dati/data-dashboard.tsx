@@ -19,6 +19,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/performance/trend-chart";
 import { BarPanel } from "./bar-panel";
+import { Bar3D } from "./bar-3d";
 import { ConversionFunnel } from "./conversion-funnel";
 import { ConversionPanel } from "./conversion-panel";
 import {
@@ -291,8 +292,8 @@ export function DataDashboard({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <BarPanel title="Per tipo" items={leadTypeCounts(scopedLeads)} showPercent />
-            <BarPanel
+            <Bar3D title="Per tipo" items={leadTypeCounts(scopedLeads)} showPercent />
+            <Bar3D
               title="Per etichetta"
               items={tagCounts(scopedLeads)}
               emptyLabel="Nessuna etichetta assegnata."
@@ -300,12 +301,12 @@ export function DataDashboard({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <BarPanel
+            <Bar3D
               title="Per fonte"
               items={sourceCounts(scopedLeads)}
               emptyLabel="Nessuna fonte indicata."
             />
-            <BarPanel
+            <Bar3D
               title="Lead per PR"
               items={leadsByPr}
               showPercent
