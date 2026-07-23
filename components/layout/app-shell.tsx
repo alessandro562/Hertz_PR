@@ -5,13 +5,13 @@ import { BottomTabs } from "@/components/navigation/bottom-tabs";
 /**
  * Responsive shell: sidebar on desktop (md+), bottom-tab bar on mobile.
  *
- * Mobile: the shell is locked to the SMALL viewport height (h-svh) and ONLY
- * <main> scrolls internally. The bottom tab bar is a normal flex child pinned at
- * the end of the column, so it is structurally glued to the bottom. `svh` (not
- * `dvh`) is deliberate: `svh` is a stable value that never gets recalculated, so
- * the bar cannot "rise then settle" on first paint the way `dvh` does when the
- * browser re-measures the dynamic viewport. In a standalone PWA svh == full
- * screen (no toolbar), so there is no bottom gap. Desktop uses normal flow.
+ * Mobile: the shell is locked to the REAL device viewport height via the
+ * `--app-height` CSS variable (set from visualViewport by an inline script in
+ * layout.tsx, before first paint and on every resize/rotate). ONLY <main>
+ * scrolls internally; the bottom tab bar is a normal flex child pinned at the
+ * end of the column, so it sits at the true bottom of whatever phone opens the
+ * app — no first-paint bounce (which raw `100dvh` causes) and no gap (which a
+ * static `100svh` leaves). Desktop uses normal document flow.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Salta al contenuto
       </a>
       <Sidebar className="hidden md:flex" />
-      <div className="flex h-svh flex-col md:h-auto md:min-h-svh">
+      <div className="flex h-[var(--app-height)] flex-col md:h-auto md:min-h-svh">
         <AppHeader />
         <main
           id="main"

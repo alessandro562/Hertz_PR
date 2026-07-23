@@ -97,6 +97,13 @@
 
   html { -webkit-text-size-adjust: 100%; }
 
+  /* Exact device viewport height for the mobile app-shell. An inline script in
+     layout.tsx overwrites this with the real visualViewport height before first
+     paint (and on resize/rotate), so the bottom tab bar sits at the true bottom
+     of THIS device without the first-paint bounce `100dvh` causes. `100svh` is
+     just the pre-JS fallback (stable, never larger than the screen). */
+  :root { --app-height: 100svh; }
+
   body {
     background: var(--color-background);
     color: var(--color-foreground);
