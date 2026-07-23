@@ -20,10 +20,10 @@ export function BottomTabs({ className }: { className?: string }) {
     <nav
       aria-label="Navigazione principale"
       className={cn(
-        // Small, capped bottom padding instead of the full safe-area inset, so
-        // the icons sit as low as possible on the device without a big reserved
-        // strip underneath. max() keeps a hair of clearance on notched phones.
-        "grid shrink-0 grid-cols-5 border-t bg-background pb-[max(0.25rem,calc(env(safe-area-inset-bottom)_-_1.25rem))]",
+        // No safe-area padding: the icons sit at the very bottom edge of the
+        // shell. This is the lowest the bar can go via CSS; any residual strip
+        // below is the OS home-indicator area the standalone frame reserves.
+        "grid shrink-0 grid-cols-5 border-t bg-background",
         className,
       )}
     >

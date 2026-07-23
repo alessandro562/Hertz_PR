@@ -18,7 +18,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/performance/trend-chart";
-import { BarPanel } from "./bar-panel";
 import { Bar3D } from "./bar-3d";
 import { ConversionFunnel } from "./conversion-funnel";
 import { ConversionPanel } from "./conversion-panel";
@@ -348,11 +347,11 @@ export function DataDashboard({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <BarPanel title="Per livello" items={collabByLevel(scopedCollabs)} showPercent />
-            <BarPanel title="Per stato" items={collabByStatus(scopedCollabs)} showPercent />
+            <Bar3D title="Per livello" items={collabByLevel(scopedCollabs)} showPercent />
+            <Bar3D title="Per stato" items={collabByStatus(scopedCollabs)} showPercent />
           </div>
 
-          {manager ? <BarPanel title="PR per Capo" items={collabByCapo} /> : null}
+          {manager ? <Bar3D title="PR per Capo" items={collabByCapo} /> : null}
         </div>
       ) : null}
 
@@ -364,7 +363,7 @@ export function DataDashboard({
             <StatCard label="Media per evento" value={perfKpis.avg} unit="pt" />
           </div>
 
-          <BarPanel
+          <Bar3D
             title="Classifica Capi PR"
             items={capoRanking}
             unit="pt"
