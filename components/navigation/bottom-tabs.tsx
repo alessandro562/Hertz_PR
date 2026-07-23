@@ -39,7 +39,7 @@ export function BottomTabs({ className }: { className?: string }) {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors",
+              "flex flex-col items-center justify-center gap-1 pt-2 pb-1 text-[11px] font-medium transition-colors",
               active ? "text-primary" : "text-muted-foreground",
             )}
           >
