@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/performance/trend-chart";
-import { Bar3D } from "./bar-3d";
+import { ColumnChart } from "./column-chart";
 import { ConversionFunnel } from "./conversion-funnel";
 import { ConversionPanel } from "./conversion-panel";
 import {
@@ -291,8 +291,8 @@ export function DataDashboard({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <Bar3D title="Per tipo" items={leadTypeCounts(scopedLeads)} showPercent />
-            <Bar3D
+            <ColumnChart title="Per tipo" items={leadTypeCounts(scopedLeads)} showPercent />
+            <ColumnChart
               title="Per etichetta"
               items={tagCounts(scopedLeads)}
               emptyLabel="Nessuna etichetta assegnata."
@@ -300,12 +300,12 @@ export function DataDashboard({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <Bar3D
+            <ColumnChart
               title="Per fonte"
               items={sourceCounts(scopedLeads)}
               emptyLabel="Nessuna fonte indicata."
             />
-            <Bar3D
+            <ColumnChart
               title="Lead per PR"
               items={leadsByPr}
               showPercent
@@ -347,11 +347,11 @@ export function DataDashboard({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <Bar3D title="Per livello" items={collabByLevel(scopedCollabs)} showPercent />
-            <Bar3D title="Per stato" items={collabByStatus(scopedCollabs)} showPercent />
+            <ColumnChart title="Per livello" items={collabByLevel(scopedCollabs)} showPercent />
+            <ColumnChart title="Per stato" items={collabByStatus(scopedCollabs)} showPercent />
           </div>
 
-          {manager ? <Bar3D title="PR per Capo" items={collabByCapo} /> : null}
+          {manager ? <ColumnChart title="PR per Capo" items={collabByCapo} /> : null}
         </div>
       ) : null}
 
@@ -363,7 +363,7 @@ export function DataDashboard({
             <StatCard label="Media per evento" value={perfKpis.avg} unit="pt" />
           </div>
 
-          <Bar3D
+          <ColumnChart
             title="Classifica Capi PR"
             items={capoRanking}
             unit="pt"
