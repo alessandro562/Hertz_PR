@@ -5,11 +5,13 @@ import { BottomTabs } from "@/components/navigation/bottom-tabs";
 /**
  * Responsive shell: sidebar on desktop (md+), bottom-tab bar on mobile.
  *
- * Mobile: the shell is locked to the exact dynamic viewport height (h-dvh) and
- * ONLY <main> scrolls internally. The bottom tab bar is a normal flex child
- * pinned at the end of the column, so it is structurally glued to the bottom —
- * it can never "rise" or drift when the browser toolbar shows/hides (the classic
- * `position: fixed` iOS bug). Desktop falls back to normal document flow.
+ * Mobile: the shell is locked to the SMALL viewport height (h-svh) and ONLY
+ * <main> scrolls internally. The bottom tab bar is a normal flex child pinned at
+ * the end of the column, so it is structurally glued to the bottom. `svh` (not
+ * `dvh`) is deliberate: `svh` is a stable value that never gets recalculated, so
+ * the bar cannot "rise then settle" on first paint the way `dvh` does when the
+ * browser re-measures the dynamic viewport. In a standalone PWA svh == full
+ * screen (no toolbar), so there is no bottom gap. Desktop uses normal flow.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -21,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Salta al contenuto
       </a>
       <Sidebar className="hidden md:flex" />
-      <div className="flex h-dvh flex-col md:h-auto md:min-h-svh">
+      <div className="flex h-svh flex-col md:h-auto md:min-h-svh">
         <AppHeader />
         <main
           id="main"
