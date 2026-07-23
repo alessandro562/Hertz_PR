@@ -134,45 +134,93 @@
     line-height: 0.9;
   }
 
-  /* 3D isometric bar chart (Dati comparisons). Depth is faked with two skewed
-     pseudo-faces in lighter/darker sage — genuine 3D read, brand palette only,
-     no library. `--bar3d-d` = extrusion depth. */
-  .chart3d {
+  /* 3D perspective bar chart (Dati comparisons). Real extruded boxes: a lit top
+     face, a shadowed side, a gradient front, grounded by a floor shadow and a
+     staggered grow-in. Brand sage only, GPU-composited CSS (no WebGL, so many
+     charts on one page stay cheap). `--c3d-d` = extrusion depth. */
+  .chart3d-scroll { overflow-x: auto; scrollbar-width: none; }
+  .chart3d-scroll::-webkit-scrollbar { display: none; }
+  .chart3d-scene {
+    perspective: 1300px;
+    perspective-origin: 50% 32%;
+    padding-top: 34px;
+  }
+  .chart3d-stage {
+    --c3d-d: 22px;
+    width: max-content;
+    margin-inline: auto;
     display: flex;
     align-items: flex-end;
-    gap: calc(var(--bar3d-d) + 20px);
-    overflow-x: auto;
-    scrollbar-width: none;
-    --bar3d-d: 13px;
+    gap: 34px;
+    height: 220px;
+    padding: 0 30px;
+    transform-style: preserve-3d;
+    transform: rotateX(24deg) rotateY(-26deg);
   }
-  .chart3d::-webkit-scrollbar { display: none; }
-  .bar3d {
+  .c3d-bar {
     position: relative;
-    width: 38px;
-    flex: 0 0 auto;
-    background: var(--color-sage-400);
+    width: 44px;
+    transform-origin: bottom center;
+    transform-style: preserve-3d;
+    animation: c3d-grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-  .bar3d::before {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    width: 100%;
-    height: var(--bar3d-d);
-    background: var(--color-sage-300);
-    transform: skewX(-45deg);
-    transform-origin: bottom left;
+  @keyframes c3d-grow { from { transform: scaleY(0.02); } to { transform: scaleY(1); } }
+  .c3d-face { position: absolute; }
+  .c3d-front {
+    inset: 0;
+    background: linear-gradient(180deg, var(--color-sage-400), var(--color-sage-500));
+    transform: translateZ(calc(var(--c3d-d) / 2));
+    box-shadow: inset 2px 0 0 rgba(255, 255, 255, 0.14),
+      inset -2px 0 0 rgba(0, 0, 0, 0.12);
   }
-  .bar3d::after {
-    content: "";
-    position: absolute;
-    top: calc(-1 * var(--bar3d-d));
-    left: 100%;
+  .c3d-right {
+    top: 0;
+    right: 0;
+    width: var(--c3d-d);
     height: 100%;
-    width: var(--bar3d-d);
-    background: var(--color-sage-600);
-    transform: skewY(-45deg);
-    transform-origin: top left;
+    background: linear-gradient(180deg, var(--color-sage-600), var(--color-sage-700));
+    transform-origin: right center;
+    transform: rotateY(90deg) translateZ(calc(var(--c3d-d) / 2));
+  }
+  .c3d-top {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: var(--c3d-d);
+    background: linear-gradient(180deg, var(--color-sage-200), var(--color-sage-300));
+    transform-origin: top center;
+    transform: rotateX(90deg) translateZ(calc(var(--c3d-d) / 2));
+  }
+  .c3d-shadow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    width: 120%;
+    height: 20px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55), transparent 70%);
+    transform: translateX(-50%) rotateX(90deg);
+    filter: blur(2px);
+  }
+  .c3d-val {
+    position: absolute;
+    left: 50%;
+    top: -30px;
+    transform: translateX(-50%) translateZ(calc(var(--c3d-d) / 2));
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    font-size: 16px;
+    white-space: nowrap;
+  }
+  .chart3d-labels {
+    width: max-content;
+    margin-inline: auto;
+    display: flex;
+    gap: 34px;
+    padding: 12px 30px 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .c3d-bar { animation: none; }
   }
 
   /* Light theme (day / print). Add class="light" on <html>. */

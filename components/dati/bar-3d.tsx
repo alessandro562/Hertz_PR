@@ -2,15 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { CountItem } from "@/lib/analytics";
 
 /** Tallest column, in px. Bars scale relative to the largest value. */
-const MAX_H = 148;
-const MIN_H = 6;
+const MAX_H = 168;
+const MIN_H = 14;
 
 /**
- * 3D isometric bar chart — a drop-in alternative to <BarPanel> for the "confronto"
- * breakdowns in Dati. Same props/shape (title + CountItem[]), but renders extruded
- * sage columns (see `.chart3d` / `.bar3d` in globals.css) with the value on top and
- * the label below. Scrolls horizontally when there are many categories. Pass items
- * already in the order you want; this never re-sorts.
+ * 3D perspective bar chart — the "confronto" breakdowns in Dati. Same API as the
+ * old flat panel (title + CountItem[]), but each column is a real extruded box
+ * (lit top, shadowed side, gradient front — see `.chart3d-*` in globals.css),
+ * grounded by a floor shadow and staggered grow-in. Value floats on top; name/%
+ * sit on a flat row below so they stay readable. Scrolls horizontally when the
+ * columns are wider than the card. Pass items already ordered; never re-sorts.
  */
 export function Bar3D({
   title,
@@ -38,34 +39,49 @@ export function Bar3D({
         {!hasData ? (
           <p className="py-4 text-sm text-muted-foreground">{emptyLabel}</p>
         ) : (
-          <div className="chart3d pl-1 pr-4 pt-8" style={{ minHeight: MAX_H + 64 }}>
-            {items.map((i) => {
-              const h = Math.round((i.count / max) * MAX_H) + MIN_H;
-              const pct = total > 0 ? Math.round((i.count / total) * 100) : 0;
-              return (
-                <div key={i.key} className="flex shrink-0 flex-col items-center gap-2">
-                  <span className="num text-sm leading-none">
-                    {i.count}
-                    {unit ? (
-                      <span className="ml-0.5 text-xs font-medium text-muted-foreground">
-                        {unit}
+          <div className="chart3d-scroll">
+            <div className="chart3d-scene">
+              <div className="chart3d-stage">
+                {items.map((i, idx) => {
+                  const h = Math.round((i.count / max) * MAX_H) + MIN_H;
+                  return (
+                    <div
+                      key={i.key}
+                      className="c3d-bar"
+                      style={{ height: h, animationDelay: `${idx * 70}ms` }}
+                    >
+                      <div className="c3d-face c3d-top" />
+                      <div className="c3d-face c3d-right" />
+                      <div className="c3d-face c3d-front" />
+                      <div className="c3d-shadow" />
+                      <span className="c3d-val">
+                        {i.count}
+                        {unit ? (
+                          <span className="ml-0.5 text-xs font-medium text-muted-foreground">
+                            {unit}
+                          </span>
+                        ) : null}
                       </span>
-                    ) : null}
-                  </span>
-                  <div className="bar3d" style={{ height: h, marginTop: 14 }} aria-hidden />
-                  <div className="flex flex-col items-center">
-                    <span className="max-w-[68px] truncate text-xs text-foreground">
-                      {i.label}
-                    </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="chart3d-labels">
+              {items.map((i) => {
+                const pct = total > 0 ? Math.round((i.count / total) * 100) : 0;
+                return (
+                  <div key={i.key} className="w-11 shrink-0 text-center">
+                    <div className="truncate text-xs text-foreground">{i.label}</div>
                     {showPercent ? (
-                      <span className="text-[11px] text-muted-foreground tabular-nums">
+                      <div className="text-[11px] tabular-nums text-muted-foreground">
                         {pct}%
-                      </span>
+                      </div>
                     ) : null}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         )}
       </CardContent>
